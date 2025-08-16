@@ -297,20 +297,11 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
 
     # WhatsApp URL
     url = f"https://wa.me/{to_digits}?text={urllib.parse.quote(message)}"
-
-    try:
-        # Try to open browser if running locally
-        if sys.platform in ["win32", "darwin", "linux"]:
-            webbrowser.open(url)  
-            st.success("WhatsApp Web opened in your browser. Make sure you are logged in there.")
-        else:
-            # Fallback for hosted apps (Streamlit Cloud, servers)
-            st.info(f"[Click here to open WhatsApp and send the message]({url})")
-
-        return True
-    except Exception as e:
-        st.error(f"WhatsApp send error: {e}")
-        return False
+    
+    # Display a clickable link for the user
+    st.markdown(f'<a href="{url}" target="_blank">Click here to send WhatsApp message</a>', unsafe_allow_html=True)
+    
+    return True
 
 def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
     ensure_orders_dir()
@@ -479,17 +470,8 @@ with col2:
                 if not st.session_state.cust_phone:
                     st.warning("Customer phone is empty — cannot send WhatsApp.")
                 else:
-                    # Inform user about the browser requirement
-                    st.info(
-                        "WhatsApp Web will open in your default browser. "
-                        "Make sure you are logged into WhatsApp Web on that browser. "
-                        "If running the Streamlit app on a remote server, WhatsApp Web must be accessible from that machine."
-                    )
-                    ok_wa = send_whatsapp_message(st.session_state.cust_phone, order_id, subtotal, tax, grand_total)
-                    if ok_wa:
-                        st.success(f"WhatsApp message opened for {only_digits(st.session_state.cust_phone)}")
-                    else:
-                        st.warning("WhatsApp send failed — check phone number and ensure WhatsApp Web is logged in.")
+                    st.info("Click the link below to send the order details via WhatsApp.")
+                    send_whatsapp_message(st.session_state.cust_phone, order_id, subtotal, tax, grand_total)
 
             if not (send_email or send_whatsapp):
                 st.info("Order logged. Select Email or WhatsApp to send the receipt.")
@@ -498,46 +480,6 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
-        
-        # --- AUTO OPEN BROWSER (Only once) ---
-import streamlit as st
-import webbrowser
-import threading
-
-import subprocess
-import webbrowser
-import requests
-import time
-import sys
-import os
-
-# Path to your Streamlit app
-script_path = os.path.join(os.getcwd(), "app.py")  # replace with your file name
-
-# Start Streamlit in a subprocess
-process = subprocess.Popen([sys.executable, "-m", "streamlit", "run", script_path],
-                           stdout=subprocess.PIPE,
-                           stderr=subprocess.PIPE)
-
-# Streamlit default URL
-url = "http://localhost:8501"
-
-# Wait until the Streamlit server is up
-while True:
-    try:
-        response = requests.get(url)
-        if response.status_code == 200:
-            break
-    except requests.exceptions.ConnectionError:
-        pass
-    time.sleep(1)  # check every second
-
-
-
-# Optional: wait for the Streamlit process to exit
-process.wait()
-
-    # Prevents it from running repeatedly on refresh
 
 # =========================
 # NOTE / USAGE
