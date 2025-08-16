@@ -267,13 +267,23 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
 # =========================
 # NEW WHATSAPP FUNCTION
 # =========================
+import urllib.parse
+import webbrowser
+import streamlit as st
+import sys
+
 def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, tax: float, grand_total: float) -> bool:
-    to_digits = only_digits(to_number_raw)
+    # Clean phone number (digits only)
+    to_digits = "".join([c for c in str(to_number_raw) if c.isdigit()])
     if not to_digits:
         st.error("Invalid customer phone for WhatsApp.")
         return False
 
-    items_str = "\n".join([f"- {i['item']} ({i['size']}): ₹{i['price']:.2f}" for i in st.session_state.bill])
+    # Build message
+    items_str = "\n".join([
+        f"- {i['item']} ({i['size']}): ₹{i['price']:.2f}"
+        for i in st.session_state.bill
+    ])
     message = (
         f"Thank you for your order from Dhaliwal's Food Court!\n\n"
         f"*Order ID:* {order_id}\n"
@@ -285,10 +295,18 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
         f"We hope you enjoy your meal!"
     )
 
+    # WhatsApp URL
+    url = f"https://wa.me/{to_digits}?text={urllib.parse.quote(message)}"
+
     try:
-        url = f"https://web.whatsapp.com/send?phone={to_digits}&text={urllib.parse.quote(message)}"
-        webbrowser.open(url)
-        time.sleep(10)  # wait for WhatsApp Web to load
+        # Try to open browser if running locally
+        if sys.platform in ["win32", "darwin", "linux"]:
+            webbrowser.open(url)  
+            st.success("WhatsApp Web opened in your browser. Make sure you are logged in there.")
+        else:
+            # Fallback for hosted apps (Streamlit Cloud, servers)
+            st.info(f"[Click here to open WhatsApp and send the message]({url})")
+
         return True
     except Exception as e:
         st.error(f"WhatsApp send error: {e}")
@@ -542,3 +560,4 @@ process.wait()
 #       streamlit run pos_app.py
 #
 # That's it — WhatsApp sending is now implemented without pywhatkit.
+
