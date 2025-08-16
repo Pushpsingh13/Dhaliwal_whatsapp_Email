@@ -5,7 +5,6 @@ import requests
 import time
 import urllib.parse
 import webbrowser
-import pyautogui  # pip install pyautogui
 from io import BytesIO
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -268,7 +267,7 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
 # =========================
 # NEW WHATSAPP FUNCTION
 # =========================
-def send_whatsapp_message(to_number_raw: str, order_id: str, grand_total: float) -> bool:
+def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, tax: float, grand_total: float) -> bool:
     to_digits = only_digits(to_number_raw)
     if not to_digits:
         st.error("Invalid customer phone for WhatsApp.")
@@ -280,8 +279,8 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, grand_total: float)
         f"*Order ID:* {order_id}\n"
         f"*Date:* {datetime.now().strftime('%d %b %Y %H:%M')}\n\n"
         f"*Items:*\n{items_str}\n\n"
-        f"*subtotal:*\n{subtotal}\n\n"
-        f"*Tax:*\n{tax}\n\n"
+        f"*Subtotal:* ₹{subtotal:.2f}\n"
+        f"*Tax:* ₹{tax:.2f}\n"
         f"*Grand Total:* ₹{grand_total:.2f}\n\n"
         f"We hope you enjoy your meal!"
     )
@@ -290,7 +289,6 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, grand_total: float)
         url = f"https://web.whatsapp.com/send?phone={to_digits}&text={urllib.parse.quote(message)}"
         webbrowser.open(url)
         time.sleep(10)  # wait for WhatsApp Web to load
-        pyautogui.press("enter")
         return True
     except Exception as e:
         st.error(f"WhatsApp send error: {e}")
@@ -469,7 +467,7 @@ with col2:
                         "Make sure you are logged into WhatsApp Web on that browser. "
                         "If running the Streamlit app on a remote server, WhatsApp Web must be accessible from that machine."
                     )
-                    ok_wa = send_whatsapp_message(st.session_state.cust_phone, order_id, grand_total)
+                    ok_wa = send_whatsapp_message(st.session_state.cust_phone, order_id, subtotal, tax, grand_total)
                     if ok_wa:
                         st.success(f"WhatsApp message opened for {only_digits(st.session_state.cust_phone)}")
                     else:
