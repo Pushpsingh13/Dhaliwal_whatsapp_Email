@@ -560,4 +560,3 @@ process.wait()
 #       streamlit run pos_app.py
 #
 # That's it — WhatsApp sending is now implemented without pywhatkit.
-
