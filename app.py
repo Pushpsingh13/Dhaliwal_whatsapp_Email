@@ -32,59 +32,37 @@ except ImportError:
 # =========================
 st.set_page_config(page_title="Dhaliwal's Food Court POS", layout="wide")
 
+img = ""
 try:
     with open("Dhaliwal Food Court.png", "rb") as f:
         img = base64.b64encode(f.read()).decode()
-    
-    st.markdown(
-        f"""
-    <style>
-    body {{
-        font-size: 16px;
-        color: white;
-    }}
-    .stApp {{
-        background-image: url("data:image/png;base64,{img}");
-        background-size: cover;
-    }}
-    .main {{ background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px;}}
-    .title {{ font-size: 34px; font-weight: 800; color: white; margin-bottom: 6px; }}
-    .menu-card {{ padding: 15px; border-radius: 12px; background: rgba(0, 0, 0, 0.5); text-align: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }}
-    .menu-item-name {{
-        color: white;
-        font-size: 1.2em;
-        font-weight: bold;
-    }}
-    hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
-    </style>
-    """,
-        unsafe_allow_html=True,
-    )
 except FileNotFoundError:
-    st.markdown(
-        f"""
-    <style>
-    body {{
-        font-size: 16px;
-        color: white;
-    }}
-    .stApp {{
-        background-image: url("data:image/png;base64,{img}");
-        background-size: cover;
-    }}
-    .main {{ background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px;}}
-    .title {{ font-size: 34px; font-weight: 800; color: white; margin-bottom: 6px; }}
-    .menu-card {{ padding: 15px; border-radius: 12px; background: rgba(0, 0, 0, 0.5); text-align: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }}
-    .menu-item-name {{
-        color: white;
-        font-size: 1.2em;
-        font-weight: bold;
-    }}
-    hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
-    </style>
-    """,
-        unsafe_allow_html=True,
-    )
+    pass
+
+st.markdown(
+    f"""
+<style>
+body {{
+    font-size: 16px;
+    color: White;
+}}
+.stApp {{
+    background-image: url("data:image/png;base64,{img}");
+    background-size: cover;
+}}
+.main {{ background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px;}}
+.title {{ font-size: 34px; font-weight: 800; color White; margin-bottom: 6px; }}
+.menu-card {{ padding: 15px; border-radius: 12px; background: rgba(0, 0, 0, 0.5); text-align: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }}
+.menu-item-name {{
+    color: White;
+    font-size: 1.2em;
+    font-weight: bold;
+}}
+hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
+</style>
+""",
+    unsafe_allow_html=True,
+)
 
 # =========================
 # CONFIG
