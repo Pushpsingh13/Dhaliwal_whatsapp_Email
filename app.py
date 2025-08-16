@@ -495,9 +495,7 @@ with col2:
                 st.info("Order logged. Select Email or WhatsApp to send the receipt.")
 
         # Clear
-        if st.button("Clear Bill"):
-            clear_bill()
-            st.rerun()
+        st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
         
