@@ -5,6 +5,7 @@ import requests
 import time
 import urllib.parse
 import webbrowser
+import base64
 from io import BytesIO
 from datetime import datetime
 from email.mime.multipart import MIMEMultipart
@@ -14,9 +15,6 @@ from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 import threading
-import streamlit as st
-
-
 
 # ReportLab for PDF
 canvas = None
@@ -28,6 +26,65 @@ try:
     MM = mm_
 except ImportError:
     pass
+
+# =========================
+# PAGE CONFIG & STYLING
+# =========================
+st.set_page_config(page_title="Dhaliwal's Food Court POS", layout="wide")
+
+try:
+    with open("Dhaliwal Food Court.png", "rb") as f:
+        img = base64.b64encode(f.read()).decode()
+    
+    st.markdown(
+        f"""
+    <style>
+    body {{
+        font-size: 16px;
+        color: white;
+    }}
+    .stApp {{
+        background-image: url("data:image/png;base64,{img}");
+        background-size: cover;
+    }}
+    .main {{ background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px;}}
+    .title {{ font-size: 34px; font-weight: 800; color: white; margin-bottom: 6px; }}
+    .menu-card {{ padding: 15px; border-radius: 12px; background: rgba(0, 0, 0, 0.5); text-align: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }}
+    .menu-item-name {{
+        color: white;
+        font-size: 1.2em;
+        font-weight: bold;
+    }}
+    hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )
+except FileNotFoundError:
+    st.markdown(
+        f"""
+    <style>
+    body {{
+        font-size: 16px;
+        color: white;
+    }}
+    .stApp {{
+        background-image: url("data:image/png;base64,{img}");
+        background-size: cover;
+    }}
+    .main {{ background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px;}}
+    .title {{ font-size: 34px; font-weight: 800; color: white; margin-bottom: 6px; }}
+    .menu-card {{ padding: 15px; border-radius: 12px; background: rgba(0, 0, 0, 0.5); text-align: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }}
+    .menu-item-name {{
+        color: white;
+        font-size: 1.2em;
+        font-weight: bold;
+    }}
+    hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
+    </style>
+    """,
+        unsafe_allow_html=True,
+    )
 
 # =========================
 # CONFIG
@@ -60,23 +117,11 @@ _defaults = {
     "smtp_port": DEFAULT_SMTP_PORT,
     "sender_email": DEFAULT_SENDER_EMAIL,
     "sender_password": DEFAULT_SENDER_PASSWORD,
+    "uploaded_menu_file": None,
 }
 for k, v in _defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
-
-st.set_page_config(page_title="Dhaliwal's Food Court POS", layout="wide")
-st.markdown(
-    """
-<style>
-.main { background: #fffaf0; padding: 20px; }
-.title { font-size: 34px; font-weight: 800; color: #2c2c2c; margin-bottom: 6px; }
-.menu-card { padding: 15px; border-radius: 12px; background: white; text-align: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }
-hr { border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }
-</style>
-""",
-    unsafe_allow_html=True,
-)
 
 def clean_text(txt):
     if not txt:
@@ -105,19 +150,26 @@ def create_default_menu():
     )
     df.to_excel(MENU_EXCEL, index=False, engine="openpyxl")
 
-def load_menu():
+def load_menu(uploaded_file=None):
     try:
-        if not os.path.exists(MENU_EXCEL):
+        source = None
+        if uploaded_file:
+            source = uploaded_file
+        elif os.path.exists(MENU_EXCEL):
+            source = MENU_EXCEL
+        else:
             create_default_menu()
-        df = pd.read_excel(MENU_EXCEL, engine="openpyxl")
-        for col in ["Item", "Half", "Full"]:
+            source = MENU_EXCEL
+        
+        df = pd.read_excel(source, engine="openpyxl")
+        
+        for col in ["Item", "Half", "Full", "Image"]:
             if col not in df.columns:
-                raise ValueError("Excel must have 'Item', 'Half', and 'Full' columns")
-        if "Image" not in df.columns:
-            df["Image"] = ""
+                raise ValueError("Excel must have 'Item', 'Half', 'Full' and 'Image' columns")
         df["Half"] = pd.to_numeric(df["Half"], errors="coerce").fillna(0)
         df["Full"] = pd.to_numeric(df["Full"], errors="coerce").fillna(0)
         df["Item"] = df["Item"].fillna("").astype(str)
+        df["Image"] = df["Image"].fillna("").astype(str)
         return df
     except Exception as e:
         st.error(f"Error loading menu: {e}")
@@ -264,28 +316,22 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
         st.error(f"Failed to send email: {e}")
         return False
 
-# =========================
-# NEW WHATSAPP FUNCTION
-# =========================
-import urllib.parse
-import webbrowser
-import streamlit as st
-import sys
-
 def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, tax: float, grand_total: float) -> bool:
-    # Clean phone number (digits only)
     to_digits = "".join([c for c in str(to_number_raw) if c.isdigit()])
     if not to_digits:
         st.error("Invalid customer phone for WhatsApp.")
         return False
 
-    # Build message
     items_str = "\n".join([
         f"- {i['item']} ({i['size']}): ₹{i['price']:.2f}"
         for i in st.session_state.bill
     ])
+    
+    customer_name = st.session_state.get("cust_name", "").strip()
+    cust_name_str = f"Hello {customer_name},\n\n" if customer_name else ""
+
     message = (
-        f"Thank you for your order from Dhaliwal's Food Court!\n\n"
+        f"{cust_name_str}Thank you for your order from Dhaliwal's Food Court!\n\n"
         f"*Order ID:* {order_id}\n"
         f"*Date:* {datetime.now().strftime('%d %b %Y %H:%M')}\n\n"
         f"*Items:*\n{items_str}\n\n"
@@ -295,10 +341,8 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
         f"We hope you enjoy your meal!"
     )
 
-    # WhatsApp URL
     url = f"https://wa.me/{to_digits}?text={urllib.parse.quote(message)}"
     
-    # Display a clickable link for the user
     st.markdown(f'<a href="{url}" target="_blank">Click here to send WhatsApp message</a>', unsafe_allow_html=True)
     
     return True
@@ -331,7 +375,7 @@ def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: 
     except Exception as e:
         st.warning(f"Could not log order to Excel ({path}): {e}")
 
-menu_df = load_menu()
+menu_df = load_menu(st.session_state.uploaded_menu_file)
 st.markdown('<p class="title">Dhaliwal\'s Food Court POS</p>', unsafe_allow_html=True)
 st.markdown("*Date:* " + datetime.now().strftime("%d %b %Y %H:%M"))
 st.write("---")
@@ -342,6 +386,13 @@ with st.sidebar:
 
     if password == ADMIN_PASSWORD:
         st.success("Logged in as Admin")
+
+        st.subheader("Upload Menu")
+        uploaded_menu_file = st.file_uploader("Upload DhalisMenu.xlsx", type=["xlsx"])
+        if uploaded_menu_file is not None:
+            st.session_state.uploaded_menu_file = uploaded_menu_file
+            st.success("Menu file uploaded.")
+            st.rerun()
 
         st.subheader("Menu Editor")
         edited_df = st.data_editor(menu_df, num_rows="dynamic", use_container_width=True, key="menu_editor")
@@ -382,30 +433,44 @@ with st.sidebar:
     elif password:
         st.error("Incorrect password")
 
-col1, col2 = st.columns([2, 1], gap="large")
+col1, col2 = st.columns([3, 1], gap="large")
 
 with col1:
-    st.header("Menu")
+    st.header("🍴 Dhaliwal's Food Court Menu")
+
     if not menu_df.empty:
-        num_columns = 3
-        cols = st.columns(num_columns)
-        for idx in menu_df.index:
-            row = menu_df.loc[idx]
-            with cols[idx % num_columns]:
-                image_path = row["Image"] if "Image" in row and pd.notna(row["Image"]) and str(row["Image"]).strip() else None
-                if image_path and os.path.exists(image_path):
-                    st.image(image_path, use_column_width=True)
+        # Display menu in a grid (3 items per row)
+        cols_per_row = 3
+        for i in range(0, len(menu_df), cols_per_row):
+            cols = st.columns(cols_per_row)
+            for idx, col in enumerate(cols):
+                if i + idx < len(menu_df):
+                    row = menu_df.iloc[i + idx]
+                    item = row["Item"]
+                    half_price = row["Half"]
+                    full_price = row["Full"]
+                    image_path = str(row["Image"]).strip() if pd.notna(row["Image"]) else None
 
-                st.markdown(f'<h4>{row["Item"]}</h4>', unsafe_allow_html=True)
+                    with col:
+                        # Show item image
+                        if image_path and os.path.exists(image_path):
+                            st.image(image_path, width=150)
+                        elif image_path and image_path.startswith("http"):
+                            st.image(image_path, width=150)
 
-                half = float(row.get("Half", 0))
-                full = float(row.get("Full", 0))
-                if half > 0:
-                    if st.button(f"Half - ₹{half:.2f}", key=f"half_{idx}"):
-                        add_to_bill(row["Item"], half, "Half")
-                if full > 0:
-                    if st.button(f"Full - ₹{full:.2f}", key=f"full_{idx}"):
-                        add_to_bill(row["Item"], full, "Full")
+                        # Item name
+                        st.markdown(f"### {item}")
+
+                        # Buttons for Half & Full
+                        col1_btn, col2_btn = st.columns(2)
+                        with col1_btn:
+                            if st.button(f"Half ₹{half_price}", key=f"half_{item}"):
+                                add_to_bill(item, half_price, "Half")
+                                st.success(f"Added {item} (Half)")
+                        with col2_btn:
+                            if st.button(f"Full ₹{full_price}", key=f"full_{item}"):
+                                add_to_bill(item, full_price, "Full")
+                                st.success(f"Added {item} (Full)")
     else:
         st.warning("Menu is empty. Please add items via Admin Panel.")
 
@@ -425,7 +490,6 @@ with col2:
         order_id = datetime.now().strftime("%Y%m%d-%H%M%S")
         pdf_buffer = build_pdf_receipt(order_id)
 
-        # Download receipt
         if pdf_buffer:
             st.download_button(
                 label="Download Receipt PDF",
@@ -434,7 +498,6 @@ with col2:
                 mime="application/pdf",
             )
 
-        # Finalize order (log + email + WhatsApp)
         st.write("---")
         st.subheader("Finalize & Send")
 
@@ -442,17 +505,14 @@ with col2:
         send_whatsapp = st.checkbox("Send Order Details to WhatsApp")
 
         if st.button("Finalize Order (Log + Selected Sends)"):
-            # Compute totals
             subtotal = sum(float(i["price"]) for i in st.session_state.bill)
             tax = subtotal * float(st.session_state.tax_rate) / 100.0
             discount = float(st.session_state.discount)
             grand_total = subtotal + tax - discount
 
-            # Log order
             append_order_to_excel(order_id, subtotal, tax, discount, grand_total)
             st.success(f"Order {order_id} logged.")
 
-            # Email
             if send_email:
                 if not st.session_state.cust_email:
                     st.warning("Customer email is empty — cannot send email.")
@@ -465,7 +525,6 @@ with col2:
                     else:
                         st.warning("Email failed—check SMTP settings.")
 
-            # WhatsApp
             if send_whatsapp:
                 if not st.session_state.cust_phone:
                     st.warning("Customer phone is empty — cannot send WhatsApp.")
@@ -476,27 +535,6 @@ with col2:
             if not (send_email or send_whatsapp):
                 st.info("Order logged. Select Email or WhatsApp to send the receipt.")
 
-        # Clear
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
-
-# =========================
-# NOTE / USAGE
-# =========================
-# 1) This script uses pyautogui + webbrowser to open WhatsApp Web and send a prefilled message.
-#    Install dependencies:
-#       pip install streamlit pandas openpyxl reportlab pyautogui
-#
-# 2) Important operational notes:
-#    - pyautogui simulates keyboard input on the machine where this script runs.
-#      If you run Streamlit on a headless/remote server, pyautogui may not be able to interact with a desktop browser.
-#      For local deployments (your PC), this approach works well: it opens WhatsApp Web in your default browser and
-#      presses Enter to send the prefilled message.
-#    - If you need server-side, reliable messaging without a local browser, consider using Twilio's WhatsApp API
-#      (requires account and API credentials). I can help integrate that if you prefer.
-#
-# 3) Launch:
-#       streamlit run pos_app.py
-#
-# That's it — WhatsApp sending is now implemented without pywhatkit.
