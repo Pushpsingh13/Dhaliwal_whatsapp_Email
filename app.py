@@ -351,33 +351,7 @@ def append_order_to_csv(order_id: str, subtotal: float, tax: float, discount: fl
     except Exception as e:
         st.warning(f"Could not log order to CSV ({path}): {e}")
 
-def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
-    ensure_orders_dir()
-    path = today_orders_path()
-    row = {
-        "Timestamp": datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
-        "OrderID": order_id,
-        "CustomerName": st.session_state.cust_name,
-        "Phone": st.session_state.cust_phone,
-        "Email": st.session_state.cust_email,
-        "Address": st.session_state.cust_addr,
-        "Items": "; ".join([f"{i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
-        "Subtotal": subtotal,
-        "TaxRate%": st.session_state.tax_rate,
-        "TaxAmount": tax,
-        "Discount": discount,
-        "GrandTotal": grand_total,
-    }
 
-    try:
-        if os.path.exists(path):
-            df = pd.read_excel(path, engine="openpyxl")
-            df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
-        else:
-            df = pd.DataFrame([row])
-        df.to_excel(path, index=False, engine="openpyxl")
-    except Exception as e:
-        st.warning(f"Could not log order to Excel ({path}): {e}")
 
 menu_df = load_menu(st.session_state.uploaded_menu_file)
 st.markdown('<p class="title">Dhaliwal\'s Food Court POS</p>', unsafe_allow_html=True)
@@ -426,8 +400,8 @@ with st.sidebar:
         st.subheader("Email Settings (SMTP)")
         st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
         st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
-        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=Ture)
-        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=Ture)
+        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=False)
+        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=False)
 
         st.caption(
             "Tip: Use `.streamlit/secrets.toml` for security:\n"
@@ -542,4 +516,5 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
 
