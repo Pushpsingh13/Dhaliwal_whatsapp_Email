@@ -89,7 +89,7 @@ _defaults = {
     "cust_phone": "",
     "cust_addr": "",
     "cust_email": "",
-    "tax_rate": 18.0,
+    "tax_rate": 5.0,
     "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
@@ -267,6 +267,7 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
     try:
         msg = MIMEMultipart()
         msg["From"] = st.session_state.sender_email
+        recipients = [to_email, st.session_state.sender_email]
         msg["To"] = to_email
         msg["Subject"] = f"Your Dhaliwal's Food Court Bill (Order {order_id})"
 
@@ -287,7 +288,7 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
         server = smtplib.SMTP(st.session_state.smtp_server, st.session_state.smtp_port, timeout=20)
         server.starttls()
         server.login(st.session_state.sender_email, st.session_state.sender_password)
-        server.sendmail(st.session_state.sender_email, to_email, msg.as_string())
+        server.sendmail(st.session_state.sender_email, recipients, msg.as_string())
         server.quit()
         return True
     except Exception as e:
@@ -324,6 +325,31 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
     st.markdown(f'<a href="{url}" target="_blank">Click here to send WhatsApp message</a>', unsafe_allow_html=True)
     
     return True
+
+def append_order_to_csv(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
+    path = "orders.csv"
+    now = datetime.now()
+    row = {
+        "Date": now.strftime("%Y-%m-%d"),
+        "Time": now.strftime("%H:%M:%S"),
+        "OrderID": order_id,
+        "CustomerName": st.session_state.cust_name,
+        "Phone": st.session_state.cust_phone,
+        "Email": st.session_state.cust_email,
+        "Address": st.session_state.cust_addr,
+        "Items": "; ".join([f"{i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
+        "Subtotal": subtotal,
+        "TaxRate%": st.session_state.tax_rate,
+        "TaxAmount": tax,
+        "Discount": discount,
+        "GrandTotal": grand_total,
+    }
+    
+    try:
+        df = pd.DataFrame([row])
+        df.to_csv(path, mode='a', header=not os.path.exists(path), index=False)
+    except Exception as e:
+        st.warning(f"Could not log order to CSV ({path}): {e}")
 
 def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
     ensure_orders_dir()
@@ -400,8 +426,8 @@ with st.sidebar:
         st.subheader("Email Settings (SMTP)")
         st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
         st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
-        st.session_state.sender_email = st.text_input("Sender Email", value=st.session_state.sender_email)
-        st.session_state.sender_password = st.text_input("Sender Password / App Password", type="password", value=st.session_state.sender_password)
+        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=True)
+        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=True)
 
         st.caption(
             "Tip: Use `.streamlit/secrets.toml` for security:\n"
@@ -462,7 +488,7 @@ with col2:
         st.session_state.cust_name = st.text_input("Customer Name", value=st.session_state.cust_name)
         st.session_state.cust_phone = st.text_input("Customer Phone (with country code for WhatsApp)", value=st.session_state.cust_phone, help="e.g., 919876543210")
         st.session_state.cust_email = st.text_input("Customer Email", value=st.session_state.cust_email)
-        st.session_state.cust_addr = st.text_area("Customer Address", value=st.session_state.cust_addr)
+        st.session_state.cust_addr = st.text_input("Customer Address", value=st.session_state.cust_addr)
 
         order_id = datetime.now().strftime("%Y%m%d-%H")
         order_id = datetime.now().strftime("%Y%m%d-%H%M%S")
@@ -488,7 +514,7 @@ with col2:
             discount = float(st.session_state.discount)
             grand_total = subtotal + tax - discount
 
-            append_order_to_excel(order_id, subtotal, tax, discount, grand_total)
+            append_order_to_csv(order_id, subtotal, tax, discount, grand_total)
             st.success(f"Order {order_id} logged.")
 
             if send_email:
