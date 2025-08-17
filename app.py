@@ -84,7 +84,7 @@ def get_secret(key: str, default: str = "") -> str:
 DEFAULT_SMTP_SERVER = get_secret("SMTP_SERVER", "smtp.gmail.com")
 DEFAULT_SMTP_PORT = int(get_secret("SMTP_PORT", "587"))
 DEFAULT_SENDER_EMAIL = get_secret("SENDER_EMAIL", "")
-DEFAULT_SENDER_PASSWORD = get_secret("SENDER_PASSWORD", "")
+DEFAULT_SENDER_PASSWORD = get_secret("SENDER_PASSWORD", "khzx jwld axxv dkey")
 
 _defaults = {
     "bill": [],
@@ -450,7 +450,7 @@ with st.sidebar:
         st.subheader("Email Settings (SMTP)")
         st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
         st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
-        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=True)
+        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=False)
         st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=True)
         st.caption(
             "Tip: Use `.streamlit/secrets.toml` for security:\n"
@@ -584,3 +584,4 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
