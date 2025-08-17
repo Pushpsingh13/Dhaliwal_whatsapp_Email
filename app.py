@@ -327,8 +327,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
     return True
 
 def append_order_to_csv(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
-    ensure_orders_dir()
-    path = os.path.join(ORDERS_DIR, "orders.csv")
+    path = "orders.csv"
     now = datetime.now()
     row = {
         "Date": now.strftime("%Y-%m-%d"),
