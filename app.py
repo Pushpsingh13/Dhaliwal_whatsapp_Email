@@ -451,7 +451,7 @@ with st.sidebar:
         st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
         st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
         st.text_input("Sender Email", value=st.session_state.sender_email, disabled=False)
-        st.text_input("Sender Password / App Password", type="password", value="khzx jwld axxv dkey" if st.session_state.sender_password else "", disabled=True)
+        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=False)
         st.caption(
             "Tip: Use `.streamlit/secrets.toml` for security:\n"
             'SMTP_SERVER="smtp.gmail.com"\nSMTP_PORT="587"\nSENDER_EMAIL="your@gmail.com"\nSENDER_PASSWORD="your-app-password"'
@@ -531,7 +531,7 @@ with col2:
             help="e.g., 919876543210",
         )
         st.session_state.cust_email = st.text_input("Customer Email", value=st.session_state.cust_email)
-        st.session_state.cust_addr = st.text_area("Customer Address", value=st.session_state.cust_addr)
+        st.session_state.cust_addr = st.text_input("Customer Address", value=st.session_state.cust_addr)
 
         order_id = datetime.now().strftime("%Y%m%d-%H%M%S")
         pdf_buffer = build_pdf_receipt(order_id)
@@ -584,3 +584,6 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
+
+
