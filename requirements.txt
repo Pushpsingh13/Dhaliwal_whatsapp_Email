@@ -4,3 +4,6 @@ openpyxl
 reportlab
 pywhatkit
 pip
+gspread
+google-auth-oauthlib
+requests
