@@ -454,45 +454,42 @@ with st.sidebar:
         st.divider()
         st.subheader("Email Settings (SMTP)")
 
-        # Display current settings (always disabled for viewing)
-        st.text_input("Current SMTP Server", value=st.session_state.smtp_server, disabled=True)
-        st.number_input("Current SMTP Port", value=int(st.session_state.smtp_port), step=1, disabled=True)
-        st.text_input("Current Sender Email", value=st.session_state.sender_email, disabled=True)
-        st.text_input("Current Sender Password", value="********" if st.session_state.sender_password else "", type="password", disabled=True)
+        smtp_disabled = not st.session_state.get("edit_smtp", False)
 
-        if st.session_state.get("edit_smtp", False):
-            # Form to edit settings
-            with st.form("smtp_edit_form"):
-                st.write("Enter new SMTP settings below:")
-                new_server = st.text_input("New SMTP Server", value=st.session_state.smtp_server)
-                new_port = st.number_input("New SMTP Port", value=int(st.session_state.smtp_port))
-                new_email = st.text_input("New Sender Email", value=st.session_state.sender_email)
-                new_password = st.text_input("New Sender Password", value=st.session_state.sender_password, type="password")
-                
-                submitted = st.form_submit_button("Save SMTP Settings")
-                if submitted:
-                    # Update session state
-                    st.session_state.smtp_server = new_server
-                    st.session_state.smtp_port = new_port
-                    st.session_state.sender_email = new_email
-                    st.session_state.sender_password = new_password
+        with st.form("smtp_form"):
+            # These widgets are now part of a form
+            st.text_input("SMTP Server", key="smtp_server_input", value=st.session_state.smtp_server, disabled=smtp_disabled)
+            st.number_input("SMTP Port", key="smtp_port_input", value=int(st.session_state.smtp_port), step=1, disabled=smtp_disabled)
+            st.text_input("Sender Email", key="sender_email_input", value=st.session_state.sender_email, disabled=smtp_disabled)
+            st.text_input("Sender Password", key="sender_password_input", value=st.session_state.sender_password, type="password", disabled=smtp_disabled)
+
+            # Only show save button if editing is enabled
+            if not smtp_disabled:
+                save_submitted = st.form_submit_button("Save SMTP Settings")
+                if save_submitted:
+                    # Update session state from form inputs
+                    st.session_state.smtp_server = st.session_state.smtp_server_input
+                    st.session_state.smtp_port = st.session_state.smtp_port_input
+                    st.session_state.sender_email = st.session_state.sender_email_input
+                    st.session_state.sender_password = st.session_state.sender_password_input
 
                     # Save to secrets.toml
                     secrets_path = os.path.join(".streamlit", "secrets.toml")
                     if not os.path.exists(".streamlit"):
                         os.makedirs(".streamlit")
                     with open(secrets_path, "w") as f:
-                        f.write(f'SMTP_SERVER = "{new_server}"\n')
-                        f.write(f'SMTP_PORT = {new_port}\n')
-                        f.write(f'SENDER_EMAIL = "{new_email}"\n')
-                        f.write(f'SENDER_PASSWORD = "{new_password}"\n')
+                        f.write(f'SMTP_SERVER = "{st.session_state.smtp_server}"\n')
+                        f.write(f'SMTP_PORT = {st.session_state.smtp_port}\n')
+                        f.write(f'SENDER_EMAIL = "{st.session_state.sender_email}"\n')
+                        f.write(f'SENDER_PASSWORD = "{st.session_state.sender_password}"\n')
                     
                     st.session_state.edit_smtp = False
                     st.success("SMTP settings saved successfully! The app will now reload.")
                     time.sleep(2)
                     st.rerun()
-        else:
-            # Form to unlock editing
+
+        # Unlock form remains separate
+        if smtp_disabled:
             with st.form("smtp_unlock_form"):
                 st.info("To edit SMTP settings, you must unlock them with the admin password.")
                 unlock_password = st.text_input("Admin Password", type="password")
