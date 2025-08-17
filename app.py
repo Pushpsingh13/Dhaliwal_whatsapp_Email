@@ -14,9 +14,6 @@ from email.mime.text import MIMEText
 
 import pandas as pd
 import streamlit as st
-import threading
-import gspread
-from google.oauth2.service_account import Credentials
 
 # ReportLab for PDF
 canvas = None
@@ -73,16 +70,21 @@ MENU_EXCEL = "DhalisMenu.xlsx"
 ORDERS_DIR = "Orders"  # daily order logs
 ADMIN_PASSWORD = "admin123"  # change after first run
 
+# Consolidated CSV path (same directory as this app.py)
+ORDERS_CSV = os.path.join(os.path.dirname(__file__), "orders.csv")
+
+
 def get_secret(key: str, default: str = "") -> str:
     try:
         return st.secrets[key]
     except Exception:
         return os.environ.get(key, default)
 
+
 DEFAULT_SMTP_SERVER = get_secret("SMTP_SERVER", "smtp.gmail.com")
 DEFAULT_SMTP_PORT = int(get_secret("SMTP_PORT", "587"))
-DEFAULT_SENDER_EMAIL = get_secret("SENDER_EMAIL", "pushp.singh13@gmail.com")
-DEFAULT_SENDER_PASSWORD = get_secret("SENDER_PASSWORD", "khzx jwld axxv dkey")
+DEFAULT_SENDER_EMAIL = get_secret("SENDER_EMAIL", "")
+DEFAULT_SENDER_PASSWORD = get_secret("SENDER_PASSWORD", "")
 
 _defaults = {
     "bill": [],
@@ -91,7 +93,7 @@ _defaults = {
     "cust_phone": "",
     "cust_addr": "",
     "cust_email": "",
-    "tax_rate": 5.0,
+    "tax_rate": 18.0,
     "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
@@ -103,21 +105,38 @@ for k, v in _defaults.items():
     if k not in st.session_state:
         st.session_state[k] = v
 
+# =========================
+# HELPERS
+# =========================
+
+def ensure_orders_csv_exists():
+    if not os.path.exists(ORDERS_CSV):
+        df = pd.DataFrame(columns=[
+            "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
+            "Address", "Items", "Subtotal", "TaxRate%", "TaxAmount",
+            "Discount", "GrandTotal"
+        ])
+        df.to_csv(ORDERS_CSV, index=False)
+
 def clean_text(txt):
     if not txt:
         return "-"
     return str(txt).replace("\n", " ").replace("\r", " ").encode("ascii", "ignore").decode()
 
+
 def ensure_orders_dir():
     if not os.path.exists(ORDERS_DIR):
         os.makedirs(ORDERS_DIR, exist_ok=True)
+
 
 def today_orders_path():
     ensure_orders_dir()
     return os.path.join(ORDERS_DIR, f"Orders_{datetime.now().strftime('%Y-%m-%d')}.xlsx")
 
+
 def only_digits(s: str) -> str:
     return re.sub(r"\D", "", s or "")
+
 
 def create_default_menu():
     df = pd.DataFrame(
@@ -130,6 +149,7 @@ def create_default_menu():
     )
     df.to_excel(MENU_EXCEL, index=False, engine="openpyxl")
 
+
 def load_menu(uploaded_file=None):
     try:
         source = None
@@ -140,9 +160,9 @@ def load_menu(uploaded_file=None):
         else:
             create_default_menu()
             source = MENU_EXCEL
-        
+
         df = pd.read_excel(source, engine="openpyxl")
-        
+
         for col in ["Item", "Half", "Full", "Image"]:
             if col not in df.columns:
                 raise ValueError("Excel must have 'Item', 'Half', 'Full' and 'Image' columns")
@@ -155,6 +175,7 @@ def load_menu(uploaded_file=None):
         st.error(f"Error loading menu: {e}")
         return pd.DataFrame(columns=["Item", "Half", "Full", "Image"])
 
+
 def save_menu(df):
     try:
         df.to_excel(MENU_EXCEL, index=False, engine="openpyxl")
@@ -163,9 +184,11 @@ def save_menu(df):
         st.error(f"Failed to save menu: {e}")
         return False
 
+
 def add_to_bill(item, price, size):
     st.session_state.bill.append({"item": str(item), "price": float(price), "size": str(size)})
     st.session_state.total += float(price)
+
 
 def clear_bill():
     st.session_state.bill = []
@@ -174,6 +197,7 @@ def clear_bill():
     st.session_state.cust_phone = ""
     st.session_state.cust_addr = ""
     st.session_state.cust_email = ""
+
 
 def build_pdf_receipt(order_id: str) -> BytesIO | None:
     if canvas is None or MM is None:
@@ -218,8 +242,8 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.setFont("Helvetica-Bold", 8)
     c.drawString(2, y, "Item")
     c.drawRightString(thermal_width - 2, y, "Price")
-    y -= 10
 
+    y -= 10
     c.setFont("Helvetica", 8)
     subtotal = 0.0
     for row in st.session_state.bill:
@@ -257,6 +281,53 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.save()
     buf.seek(0)
     return buf
+
+
+def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
+    """Logs order to the daily Excel file AND appends to consolidated orders.csv"""
+    ensure_orders_dir()
+    path = today_orders_path()
+    now = datetime.now()
+    row = {
+        "Date": now.strftime("%Y-%m-%d"),
+        "Time": now.strftime("%H:%M:%S"),
+        "OrderID": order_id,
+        "CustomerName": st.session_state.cust_name,
+        "Phone": st.session_state.cust_phone,
+        "Email": st.session_state.cust_email,
+        "Address": st.session_state.cust_addr,
+        "Items": "; ".join([f"{i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
+        "Subtotal": subtotal,
+        "TaxRate%": st.session_state.tax_rate,
+        "TaxAmount": tax,
+        "Discount": discount,
+        "GrandTotal": grand_total,
+    }
+
+    # Save to daily Excel
+    try:
+        if os.path.exists(path):
+            df = pd.read_excel(path, engine="openpyxl")
+            df = pd.concat([df, pd.DataFrame([row])], ignore_index=True)
+        else:
+            df = pd.DataFrame([row])
+        df.to_excel(path, index=False, engine="openpyxl")
+    except Exception as e:
+        st.warning(f"Could not log order to Excel ({path}): {e}")
+
+    # Save to consolidated CSV
+    try:
+        if os.path.exists(ORDERS_CSV):
+            df_csv = pd.read_csv(ORDERS_CSV)
+            df_csv = pd.concat([df_csv, pd.DataFrame([row])], ignore_index=True)
+        else:
+            df_csv = pd.DataFrame([row])
+        df_csv.to_csv(ORDERS_CSV, index=False)
+    except Exception as e:
+        st.warning(f"Could not log order to CSV ({ORDERS_CSV}): {e}")
+
+
+# ==== Messaging helpers (email + WhatsApp) ====
 
 def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
     if not to_email:
@@ -297,6 +368,7 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
         st.error(f"Failed to send email: {e}")
         return False
 
+
 def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, tax: float, grand_total: float) -> bool:
     to_digits = "".join([c for c in str(to_number_raw) if c.isdigit()])
     if not to_digits:
@@ -307,7 +379,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
         f"- {i['item']} ({i['size']}): ₹{i['price']:.2f}"
         for i in st.session_state.bill
     ])
-    
+
     customer_name = st.session_state.get("cust_name", "").strip()
     cust_name_str = f"Hello {customer_name},\n\n" if customer_name else ""
 
@@ -323,46 +395,14 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
     )
 
     url = f"https://wa.me/{to_digits}?text={urllib.parse.quote(message)}"
-    
     st.markdown(f'<a href="{url}" target="_blank">Click here to send WhatsApp message</a>', unsafe_allow_html=True)
-    
     return True
 
-def append_order_to_gsheet(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
-    try:
-        # Authenticate with Google Sheets
-        creds_json = st.secrets["gcp_service_account"]
-        creds = Credentials.from_service_account_info(creds_json)
-        client = gspread.authorize(creds)
 
-        # Open the Google Sheet
-        sheet = client.open("RestaurantOrders").sheet1
-
-        # Prepare the row
-        now = datetime.now()
-        row = [
-            now.strftime("%Y-%m-%d"),
-            now.strftime("%H:%M:%S"),
-            order_id,
-            st.session_state.cust_name,
-            st.session_state.cust_phone,
-            st.session_state.cust_email,
-            st.session_state.cust_addr,
-            "; ".join([f"{i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
-            subtotal,
-            st.session_state.tax_rate,
-            tax,
-            discount,
-            grand_total,
-        ]
-
-        # Append the row to the sheet
-        sheet.append_row(row)
-    except Exception as e:
-        st.error(f"Failed to log order to Google Sheet: {e}")
-
-
-
+# =========================
+# APP LAYOUT
+# =========================
+ensure_orders_csv_exists()
 menu_df = load_menu(st.session_state.uploaded_menu_file)
 st.markdown('<p class="title">Dhaliwal\'s Food Court POS</p>', unsafe_allow_html=True)
 st.markdown("*Date:* " + datetime.now().strftime("%d %b %Y %H:%M"))
@@ -410,13 +450,28 @@ with st.sidebar:
         st.subheader("Email Settings (SMTP)")
         st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
         st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
-        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=False)
-        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=False)
-
+        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=True)
+        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=True)
         st.caption(
             "Tip: Use `.streamlit/secrets.toml` for security:\n"
             'SMTP_SERVER="smtp.gmail.com"\nSMTP_PORT="587"\nSENDER_EMAIL="your@gmail.com"\nSENDER_PASSWORD="your-app-password"'
         )
+
+        st.divider()
+        st.subheader("Orders Export")
+        if os.path.exists(ORDERS_CSV):
+            with open(ORDERS_CSV, "rb") as f:
+                st.download_button("Download All Orders (CSV)", f, file_name="orders.csv")
+        else:
+            st.info("No orders logged yet.")
+
+        # Download today's Excel log
+        today_path = today_orders_path()
+        if os.path.exists(today_path):
+            with open(today_path, "rb") as f:
+                st.download_button("Download Today's Orders (Excel)", f, file_name=os.path.basename(today_path))
+        else:
+            st.caption("Today's Excel log will appear here after the first order is logged.")
 
     elif password:
         st.error("Incorrect password")
@@ -470,11 +525,14 @@ with col2:
         st.markdown(f"### Total: ₹{st.session_state.total:.2f}")
 
         st.session_state.cust_name = st.text_input("Customer Name", value=st.session_state.cust_name)
-        st.session_state.cust_phone = st.text_input("Customer Phone (with country code for WhatsApp)", value=st.session_state.cust_phone, help="e.g., 919876543210")
+        st.session_state.cust_phone = st.text_input(
+            "Customer Phone (with country code for WhatsApp)",
+            value=st.session_state.cust_phone,
+            help="e.g., 919876543210",
+        )
         st.session_state.cust_email = st.text_input("Customer Email", value=st.session_state.cust_email)
-        st.session_state.cust_addr = st.text_input("Customer Address", value=st.session_state.cust_addr)
+        st.session_state.cust_addr = st.text_area("Customer Address", value=st.session_state.cust_addr)
 
-        order_id = datetime.now().strftime("%Y%m%d-%H")
         order_id = datetime.now().strftime("%Y%m%d-%H%M%S")
         pdf_buffer = build_pdf_receipt(order_id)
 
@@ -498,8 +556,8 @@ with col2:
             discount = float(st.session_state.discount)
             grand_total = subtotal + tax - discount
 
-            append_order_to_gsheet(order_id, subtotal, tax, discount, grand_total)
-            st.success(f"Order {order_id} logged to Google Sheet.")
+            append_order_to_excel(order_id, subtotal, tax, discount, grand_total)
+            st.success(f"Order {order_id} logged.")
 
             if send_email:
                 if not st.session_state.cust_email:
