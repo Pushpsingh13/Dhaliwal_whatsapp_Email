@@ -15,6 +15,8 @@ from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 import threading
+import gspread
+from google.oauth2.service_account import Credentials
 
 # ReportLab for PDF
 canvas = None
@@ -326,30 +328,38 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
     
     return True
 
-def append_order_to_csv(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
-    path = "orders.csv"
-    now = datetime.now()
-    row = {
-        "Date": now.strftime("%Y-%m-%d"),
-        "Time": now.strftime("%H:%M:%S"),
-        "OrderID": order_id,
-        "CustomerName": st.session_state.cust_name,
-        "Phone": st.session_state.cust_phone,
-        "Email": st.session_state.cust_email,
-        "Address": st.session_state.cust_addr,
-        "Items": "; ".join([f"{i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
-        "Subtotal": subtotal,
-        "TaxRate%": st.session_state.tax_rate,
-        "TaxAmount": tax,
-        "Discount": discount,
-        "GrandTotal": grand_total,
-    }
-    
+def append_order_to_gsheet(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
     try:
-        df = pd.DataFrame([row])
-        df.to_csv(path, mode='a', header=not os.path.exists(path), index=False)
+        # Authenticate with Google Sheets
+        creds_json = st.secrets["gcp_service_account"]
+        creds = Credentials.from_service_account_info(creds_json)
+        client = gspread.authorize(creds)
+
+        # Open the Google Sheet
+        sheet = client.open("RestaurantOrders").sheet1
+
+        # Prepare the row
+        now = datetime.now()
+        row = [
+            now.strftime("%Y-%m-%d"),
+            now.strftime("%H:%M:%S"),
+            order_id,
+            st.session_state.cust_name,
+            st.session_state.cust_phone,
+            st.session_state.cust_email,
+            st.session_state.cust_addr,
+            "; ".join([f"{i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
+            subtotal,
+            st.session_state.tax_rate,
+            tax,
+            discount,
+            grand_total,
+        ]
+
+        # Append the row to the sheet
+        sheet.append_row(row)
     except Exception as e:
-        st.warning(f"Could not log order to CSV ({path}): {e}")
+        st.error(f"Failed to log order to Google Sheet: {e}")
 
 
 
@@ -488,8 +498,8 @@ with col2:
             discount = float(st.session_state.discount)
             grand_total = subtotal + tax - discount
 
-            append_order_to_csv(order_id, subtotal, tax, discount, grand_total)
-            st.success(f"Order {order_id} logged.")
+            append_order_to_gsheet(order_id, subtotal, tax, discount, grand_total)
+            st.success(f"Order {order_id} logged to Google Sheet.")
 
             if send_email:
                 if not st.session_state.cust_email:
@@ -516,5 +526,3 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
-
-
