@@ -101,6 +101,7 @@ _defaults = {
     "sender_email": DEFAULT_SENDER_EMAIL,
     "sender_password": DEFAULT_SENDER_PASSWORD,
     "uploaded_menu_file": None,
+    "edit_smtp": False,
 }
 for k, v in _defaults.items():
     if k not in st.session_state:
@@ -452,14 +453,57 @@ with st.sidebar:
 
         st.divider()
         st.subheader("Email Settings (SMTP)")
-        st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
-        st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
-        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=False)
-        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=False)
-        st.caption(
-            "Tip: Use `.streamlit/secrets.toml` for security:\n"
-            'SMTP_SERVER="smtp.gmail.com"\nSMTP_PORT="587"\nSENDER_EMAIL="your@gmail.com"\nSENDER_PASSWORD="your-app-password"'
-        )
+
+        # Display current settings (always disabled for viewing)
+        st.text_input("Current SMTP Server", value=st.session_state.smtp_server, disabled=True)
+        st.number_input("Current SMTP Port", value=int(st.session_state.smtp_port), step=1, disabled=True)
+        st.text_input("Current Sender Email", value=st.session_state.sender_email, disabled=True)
+        st.text_input("Current Sender Password", value="********" if st.session_state.sender_password else "", type="password", disabled=True)
+
+        if st.session_state.get("edit_smtp", False):
+            # Form to edit settings
+            with st.form("smtp_edit_form"):
+                st.write("Enter new SMTP settings below:")
+                new_server = st.text_input("New SMTP Server", value=st.session_state.smtp_server)
+                new_port = st.number_input("New SMTP Port", value=int(st.session_state.smtp_port))
+                new_email = st.text_input("New Sender Email", value=st.session_state.sender_email)
+                new_password = st.text_input("New Sender Password", value=st.session_state.sender_password, type="password")
+                
+                submitted = st.form_submit_button("Save SMTP Settings")
+                if submitted:
+                    # Update session state
+                    st.session_state.smtp_server = new_server
+                    st.session_state.smtp_port = new_port
+                    st.session_state.sender_email = new_email
+                    st.session_state.sender_password = new_password
+
+                    # Save to secrets.toml
+                    secrets_path = os.path.join(".streamlit", "secrets.toml")
+                    if not os.path.exists(".streamlit"):
+                        os.makedirs(".streamlit")
+                    with open(secrets_path, "w") as f:
+                        f.write(f'SMTP_SERVER = "{new_server}"\n')
+                        f.write(f'SMTP_PORT = {new_port}\n')
+                        f.write(f'SENDER_EMAIL = "{new_email}"\n')
+                        f.write(f'SENDER_PASSWORD = "{new_password}"\n')
+                    
+                    st.session_state.edit_smtp = False
+                    st.success("SMTP settings saved successfully! The app will now reload.")
+                    time.sleep(2)
+                    st.rerun()
+        else:
+            # Form to unlock editing
+            with st.form("smtp_unlock_form"):
+                st.info("To edit SMTP settings, you must unlock them with the admin password.")
+                unlock_password = st.text_input("Admin Password", type="password")
+                unlock_submitted = st.form_submit_button("Unlock to Edit")
+
+                if unlock_submitted:
+                    if unlock_password == ADMIN_PASSWORD:
+                        st.session_state.edit_smtp = True
+                        st.rerun()
+                    elif unlock_password:
+                        st.error("Incorrect password.")
 
         st.divider()
         st.subheader("Orders Export")
@@ -588,4 +632,3 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
-
