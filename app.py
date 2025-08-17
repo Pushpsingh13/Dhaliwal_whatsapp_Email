@@ -470,18 +470,10 @@ with st.sidebar:
                     st.session_state.sender_email = st.session_state.sender_email_input
                     st.session_state.sender_password = st.session_state.sender_password_input
 
-                    secrets_path = os.path.join(".streamlit", "secrets.toml")
-                    if not os.path.exists(".streamlit"):
-                        os.makedirs(".streamlit")
-                    with open(secrets_path, "w") as f:
-                        f.write(f'SMTP_SERVER = "{st.session_state.smtp_server}"\n')
-                        f.write(f'SMTP_PORT = {st.session_state.smtp_port}\n')
-                        f.write(f'SENDER_EMAIL = "{st.session_state.sender_email}"\n')
-                        f.write(f'SENDER_PASSWORD = "{st.session_state.sender_password}"\n')
-                    
                     st.session_state.edit_smtp = False
-                    st.success("SMTP settings saved successfully! The app will now reload.")
-                    time.sleep(2)
+                    st.success("SMTP settings updated for the current session.")
+                    st.info("Note: On Streamlit Cloud, these settings will reset when the app restarts. For permanent changes, please update the secrets in your Streamlit Cloud dashboard.")
+                    time.sleep(5)
                     st.rerun()
         else:
             # If settings are locked, show disabled fields and the unlock form
