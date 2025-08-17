@@ -426,8 +426,8 @@ with st.sidebar:
         st.subheader("Email Settings (SMTP)")
         st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
         st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
-        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=True)
-        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=True)
+        st.text_input("Sender Email", value=st.session_state.sender_email, disabled=False)
+        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=False)
 
         st.caption(
             "Tip: Use `.streamlit/secrets.toml` for security:\n"
