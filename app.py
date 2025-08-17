@@ -84,7 +84,7 @@ def get_secret(key: str, default: str = "") -> str:
 DEFAULT_SMTP_SERVER = get_secret("SMTP_SERVER", "smtp.gmail.com")
 DEFAULT_SMTP_PORT = int(get_secret("SMTP_PORT", "587"))
 DEFAULT_SENDER_EMAIL = get_secret("SENDER_EMAIL", "")
-DEFAULT_SENDER_PASSWORD = get_secret("SENDER_PASSWORD", "khzx jwld axxv dkey")
+DEFAULT_SENDER_PASSWORD = get_secret("SENDER_PASSWORD", "")
 
 _defaults = {
     "bill": [],
@@ -93,7 +93,7 @@ _defaults = {
     "cust_phone": "",
     "cust_addr": "",
     "cust_email": "",
-    "tax_rate": 18.0,
+    "tax_rate": 5.0,
     "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
@@ -451,7 +451,7 @@ with st.sidebar:
         st.session_state.smtp_server = st.text_input("SMTP Server", value=st.session_state.smtp_server)
         st.session_state.smtp_port = st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1)
         st.text_input("Sender Email", value=st.session_state.sender_email, disabled=False)
-        st.text_input("Sender Password / App Password", type="password", value="********" if st.session_state.sender_password else "", disabled=False)
+        st.text_input("Sender Password / App Password", type="password", value="khzx jwld axxv dkey" if st.session_state.sender_password else "", disabled=True)
         st.caption(
             "Tip: Use `.streamlit/secrets.toml` for security:\n"
             'SMTP_SERVER="smtp.gmail.com"\nSMTP_PORT="587"\nSENDER_EMAIL="your@gmail.com"\nSENDER_PASSWORD="your-app-password"'
@@ -557,7 +557,7 @@ with col2:
             grand_total = subtotal + tax - discount
 
             append_order_to_excel(order_id, subtotal, tax, discount, grand_total)
-            st.success(f"Order {order_id} logged.")
+            st.success(f"Order {order_id} has been saved to the order logs.")
 
             if send_email:
                 if not st.session_state.cust_email:
@@ -584,5 +584,3 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
-
-
