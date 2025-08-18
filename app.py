@@ -26,7 +26,8 @@ try:
     MM = mm_
 except ImportError:
     pass
-
+# Show a JPEG banner/image at the very top
+st.image("QR_Code For App.jpg", use_container_width=False)  # replace with your JPEG filename
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
@@ -57,7 +58,8 @@ body {{
     font-size: 80px;         /* Bigger */
     font-weight: bold;       /* Bold */
     font-style: italic;      /* Italic */
-    color: #FF4500;          /* Bright orange */
+    color: #FF4500;          /* Bright Blue */
+    transform: scale(5);  /* Scale 3x larger */
     margin-bottom: 20px;
     text-shadow: 3px 3px 6px #000000;
     font-family: 'Garamond', serif;
