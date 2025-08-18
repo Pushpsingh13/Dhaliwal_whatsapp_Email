@@ -108,7 +108,7 @@ _defaults = {
     "smtp_port": DEFAULT_SMTP_PORT,
     "sender_email": DEFAULT_SENDER_EMAIL,
     "sender_password": DEFAULT_SENDER_PASSWORD,
-    "owner_phone": "",
+    "owner_phone": "+919259317713",
     "uploaded_menu_file": None,
     "edit_smtp": False,
 }
@@ -464,7 +464,7 @@ with st.sidebar:
 
         st.divider()
         st.subheader("Owner Settings")
-        st.session_state.owner_phone = st.text_input("Owner's WhatsApp Number", value=st.session_state.owner_phone, help="e.g., 919876543210")
+        st.session_state.owner_phone = st.text_input("Owner's WhatsApp Number", value=st.session_state.owner_phone, help="e.g., 919876543210", disabled=True)
         st.divider()
         st.subheader("Email Settings (SMTP)")
 
