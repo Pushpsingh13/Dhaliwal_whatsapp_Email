@@ -65,19 +65,7 @@ body {{
     font-family: 'Garamond', serif;
     text-align: center;
 }}
-.menu-card {{
-    padding: 15px;
-    border-radius: 12px;
-    background: rgba(0, 0, 0, 0.5);
-    text-align: center;
-    margin-bottom: 12px;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-}}
-.menu-item-name {{
-    color: White;
-    font-size: 1.2em;
-    font-weight: bold;
-}}
+
 hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
 </style>
 """,
