@@ -30,7 +30,7 @@ except ImportError:
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
-st.set_page_config(page_title="Dhaliwal's Food Court POS", layout="wide")
+st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide")
 
 img = ""
 try:
@@ -621,3 +621,4 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
