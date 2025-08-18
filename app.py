@@ -55,7 +55,7 @@ body {{
 
 /* Main Title (Home Header) */
 .main-title {{
-    font-size: 70px;         /* Bigger */
+    font-size: 50px;         /* Bigger */
     font-weight: bold;       /* Bold */
     font-style: italic;      /* Italic */
     color: #305CDE;          /* Bright Blue */
@@ -643,6 +643,7 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
 
 
 
