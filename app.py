@@ -63,7 +63,7 @@ body {{
     margin-bottom: 20px;
     text-shadow: 3px 3px 6px #000000;
     font-family: 'Garamond', serif;
-    text-align: left;
+    text-align: right;
 }}
 .menu-card {{
     padding: 15px;
@@ -643,6 +643,7 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
 
 
 
