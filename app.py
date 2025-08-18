@@ -51,8 +51,26 @@ body {{
     background-size: cover;
 }}
 .main {{ background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px;}}
-.title {{ font-size: 34px; font-weight: 800; color White; margin-bottom: 6px; }}
-.menu-card {{ padding: 15px; border-radius: 12px; background: rgba(0, 0, 0, 0.5); text-align: center; margin-bottom: 12px; box-shadow: 0 2px 6px rgba(0,0,0,0.15); }}
+
+/* Main Title (Home Header) */
+.main-title {{
+    font-size: 80px;         /* Bigger */
+    font-weight: bold;       /* Bold */
+    font-style: italic;      /* Italic */
+    color: #FF4500;          /* Bright orange */
+    margin-bottom: 20px;
+    text-shadow: 3px 3px 6px #000000;
+    font-family: 'Garamond', serif;
+    text-align: center;
+}}
+.menu-card {{
+    padding: 15px;
+    border-radius: 12px;
+    background: rgba(0, 0, 0, 0.5);
+    text-align: center;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}}
 .menu-item-name {{
     color: White;
     font-size: 1.2em;
@@ -409,7 +427,9 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
 # =========================
 ensure_orders_csv_exists()
 menu_df = load_menu(st.session_state.uploaded_menu_file)
-st.markdown('<p class="title">Dhaliwal\'s Food Court POS</p>', unsafe_allow_html=True)
+# Top Header (Dhaliwal's Food Court)
+st.markdown('<p class="main-title">Dhaliwal\'s Food Court</p>', unsafe_allow_html=True)
+
 st.markdown("*Date:* " + get_local_time().strftime("%d %b %Y %H:%M"))
 st.write("---")
 
@@ -621,4 +641,5 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
 
