@@ -31,7 +31,7 @@ st.image("QR_Code For App.jpg",use_container_width=False)  # replace with your J
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
-st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide")
+st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide",,page_icon="Dhaliwal Food court (2).png")
 
 img = ""
 try:
@@ -644,4 +644,5 @@ with col2:
     else:
         st.info("No items added yet.")
         
+
 
