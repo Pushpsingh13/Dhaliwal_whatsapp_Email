@@ -27,7 +27,7 @@ try:
 except ImportError:
     pass
 # Show a JPEG banner/image at the very top
-st.image("QR_Code For App.jpg", use_container_width=False)  # replace with your JPEG filename
+st.image("QR_Code For App.jpg",use_container_width=False)  # replace with your JPEG filename
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
@@ -58,7 +58,7 @@ body {{
     font-size: 80px;         /* Bigger */
     font-weight: bold;       /* Bold */
     font-style: italic;      /* Italic */
-    color: #305CDE;          /* Bright Blue */
+    color: #895129;          /* Bright Brown */
     transform: scale(2);  /* Scale 2x larger */
     margin-bottom: 20px;
     text-shadow: 3px 3px 6px #000000;
@@ -643,13 +643,3 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
-
-
-
-
-
-
-
-
-
-
