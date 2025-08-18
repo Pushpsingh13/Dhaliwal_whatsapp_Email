@@ -108,6 +108,7 @@ _defaults = {
     "smtp_port": DEFAULT_SMTP_PORT,
     "sender_email": DEFAULT_SENDER_EMAIL,
     "sender_password": DEFAULT_SENDER_PASSWORD,
+    "owner_phone": "",
     "uploaded_menu_file": None,
     "edit_smtp": False,
 }
@@ -462,6 +463,9 @@ with st.sidebar:
         st.session_state.discount = st.number_input("Discount (₹)", value=float(st.session_state.discount), step=1.0)
 
         st.divider()
+        st.subheader("Owner Settings")
+        st.session_state.owner_phone = st.text_input("Owner's WhatsApp Number", value=st.session_state.owner_phone, help="e.g., 919876543210")
+        st.divider()
         st.subheader("Email Settings (SMTP)")
 
         if st.session_state.get("edit_smtp", False):
@@ -619,11 +623,19 @@ with col2:
                         st.warning("Email failed—check SMTP settings.")
 
             if send_whatsapp:
+                # Send to customer
                 if not st.session_state.cust_phone:
-                    st.warning("Customer phone is empty — cannot send WhatsApp.")
+                    st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
                 else:
-                    st.info("Click the link below to send the order details via WhatsApp.")
+                    st.info("Click the link below to send the order details to the customer via WhatsApp.")
                     send_whatsapp_message(st.session_state.cust_phone, order_id, subtotal, tax, grand_total)
+
+                # Send to owner
+                if not st.session_state.owner_phone:
+                    st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
+                else:
+                    st.info("Click the link below to send the order details to the owner via WhatsApp.")
+                    send_whatsapp_message(st.session_state.owner_phone, order_id, subtotal, tax, grand_total)
 
             if not (send_email or send_whatsapp):
                 st.info("Order logged. Select Email or WhatsApp to send the receipt.")
