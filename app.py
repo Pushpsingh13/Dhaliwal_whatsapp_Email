@@ -59,11 +59,11 @@ body {{
     font-weight: bold;       /* Bold */
     font-style: italic;      /* Italic */
     color: #305CDE;          /* Bright Blue */
-    transform: scale(1);  /* Scale 1x larger */
+    transform: scale(2);  /* Scale 2x larger */
     margin-bottom: 20px;
     text-shadow: 3px 3px 6px #000000;
     font-family: 'Garamond', serif;
-    text-align: right;
+    text-align: left;
 }}
 .menu-card {{
     padding: 15px;
@@ -643,6 +643,7 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
 
 
 
