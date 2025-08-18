@@ -59,7 +59,7 @@ body {{
     font-weight: bold;       /* Bold */
     font-style: italic;      /* Italic */
     color: #FF4500;          /* Bright Blue */
-    transform: scale(5);  /* Scale 2x larger */
+    transform: scale(2);  /* Scale 2x larger */
     margin-bottom: 20px;
     text-shadow: 3px 3px 6px #000000;
     font-family: 'Garamond', serif;
@@ -643,5 +643,6 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+
 
 
