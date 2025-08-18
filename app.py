@@ -31,7 +31,7 @@ st.image("QR_Code For App.jpg",use_container_width=False)  # replace with your J
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
-st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide")
+st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide",page_icon="Dhaliwal Food court (2).png")
 
 img = ""
 try:
@@ -108,7 +108,7 @@ _defaults = {
     "smtp_port": DEFAULT_SMTP_PORT,
     "sender_email": DEFAULT_SENDER_EMAIL,
     "sender_password": DEFAULT_SENDER_PASSWORD,
-    "owner_phone": "+919259317713",
+    "owner_phone": "919259317713",
     "uploaded_menu_file": None,
     "edit_smtp": False,
 }
@@ -643,3 +643,4 @@ with col2:
         st.button("Clear Bill", on_click=clear_bill)
     else:
         st.info("No items added yet.")
+        
