@@ -45,7 +45,7 @@ with st.container():
         st.image("Dhaliwal Food court_logo.png", width=100)
     with col2:
         st.image("QR_Code For App.jpg", width=100)
-        st.write("Scan the QR code For next order")
+        st.write("Scan the QR code For next order minimum order for delivery should be 200₹")
     with col3:
         st.empty()
 # =========================
@@ -133,6 +133,7 @@ _defaults = {
     "edit_smtp": False,
     "payment_option": None,
     "last_activity": time.time(),
+    "order_finalized_time": None,
 }
 for k, v in _defaults.items():
     if k not in st.session_state:
@@ -223,6 +224,7 @@ def save_menu(df):
 
 def add_to_bill(item, price, size, quantity=1):
     st.session_state.last_activity = time.time()
+    st.session_state.order_finalized_time = None
     # Check if item with same size already exists
     for bill_item in st.session_state.bill:
         if bill_item['item'] == item and bill_item['size'] == size:
@@ -242,7 +244,9 @@ def clear_bill():
     st.session_state.cust_phone = ""
     st.session_state.cust_addr = ""
     st.session_state.cust_email = ""
+    st.session_state.payment_option = None
     st.session_state.last_activity = time.time()
+    st.session_state.order_finalized_time = None
 
 
 def build_pdf_receipt(order_id: str) -> BytesIO | None:
@@ -453,7 +457,15 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
 # =========================
 # APP LAYOUT
 # =========================
-if 'last_activity' in st.session_state and (time.time() - st.session_state.last_activity > 120):
+# Auto-clear logic
+# 1. After 1 minute of finalizing an order
+if st.session_state.get("order_finalized_time") and (time.time() - st.session_state.order_finalized_time > 60):
+    clear_bill()
+    st.toast("Auto-clearing for next order.")
+    time.sleep(1)
+    st.rerun()
+# 2. After 2 minutes of inactivity before finalizing
+elif not st.session_state.get("order_finalized_time") and 'last_activity' in st.session_state and (time.time() - st.session_state.last_activity > 120):
     clear_bill()
     st.toast("Bill cleared due to inactivity.")
     time.sleep(1)
@@ -726,6 +738,7 @@ with col2:
                 grand_total = subtotal + tax - discount
 
                 append_order_to_excel(order_id, subtotal, tax, discount, grand_total, st.session_state.payment_method)
+                st.session_state.order_finalized_time = time.time()
                 st.success(f"Order {order_id} has been saved to the order logs.")
 
                 if send_email:
