@@ -642,7 +642,7 @@ with col2:
 
         if st.session_state.payment_option in ["done", "cod_confirmed"]:
             if st.session_state.payment_option == "done":
-                st.success("We need to confirm your payment. When we get your payment, we will contact you on call for confirmation of your order.")
+                st.success("We need to confirm your payment please send your payment details like transaction details on what's app. When we get your payment, we will contact you on call for confirmation of your order.")
             elif st.session_state.payment_option == "cod_confirmed":
                 st.success("Your order has been confirmed for Cash on Delivery.")
 
