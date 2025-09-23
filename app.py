@@ -132,6 +132,7 @@ _defaults = {
     "uploaded_menu_file": None,
     "edit_smtp": False,
     "payment_option": None,
+    "last_activity": time.time(),
 }
 for k, v in _defaults.items():
     if k not in st.session_state:
@@ -220,9 +221,18 @@ def save_menu(df):
         return False
 
 
-def add_to_bill(item, price, size):
-    st.session_state.bill.append({"item": str(item), "price": float(price), "size": str(size)})
-    st.session_state.total += float(price)
+def add_to_bill(item, price, size, quantity=1):
+    st.session_state.last_activity = time.time()
+    # Check if item with same size already exists
+    for bill_item in st.session_state.bill:
+        if bill_item['item'] == item and bill_item['size'] == size:
+            bill_item['quantity'] += quantity
+            st.session_state.total += float(price) * quantity
+            st.rerun()
+
+    st.session_state.bill.append({"item": str(item), "price": float(price), "size": str(size), "quantity": quantity})
+    st.session_state.total += float(price) * quantity
+    st.rerun()
 
 
 def clear_bill():
@@ -232,6 +242,7 @@ def clear_bill():
     st.session_state.cust_phone = ""
     st.session_state.cust_addr = ""
     st.session_state.cust_email = ""
+    st.session_state.last_activity = time.time()
 
 
 def build_pdf_receipt(order_id: str) -> BytesIO | None:
@@ -285,11 +296,12 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.setFont("Helvetica", 8)
     subtotal = 0.0
     for row in st.session_state.bill:
-        item_line = clean_text(f"{row['item']} ({row['size']})")
+        item_line = clean_text(f"{row['quantity']}x {row['item']} ({row['size']})")
+        price_str = f"₹{row['price'] * row['quantity']:.2f}"
         c.drawString(2, y, item_line[:28])
-        c.drawRightString(thermal_width - 2, y, f"₹{row['price']:.2f}")
+        c.drawRightString(thermal_width - 2, y, price_str)
         y -= 10
-        subtotal += float(row["price"])
+        subtotal += float(row["price"]) * row['quantity']
 
     tax_rate = float(st.session_state.tax_rate)
     discount = float(st.session_state.discount)
@@ -334,7 +346,7 @@ def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: 
         "Phone": st.session_state.cust_phone,
         "Email": st.session_state.cust_email,
         "Address": st.session_state.cust_addr,
-        "Items": "; ".join([f"{i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
+        "Items": "; ".join([f"{i['quantity']}x {i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
         "Subtotal": subtotal,
         "TaxRate%": st.session_state.tax_rate,
         "TaxAmount": tax,
@@ -415,7 +427,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
         return False
 
     items_str = "\n".join([
-        f"- {i['item']} ({i['size']}): ₹{i['price']:.2f}"
+        f"- {i['quantity']}x {i['item']} ({i['size']}): ₹{i['price'] * i['quantity']:.2f}"
         for i in st.session_state.bill
     ])
 
@@ -441,6 +453,12 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
 # =========================
 # APP LAYOUT
 # =========================
+if 'last_activity' in st.session_state and (time.time() - st.session_state.last_activity > 120):
+    clear_bill()
+    st.toast("Bill cleared due to inactivity.")
+    time.sleep(1)
+    st.rerun()
+
 ensure_orders_csv_exists()
 menu_df = load_menu(st.session_state.uploaded_menu_file)
 
@@ -582,16 +600,16 @@ with col1:
                         # Item name
                         st.markdown(f"### {item}")
 
-                        # Buttons for Half & Full
+                        # Quantity selector and buttons
+                        qty = st.number_input("Quantity", min_value=1, max_value=10, value=1, step=1, key=f"qty_{i}_{item}")
+                        
                         col1_btn, col2_btn = st.columns(2)
                         with col1_btn:
-                            if st.button(f"Half ₹{half_price}", key=f"half_{item}"):
-                                add_to_bill(item, half_price, "Half")
-                                st.success(f"Added {item} (Half)")
+                            if st.button(f"Half ₹{half_price}", key=f"half_{i}_{item}"):
+                                add_to_bill(item, half_price, "Half", qty)
                         with col2_btn:
-                            if st.button(f"Full ₹{full_price}", key=f"full_{item}"):
-                                add_to_bill(item, full_price, "Full")
-                                st.success(f"Added {item} (Full)")
+                            if st.button(f"Full ₹{full_price}", key=f"full_{i}_{item}"):
+                                add_to_bill(item, full_price, "Full", qty)
     else:
         st.warning("Menu is empty. Please add items via Admin Panel.")
 
@@ -599,8 +617,20 @@ with col2:
     st.image("QR_Code For App.jpg", width=100)
     st.header("Current Bill")
     if st.session_state.bill:
-        bill_df = pd.DataFrame(st.session_state.bill)
-        st.dataframe(bill_df, use_container_width=True)
+        for i, bill_item in reversed(list(enumerate(st.session_state.bill))):
+            col1, col2, col3 = st.columns([4, 2, 1])
+            with col1:
+                st.text(f"{bill_item['quantity']}x {bill_item['item']} ({bill_item['size']})")
+            with col2:
+                st.text(f"₹{bill_item['price'] * bill_item['quantity']:.2f}")
+            with col3:
+                if st.button("🗑️", key=f"delete_{i}"):
+                    st.session_state.last_activity = time.time()
+                    removed_item = st.session_state.bill.pop(i)
+                    st.session_state.total -= removed_item['price'] * removed_item['quantity']
+                    st.rerun()
+        
+        st.markdown("---")
         st.markdown(f"### Total: ₹{st.session_state.total:.2f}")
 
         st.session_state.cust_name = st.text_input("Customer Name", value=st.session_state.cust_name, disabled=st.session_state.payment_option is not None)
@@ -685,7 +715,7 @@ with col2:
             send_whatsapp = st.checkbox("Send Order Details to WhatsApp")
 
             if st.button("Finalize Order (Log + Selected Sends)"):
-                subtotal = sum(float(i["price"]) for i in st.session_state.bill)
+                subtotal = st.session_state.total
                 tax = subtotal * float(st.session_state.tax_rate) / 100.0
                 discount = float(st.session_state.discount)
                 grand_total = subtotal + tax - discount
