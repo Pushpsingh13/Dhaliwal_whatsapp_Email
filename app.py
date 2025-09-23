@@ -465,7 +465,7 @@ if st.session_state.get("order_finalized_time") and (time.time() - st.session_st
     time.sleep(1)
     st.rerun()
 # 2. After 2 minutes of inactivity before finalizing
-elif not st.session_state.get("order_finalized_time") and 'last_activity' in st.session_state and (time.time() - st.session_state.last_activity > 120):
+elif not st.session_state.get("order_finalized_time") and 'last_activity' in st.session_state and (time.time() - st.session_state.last_activity > 900):
     clear_bill()
     st.toast("Bill cleared due to inactivity.")
     time.sleep(1)
