@@ -9,6 +9,7 @@ import base64
 from io import BytesIO
 from datetime import datetime
 import pytz
+import qrcode
 from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
 from email.mime.text import MIMEText
@@ -130,6 +131,7 @@ _defaults = {
     "owner_phone": "919259317713",
     "uploaded_menu_file": None,
     "edit_smtp": False,
+    "payment_option": None,
 }
 for k, v in _defaults.items():
     if k not in st.session_state:
@@ -601,22 +603,20 @@ with col2:
         st.dataframe(bill_df, use_container_width=True)
         st.markdown(f"### Total: ₹{st.session_state.total:.2f}")
 
-        st.session_state.cust_name = st.text_input("Customer Name", value=st.session_state.cust_name)
+        st.session_state.cust_name = st.text_input("Customer Name", value=st.session_state.cust_name, disabled=st.session_state.payment_option is not None)
         st.session_state.cust_phone = st.text_input(
             "Customer Phone (with country code for WhatsApp)",
             value=st.session_state.cust_phone,
             help="e.g., 919876543210",
+            disabled=st.session_state.payment_option is not None
         )
-        st.session_state.cust_email = st.text_input("Customer Email", value=st.session_state.cust_email)
-        st.session_state.cust_addr = st.text_input("Customer Address", value=st.session_state.cust_addr)
+        st.session_state.cust_email = st.text_input("Customer Email", value=st.session_state.cust_email, disabled=st.session_state.payment_option is not None)
+        st.session_state.cust_addr = st.text_input("Customer Address", value=st.session_state.cust_addr, disabled=st.session_state.payment_option is not None)
 
         order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
         
         st.write("---")
         st.subheader("Payment")
-
-        if 'payment_option' not in st.session_state:
-            st.session_state.payment_option = None
 
         if st.button("Confirm Order"):
             st.session_state.payment_option = "pending"
@@ -625,10 +625,28 @@ with col2:
             payment_method = st.radio("Select Payment Method", ["UPI", "Cash on Delivery"])
 
             if payment_method == "UPI":
-                if os.path.exists("Payment_QR code.jpg"):
-                    st.image("Payment_QR code.jpg", width=200)
-                else:
-                    st.warning("Payment QR code not found.")
+                upi_id = "9259317713@ybl"
+                amount = st.session_state.total
+                upi_link = f"upi://pay?pa={upi_id}&pn=Dhaliwal's%20Food%20Court&am={amount}&cu=INR"
+                
+                # Generate QR code
+                qr = qrcode.QRCode(
+                    version=1,
+                    error_correction=qrcode.constants.ERROR_CORRECT_L,
+                    box_size=10,
+                    border=4,
+                )
+                qr.add_data(upi_link)
+                qr.make(fit=True)
+                img = qr.make_image(fill_color="black", back_color="white")
+                
+                # Save QR code to a BytesIO object
+                buf = BytesIO()
+                img.save(buf, format="PNG")
+                
+                st.image(buf, width=200)
+                st.markdown(f'<a href="{upi_link}" target="_blank">Click here to pay with UPI</a>', unsafe_allow_html=True)
+
                 if st.button("Payment Done"):
                     st.session_state.payment_option = "done"
                     st.session_state.payment_method = "UPI"
