@@ -644,6 +644,3 @@ with col2:
     else:
         st.info("No items added yet.")
         
-
-
-
