@@ -45,7 +45,7 @@ with st.container():
         st.image("Dhaliwal Food court_logo.png", width=100)
     with col2:
         st.image("QR_Code For App.jpg", width=100)
-        st.write("Scan the QR code For next order")
+        st.write("Scan the QR code For next order minimum bill should be 200₹ for delivery")
     with col3:
         st.empty()
 # =========================
@@ -757,3 +757,4 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
