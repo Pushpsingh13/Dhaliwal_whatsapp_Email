@@ -27,11 +27,30 @@ try:
 except ImportError:
     pass
 # Show a JPEG banner/image at the very top
-st.image("QR_Code For App.jpg",use_container_width=False)  # replace with your JPEG filename
+st.markdown(
+    """
+    <style>
+    .logo-container {
+        display: flex;
+        justify-content: center;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True
+)
+with st.container():
+    col1, col2, col3 = st.columns([1, 1, 1])
+    with col1:
+        st.image("Dhaliwal Food court_logo.png", width=100)
+    with col2:
+        st.image("QR_Code For App.jpg", width=100)
+        st.write("Scan the QR code For next order")
+    with col3:
+        st.empty()
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
-st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide",page_icon="Dhaliwal Food court (2).png")
+st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide",page_icon="Dhaliwal Food court_logo.png")
 
 img = ""
 try:
@@ -128,7 +147,7 @@ def ensure_orders_csv_exists():
         df = pd.DataFrame(columns=[
             "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
             "Address", "Items", "Subtotal", "TaxRate%", "TaxAmount",
-            "Discount", "GrandTotal"
+            "Discount", "GrandTotal", "PaymentMethod"
         ])
         df.to_csv(ORDERS_CSV, index=False)
 
@@ -226,6 +245,9 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c = canvas.Canvas(buf, pagesize=(thermal_width, thermal_height))
 
     y = thermal_height - 10
+    c.drawImage("Dhaliwal Food court_logo.png", 2 * MM, y - 5 * MM, width=20 * MM, height=10 * MM)
+    c.drawImage("Dhaliwal Food court_logo.png", thermal_width - 22 * MM, y - 5 * MM, width=20 * MM, height=10 * MM)
+    y -= 12
     c.setFont("Helvetica-Bold", 10)
     c.drawCentredString(thermal_width / 2, y, "Dhaliwal's Food Court")
     y -= 12
@@ -297,7 +319,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     return buf
 
 
-def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float):
+def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: float, grand_total: float, payment_method: str):
     """Logs order to the daily Excel file AND appends to consolidated orders.csv"""
     ensure_orders_dir()
     path = today_orders_path()
@@ -316,6 +338,7 @@ def append_order_to_excel(order_id: str, subtotal: float, tax: float, discount: 
         "TaxAmount": tax,
         "Discount": discount,
         "GrandTotal": grand_total,
+        "PaymentMethod": payment_method,
     }
 
     # Save to daily Excel
@@ -418,6 +441,8 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, ta
 # =========================
 ensure_orders_csv_exists()
 menu_df = load_menu(st.session_state.uploaded_menu_file)
+
+
 # Top Header (Dhaliwal's Food Court)
 st.markdown('<p class="main-title">Dhaliwal\'s Food Court</p>', unsafe_allow_html=True)
 
@@ -569,6 +594,7 @@ with col1:
         st.warning("Menu is empty. Please add items via Admin Panel.")
 
 with col2:
+    st.image("QR_Code For App.jpg", width=100)
     st.header("Current Bill")
     if st.session_state.bill:
         bill_df = pd.DataFrame(st.session_state.bill)
@@ -585,62 +611,96 @@ with col2:
         st.session_state.cust_addr = st.text_input("Customer Address", value=st.session_state.cust_addr)
 
         order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-        pdf_buffer = build_pdf_receipt(order_id)
-
-        if pdf_buffer:
-            st.download_button(
-                label="Download Receipt PDF",
-                data=pdf_buffer.getvalue(),
-                file_name=f"receipt_{order_id}.pdf",
-                mime="application/pdf",
-            )
-
+        
         st.write("---")
-        st.subheader("Finalize & Send")
+        st.subheader("Payment")
 
-        send_email = st.checkbox("Email PDF to customer", value=bool(st.session_state.cust_email))
-        send_whatsapp = st.checkbox("Send Order Details to WhatsApp")
+        if 'payment_option' not in st.session_state:
+            st.session_state.payment_option = None
 
-        if st.button("Finalize Order (Log + Selected Sends)"):
-            subtotal = sum(float(i["price"]) for i in st.session_state.bill)
-            tax = subtotal * float(st.session_state.tax_rate) / 100.0
-            discount = float(st.session_state.discount)
-            grand_total = subtotal + tax - discount
+        if st.button("Confirm Order"):
+            st.session_state.payment_option = "pending"
 
-            append_order_to_excel(order_id, subtotal, tax, discount, grand_total)
-            st.success(f"Order {order_id} has been saved to the order logs.")
+        if st.session_state.payment_option == "pending":
+            payment_method = st.radio("Select Payment Method", ["UPI", "Cash on Delivery"])
 
-            if send_email:
-                if not st.session_state.cust_email:
-                    st.warning("Customer email is empty — cannot send email.")
-                elif not pdf_buffer:
-                    st.warning("Receipt PDF not available — cannot send email.")
+            if payment_method == "UPI":
+                if os.path.exists("Payment_QR code.jpg"):
+                    st.image("Payment_QR code.jpg", width=200)
                 else:
-                    ok_email = send_email_with_pdf(st.session_state.cust_email, pdf_buffer.getvalue(), order_id)
-                    if ok_email:
-                        st.success(f"Email sent to {st.session_state.cust_email}")
+                    st.warning("Payment QR code not found.")
+                if st.button("Payment Done"):
+                    st.session_state.payment_option = "done"
+                    st.session_state.payment_method = "UPI"
+                    st.rerun()
+
+            elif payment_method == "Cash on Delivery":
+                if st.button("Confirm Cash on Delivery"):
+                    st.session_state.payment_option = "cod_confirmed"
+                    st.session_state.payment_method = "Cash on Delivery"
+                    st.rerun()
+
+        if st.session_state.payment_option in ["done", "cod_confirmed"]:
+            if st.session_state.payment_option == "done":
+                st.success("We need to confirm your payment. When we get your payment, we will contact you on call for confirmation of your order.")
+            elif st.session_state.payment_option == "cod_confirmed":
+                st.success("Your order has been confirmed for Cash on Delivery.")
+
+            pdf_buffer = build_pdf_receipt(order_id)
+            if pdf_buffer:
+                st.download_button(
+                    label="Download Receipt PDF",
+                    data=pdf_buffer.getvalue(),
+                    file_name=f"receipt_{order_id}.pdf",
+                    mime="application/pdf",
+                )
+
+            st.write("---")
+            st.subheader("Finalize & Send")
+
+            send_email = st.checkbox("Email PDF to customer", value=bool(st.session_state.cust_email))
+            send_whatsapp = st.checkbox("Send Order Details to WhatsApp")
+
+            if st.button("Finalize Order (Log + Selected Sends)"):
+                subtotal = sum(float(i["price"]) for i in st.session_state.bill)
+                tax = subtotal * float(st.session_state.tax_rate) / 100.0
+                discount = float(st.session_state.discount)
+                grand_total = subtotal + tax - discount
+
+                append_order_to_excel(order_id, subtotal, tax, discount, grand_total, st.session_state.payment_method)
+                st.success(f"Order {order_id} has been saved to the order logs.")
+
+                if send_email:
+                    if not st.session_state.cust_email:
+                        st.warning("Customer email is empty — cannot send email.")
+                    elif not pdf_buffer:
+                        st.warning("Receipt PDF not available — cannot send email.")
                     else:
-                        st.warning("Email failed—check SMTP settings.")
+                        ok_email = send_email_with_pdf(st.session_state.cust_email, pdf_buffer.getvalue(), order_id)
+                        if ok_email:
+                            st.success(f"Email sent to {st.session_state.cust_email}")
+                        else:
+                            st.warning("Email failed—check SMTP settings.")
 
-            if send_whatsapp:
-                # Send to customer
-                if not st.session_state.cust_phone:
-                    st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
-                else:
-                    st.info("Click the link below to send the order details to the customer via WhatsApp.")
-                    send_whatsapp_message(st.session_state.cust_phone, order_id, subtotal, tax, grand_total)
+                if send_whatsapp:
+                    # Send to customer
+                    if not st.session_state.cust_phone:
+                        st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
+                    else:
+                        st.info("Click the link below to send the order details to the customer via WhatsApp.")
+                        send_whatsapp_message(st.session_state.cust_phone, order_id, subtotal, tax, grand_total)
 
-                # Send to owner
-                if not st.session_state.owner_phone:
-                    st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
-                else:
-                    st.info("Click the link below to send the order details to the owner via WhatsApp.")
-                    send_whatsapp_message(st.session_state.owner_phone, order_id, subtotal, tax, grand_total)
+                    # Send to owner
+                    if not st.session_state.owner_phone:
+                        st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
+                    else:
+                        st.info("Click the link below to send the order details to the owner via WhatsApp.")
+                        send_whatsapp_message(st.session_state.owner_phone, order_id, subtotal, tax, grand_total)
 
-            if not (send_email or send_whatsapp):
-                st.info("Order logged. Select Email or WhatsApp to send the receipt.")
+                if not (send_email or send_whatsapp):
+                    st.info("Order logged. Select Email or WhatsApp to send the receipt.")
 
         st.button("Clear Bill", on_click=clear_bill)
+
     else:
         st.info("No items added yet.")
-        
