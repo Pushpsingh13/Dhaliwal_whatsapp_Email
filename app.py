@@ -503,13 +503,13 @@ with st.sidebar:
                 st.rerun()
 
         st.divider()
-        st.subheader("Delete Menu Item")
+        st.subheader("Disable Menu Item")
         if not menu_df.empty:
-            delete_item = st.selectbox("Select item to delete", menu_df["Item"])
-            if st.button("Delete Selected Item"):
-                menu_df2 = menu_df[menu_df["Item"] != delete_item]
+            disable_item = st.selectbox("Select item to disable", menu_df["Item"])
+            if st.button("Disable Selected Item"):
+                menu_df2 = menu_df[menu_df["Item"] != disable_item]
                 if save_menu(menu_df2):
-                    st.success(f"'{delete_item}' removed from menu.")
+                    st.success(f"'{disable_item}' removed from menu.")
                     st.rerun()
         else:
             st.info("Menu is empty.")
