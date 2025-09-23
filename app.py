@@ -626,8 +626,13 @@ with col2:
 
             if payment_method == "UPI":
                 upi_id = "9259317713@ybl"
-                amount = st.session_state.total
-                upi_link = f"upi://pay?pa={upi_id}&pn=Dhaliwal's%20Food%20Court&am={amount}&cu=INR"
+                subtotal = st.session_state.total
+                tax_rate = float(st.session_state.tax_rate)
+                discount = float(st.session_state.discount)
+                tax = subtotal * tax_rate / 100.0
+                grand_total = subtotal + tax - discount
+                amount = grand_total
+                upi_link = f"upi://pay?pa={upi_id}&pn=Dhaliwal's%20Food%20Court&am={amount:.2f}&cu=INR"
                 
                 # Generate QR code
                 qr = qrcode.QRCode(
