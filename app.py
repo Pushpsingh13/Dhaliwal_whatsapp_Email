@@ -45,7 +45,7 @@ with st.container():
         st.image("Dhaliwal Food court_logo.png", width=100)
     with col2:
         st.image("QR_Code For App.jpg", width=100)
-        st.write("Scan the QR code For next order minimum bill should be 200₹ for delivery")
+        st.write("Scan the QR code For next order")
     with col3:
         st.empty()
 # =========================
@@ -601,14 +601,19 @@ with col1:
                         st.markdown(f"### {item}")
 
                         # Quantity selector and buttons
-                        qty = st.number_input("Quantity", min_value=1, max_value=10, value=1, step=1, key=f"qty_{i}_{item}")
-                        
-                        col1_btn, col2_btn = st.columns(2)
-                        with col1_btn:
-                            if st.button(f"Half ₹{half_price}", key=f"half_{i}_{item}"):
-                                add_to_bill(item, half_price, "Half", qty)
-                        with col2_btn:
-                            if st.button(f"Full ₹{full_price}", key=f"full_{i}_{item}"):
+                        item_index = i + idx
+                        qty = st.number_input("Quantity", min_value=1, max_value=10, value=1, step=1, key=f"qty_{item_index}_{item}")
+
+                        if half_price > 0:
+                            col1_btn, col2_btn = st.columns(2)
+                            with col1_btn:
+                                if st.button(f"Half ₹{half_price}", key=f"half_{item_index}_{item}"):
+                                    add_to_bill(item, half_price, "Half", qty)
+                            with col2_btn:
+                                if st.button(f"Full ₹{full_price}", key=f"full_{item_index}_{item}"):
+                                    add_to_bill(item, full_price, "Full", qty)
+                        else:
+                            if st.button(f"Full ₹{full_price}", key=f"full_{item_index}_{item}", use_container_width=True):
                                 add_to_bill(item, full_price, "Full", qty)
     else:
         st.warning("Menu is empty. Please add items via Admin Panel.")
@@ -757,4 +762,3 @@ with col2:
 
     else:
         st.info("No items added yet.")
-
