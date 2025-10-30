@@ -267,7 +267,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     try:
         from reportlab.pdfbase import pdfmetrics
         from reportlab.pdfbase.ttfonts import TTFont
-        font_path = os.path.join(APP_DIR, "dejavu-fonts-ttf-2.37", "dejavu-fonts-ttf-2.37", "ttf", "DejaVuSans.ttf")
+        font_path = os.path.join(APP_DIR, "DejaVuSans.ttf")
         pdfmetrics.registerFont(TTFont('DejaVuSans', font_path))
         FONT_NAME = 'DejaVuSans'
         FONT_NAME_BOLD = 'DejaVuSans'  # Using regular for bold as well, as bold version might not be available
@@ -835,3 +835,4 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
