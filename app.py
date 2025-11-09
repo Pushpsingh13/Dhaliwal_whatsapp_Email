@@ -1,16 +1,8 @@
 import os
-# --- PATH SETUP ---
-APP_DIR = os.path.dirname(os.path.abspath(__file__))
-LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
-QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
-BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
-# --- END PATH SETUP ---
 import re
 import smtplib
-import requests
 import time
 import urllib.parse
-import webbrowser
 import base64
 from io import BytesIO
 from datetime import datetime
@@ -22,6 +14,24 @@ from email.mime.text import MIMEText
 
 import pandas as pd
 import streamlit as st
+import streamlit.components.v1 as components
+import razorpay
+
+# --- PATH SETUP ---
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
+QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
+BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
+# --- END PATH SETUP ---
+
+RAZORPAY_KEY_ID = st.secrets.get("RAZORPAY_KEY_ID")
+RAZORPAY_KEY_SECRET = st.secrets.get("RAZORPAY_KEY_SECRET")
+
+razorpay_client = None
+if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
+    razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
+else:
+    st.warning("Razorpay API keys are not configured in secrets.toml.")
 
 # ReportLab for PDF
 canvas = None
@@ -101,7 +111,7 @@ hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
 # =========================
 # CONFIG
 # =========================
-MENU_EXCEL = "DhalisMenu.xlsx"
+MENU_EXCEL = os.path.join(APP_DIR, "DhalisMenu.xlsx")
 ORDERS_DIR = "Orders"  # daily order logs
 ADMIN_PASSWORD = "admin123"  # change after first run
 
@@ -128,9 +138,9 @@ _defaults = {
     "cust_phone": "",
     "cust_addr": "",
     "cust_email": "",
-    "tax_rate": 5.0,
-    "delivery_charge_rate": 2.0,
-    "discount": 10.0,
+    "tax_rate": 0.0,
+    "delivery_charge_rate": 5.0,
+    "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
     "sender_email": DEFAULT_SENDER_EMAIL,
@@ -230,30 +240,30 @@ def save_menu(df):
 
 
 def add_to_bill(item, price, size, quantity=1):
-    st.session_state.last_activity = time.time()
-    st.session_state.order_finalized_time = None
+    st.session_state["last_activity"] = time.time()
+    st.session_state["order_finalized_time"] = None
     # Check if item with same size already exists
-    for bill_item in st.session_state.bill:
+    for bill_item in st.session_state["bill"]:
         if bill_item['item'] == item and bill_item['size'] == size:
             bill_item['quantity'] += quantity
-            st.session_state.total += float(price) * quantity
+            st.session_state["total"] += float(price) * quantity
             st.rerun()
 
-    st.session_state.bill.append({"item": str(item), "price": float(price), "size": str(size), "quantity": quantity})
-    st.session_state.total += float(price) * quantity
+    st.session_state["bill"].append({"item": str(item), "price": float(price), "size": str(size), "quantity": quantity})
+    st.session_state["total"] += float(price) * quantity
     st.rerun()
 
 
 def clear_bill():
-    st.session_state.bill = []
-    st.session_state.total = 0.0
-    st.session_state.cust_name = ""
-    st.session_state.cust_phone = ""
-    st.session_state.cust_addr = ""
-    st.session_state.cust_email = ""
-    st.session_state.payment_option = None
-    st.session_state.last_activity = time.time()
-    st.session_state.order_finalized_time = None
+    st.session_state["bill"] = []
+    st.session_state["total"] = 0.0
+    st.session_state["cust_name"] = ""
+    st.session_state["cust_phone"] = ""
+    st.session_state["cust_addr"] = ""
+    st.session_state["cust_email"] = ""
+    st.session_state["payment_option"] = None
+    st.session_state["last_activity"] = time.time()
+    st.session_state["order_finalized_time"] = None
 
 
 def build_pdf_receipt(order_id: str) -> BytesIO | None:
@@ -275,7 +285,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
         st.warning(f"Could not load a font that supports the Rupee symbol (₹). Please add 'DejaVuSans.ttf' to the app directory. Error: {e}")
     # --- END FONT SETUP ---
 
-    lines = max(1, len(st.session_state.bill))
+    lines = max(1, len(st.session_state["bill"]))
     thermal_width = 80 * MM
     thermal_height = (70 + 8 * lines + 40) * MM
 
@@ -301,13 +311,13 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     y -= 10
     c.drawString(2, y, f"Order ID: {order_id}")
     y -= 10
-    c.drawString(2, y, f"Customer: {clean_text(st.session_state.cust_name)}")
+    c.drawString(2, y, f"Customer: {clean_text(st.session_state['cust_name'])}")
     y -= 10
-    c.drawString(2, y, f"Phone: {clean_text(st.session_state.cust_phone)}")
+    c.drawString(2, y, f"Phone: {clean_text(st.session_state['cust_phone'])}")
     y -= 10
-    c.drawString(2, y, f"Email: {clean_text(st.session_state.cust_email)}")
+    c.drawString(2, y, f"Email: {clean_text(st.session_state['cust_email'])}")
     y -= 10
-    c.drawString(2, y, f"Address: {clean_text(st.session_state.cust_addr)}")
+    c.drawString(2, y, f"Address: {clean_text(st.session_state['cust_addr'])}")
     y -= 10
     c.drawString(2, y, f"Payment Method: {st.session_state.get('payment_method', 'N/A')}")
 
@@ -322,7 +332,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     y -= 10
     c.setFont(FONT_NAME, 8)
     subtotal = 0.0
-    for row in st.session_state.bill:
+    for row in st.session_state["bill"]:
         item_line = clean_text(f"{row['quantity']}x {row['item']} ({row['size']})")
         price_str = f"₹{row['price'] * row['quantity']:.2f}"
         c.drawString(2, y, item_line[:28])
@@ -331,7 +341,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
         subtotal += float(row["price"]) * row['quantity']
 
     delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
-    discount = float(st.session_state.discount)
+    discount = float(st.session_state["discount"])
     delivery_charge = subtotal * delivery_charge_rate / 100.0
     grand_total = subtotal + delivery_charge - discount
 
@@ -358,8 +368,6 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.save()
     buf.seek(0)
     return buf
-
-
 def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float, discount: float, grand_total: float, payment_method: str):
     """Logs order to the daily Excel file AND appends to consolidated orders.csv"""
     ensure_orders_dir()
@@ -369,11 +377,11 @@ def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float
         "Date": now.strftime("%Y-%m-%d"),
         "Time": now.strftime("%H:%M:%S"),
         "OrderID": order_id,
-        "CustomerName": st.session_state.cust_name,
-        "Phone": st.session_state.cust_phone,
-        "Email": st.session_state.cust_email,
-        "Address": st.session_state.cust_addr,
-        "Items": "; ".join([f"{i['quantity']}x {i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state.bill]),
+        "CustomerName": st.session_state["cust_name"],
+        "Phone": st.session_state["cust_phone"],
+        "Email": st.session_state["cust_email"],
+        "Address": st.session_state["cust_addr"],
+        "Items": "; ".join([f"{i['quantity']}x {i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state["bill"]]),
         "Subtotal": subtotal,
         "DeliveryChargeAmount": delivery_charge,
         "Discount": discount,
@@ -410,19 +418,19 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
     if not to_email:
         st.error("Customer email is empty.")
         return False
-    if not st.session_state.sender_email or not st.session_state.sender_password:
+    if not st.session_state["sender_email"] or not st.session_state["sender_password"]:
         st.error("Sender email credentials are missing. Configure in Admin → Email Settings.")
         return False
 
     try:
         msg = MIMEMultipart()
-        msg["From"] = st.session_state.sender_email
-        recipients = [to_email, st.session_state.sender_email]
+        msg["From"] = st.session_state["sender_email"]
+        recipients = [to_email, st.session_state["sender_email"]]
         msg["To"] = to_email
         msg["Subject"] = f"Your Dhaliwal's Food Court Bill (Order {order_id})"
 
         body = MIMEText(
-            f"Dear {st.session_state.cust_name or 'Customer'},\n\n"
+            f"Dear {st.session_state['cust_name'] or 'Customer'},\n\n"
             f"Thanks for your order. Your bill is attached as a PDF.\n\n"
             f"Order ID: {order_id}\n"
             f"Date: {get_local_time().strftime('%d %b %Y %H:%M')}\n\n"
@@ -435,10 +443,10 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
         part["Content-Disposition"] = f'attachment; filename="receipt_{order_id}.pdf"'
         msg.attach(part)
 
-        server = smtplib.SMTP(st.session_state.smtp_server, st.session_state.smtp_port, timeout=20)
+        server = smtplib.SMTP(st.session_state["smtp_server"], st.session_state["smtp_port"], timeout=20)
         server.starttls()
-        server.login(st.session_state.sender_email, st.session_state.sender_password)
-        server.sendmail(st.session_state.sender_email, recipients, msg.as_string())
+        server.login(st.session_state["sender_email"], st.session_state["sender_password"])
+        server.sendmail(st.session_state["sender_email"], recipients, msg.as_string())
         server.quit()
         return True
     except Exception as e:
@@ -447,26 +455,26 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
 
 
 def send_email_to_owner(pdf_bytes: bytes, order_id: str) -> bool:
-    owner_email = st.session_state.sender_email
+    owner_email = st.session_state["sender_email"]
     if not owner_email:
         st.error("Owner email (sender email) is not configured.")
         return False
-    if not st.session_state.sender_password:
+    if not st.session_state["sender_password"]:
         st.error("Sender email password is missing.")
         return False
 
     try:
         msg = MIMEMultipart()
-        msg["From"] = st.session_state.sender_email
+        msg["From"] = st.session_state["sender_email"]
         msg["To"] = owner_email
         msg["Subject"] = f"New Order Received: {order_id}"
 
         body = MIMEText(
             f"A new order has been placed.\n\n"
             f"Order ID: {order_id}\n"
-            f"Customer: {st.session_state.cust_name}\n"
-            f"Phone: {st.session_state.cust_phone}\n"
-            f"Address: {st.session_state.cust_addr}\n"
+            f"Customer: {st.session_state['cust_name']}\n"
+            f"Phone: {st.session_state['cust_phone']}\n"
+            f"Address: {st.session_state['cust_addr']}\n"
             f"Date: {get_local_time().strftime('%d %b %Y %H:%M')}\n\n"
             f"The bill is attached as a PDF.",
             "plain",
@@ -477,10 +485,10 @@ def send_email_to_owner(pdf_bytes: bytes, order_id: str) -> bool:
         part["Content-Disposition"] = f'attachment; filename="receipt_{order_id}.pdf"'
         msg.attach(part)
 
-        server = smtplib.SMTP(st.session_state.smtp_server, st.session_state.smtp_port, timeout=20)
+        server = smtplib.SMTP(st.session_state["smtp_server"], st.session_state["smtp_port"], timeout=20)
         server.starttls()
-        server.login(st.session_state.sender_email, st.session_state.sender_password)
-        server.sendmail(st.session_state.sender_email, owner_email, msg.as_string())
+        server.login(st.session_state["sender_email"], st.session_state["sender_password"])
+        server.sendmail(st.session_state["sender_email"], owner_email, msg.as_string())
         server.quit()
         return True
     except Exception as e:
@@ -496,7 +504,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, de
 
     items_str = "\n".join([
         f"- {i['quantity']}x {i['item']} ({i['size']}): ₹{i['price'] * i['quantity']:.2f}"
-        for i in st.session_state.bill
+        for i in st.session_state["bill"]
     ])
 
     customer_name = st.session_state.get("cust_name", "").strip()
@@ -523,20 +531,20 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, de
 # =========================
 # Auto-clear logic
 # 1. After 1 minute of finalizing an order
-if st.session_state.get("order_finalized_time") and (time.time() - st.session_state.order_finalized_time > 60):
+if st.session_state.get("order_finalized_time") and (time.time() - st.session_state["order_finalized_time"] > 60):
     clear_bill()
     st.toast("Auto-clearing for next order.")
     time.sleep(1)
     st.rerun()
 # 2. After 2 minutes of inactivity before finalizing
-elif not st.session_state.get("order_finalized_time") and 'last_activity' in st.session_state and (time.time() - st.session_state.last_activity > 900):
+elif not st.session_state.get("order_finalized_time") and 'last_activity' in st.session_state and (time.time() - st.session_state["last_activity"] > 900):
     clear_bill()
     st.toast("Bill cleared due to inactivity.")
     time.sleep(1)
     st.rerun()
 
 ensure_orders_csv_exists()
-menu_df = load_menu(st.session_state.uploaded_menu_file)
+menu_df = load_menu(st.session_state["uploaded_menu_file"])
 
 
 # Top Header (Dhaliwal's Food Court)
@@ -555,7 +563,7 @@ with st.sidebar:
         st.subheader("Upload Menu")
         uploaded_menu_file = st.file_uploader("Upload DhalisMenu.xlsx", type=["xlsx"])
         if uploaded_menu_file is not None:
-            st.session_state.uploaded_menu_file = uploaded_menu_file
+            st.session_state["uploaded_menu_file"] = uploaded_menu_file
             st.success("Menu file uploaded.")
             st.rerun()
 
@@ -580,12 +588,12 @@ with st.sidebar:
 
         st.divider()
         st.subheader("Billing Settings")
-        st.session_state.tax_rate = st.number_input("Tax Rate (%)", value=float(st.session_state.tax_rate), step=0.5)
-        st.session_state.discount = st.number_input("Discount (₹)", value=float(st.session_state.discount), step=1.0)
+        st.session_state["tax_rate"] = st.number_input("Tax Rate (%)", value=float(st.session_state["tax_rate"]), step=0.5)
+        st.session_state["discount"] = st.number_input("Discount (₹)", value=float(st.session_state["discount"]), step=1.0)
 
         st.divider()
         st.subheader("Owner Settings")
-        st.session_state.owner_phone = st.text_input("Owner's WhatsApp Number", value=st.session_state.owner_phone, help="e.g., 919876543210", disabled=True)
+        st.session_state["owner_phone"] = st.text_input("Owner's WhatsApp Number", value=st.session_state["owner_phone"], help="e.g., 919876543210", disabled=True)
         st.divider()
         st.subheader("Email Settings (SMTP)")
 
@@ -593,29 +601,29 @@ with st.sidebar:
             # If editing is unlocked, show the form with enabled fields and a save button
             with st.form("smtp_edit_form"):
                 st.write("You can now edit the SMTP settings below.")
-                st.text_input("SMTP Server", key="smtp_server_input", value=st.session_state.smtp_server)
-                st.number_input("SMTP Port", key="smtp_port_input", value=int(st.session_state.smtp_port), step=1)
-                st.text_input("Sender Email", key="sender_email_input", value=st.session_state.sender_email)
-                st.text_input("Sender Password", key="sender_password_input", value=st.session_state.sender_password, type="password")
+                st.text_input("SMTP Server", key="smtp_server_input", value=st.session_state["smtp_server"])
+                st.number_input("SMTP Port", key="smtp_port_input", value=int(st.session_state["smtp_port"]), step=1)
+                st.text_input("Sender Email", key="sender_email_input", value=st.session_state["sender_email"])
+                st.text_input("Sender Password", key="sender_password_input", value=st.session_state["sender_password"], type="password")
                 
                 save_submitted = st.form_submit_button("Save SMTP Settings")
                 if save_submitted:
-                    st.session_state.smtp_server = st.session_state.smtp_server_input
-                    st.session_state.smtp_port = st.session_state.smtp_port_input
-                    st.session_state.sender_email = st.session_state.sender_email_input
-                    st.session_state.sender_password = st.session_state.sender_password_input
+                    st.session_state["smtp_server"] = st.session_state["smtp_server_input"]
+                    st.session_state["smtp_port"] = st.session_state["smtp_port_input"]
+                    st.session_state["sender_email"] = st.session_state["sender_email_input"]
+                    st.session_state["sender_password"] = st.session_state["sender_password_input"]
 
-                    st.session_state.edit_smtp = False
+                    st.session_state["edit_smtp"] = False
                     st.success("SMTP settings updated for the current session.")
                     st.info("Note: On Streamlit Cloud, these settings will reset when the app restarts. For permanent changes, please update the secrets in your Streamlit Cloud dashboard.")
                     time.sleep(5)
                     st.rerun()
         else:
             # If settings are locked, show disabled fields and the unlock form
-            st.text_input("SMTP Server", value=st.session_state.smtp_server, disabled=True)
-            st.number_input("SMTP Port", value=int(st.session_state.smtp_port), step=1, disabled=True)
-            st.text_input("Sender Email", value=st.session_state.sender_email, disabled=True)
-            st.text_input("Sender Password", value="********" if st.session_state.sender_password else "", type="password", disabled=True)
+            st.text_input("SMTP Server", value=st.session_state["smtp_server"], disabled=True)
+            st.number_input("SMTP Port", value=int(st.session_state["smtp_port"]), step=1, disabled=True)
+            st.text_input("Sender Email", value=st.session_state["sender_email"], disabled=True)
+            st.text_input("Sender Password", value="********" if st.session_state["sender_password"] else "", type="password", disabled=True)
 
             with st.form("smtp_unlock_form"):
                 st.info("To edit SMTP settings, you must unlock them with the admin password.")
@@ -624,7 +632,7 @@ with st.sidebar:
 
                 if unlock_submitted:
                     if unlock_password == ADMIN_PASSWORD:
-                        st.session_state.edit_smtp = True
+                        st.session_state["edit_smtp"] = True
                         st.rerun()
                     elif unlock_password:
                         st.error("Incorrect password.")
@@ -697,8 +705,8 @@ with col1:
 with col2:
     st.image(QR_CODE_APP_PATH, width=100)
     st.header("Current Bill")
-    if st.session_state.bill:
-        for i, bill_item in reversed(list(enumerate(st.session_state.bill))):
+    if st.session_state["bill"]:
+        for i, bill_item in reversed(list(enumerate(st.session_state["bill"]))):
             col1, col2, col3 = st.columns([4, 2, 1])
             with col1:
                 st.text(f"{bill_item['quantity']}x {bill_item['item']} ({bill_item['size']})")
@@ -706,23 +714,23 @@ with col2:
                 st.text(f"₹{bill_item['price'] * bill_item['quantity']:.2f}")
             with col3:
                 if st.button("🗑️", key=f"delete_{i}"):
-                    st.session_state.last_activity = time.time()
-                    removed_item = st.session_state.bill.pop(i)
-                    st.session_state.total -= removed_item['price'] * removed_item['quantity']
+                    st.session_state["last_activity"] = time.time()
+                    removed_item = st.session_state["bill"].pop(i)
+                    st.session_state["total"] -= removed_item['price'] * removed_item['quantity']
                     st.rerun()
         
         st.markdown("---")
-        st.markdown(f"### Total: ₹{st.session_state.total:.2f}")
+        st.markdown(f"### Total: ₹{st.session_state['total']:.2f}")
 
-        st.session_state.cust_name = st.text_input("Customer Name", value=st.session_state.cust_name, disabled=st.session_state.payment_option is not None)
-        st.session_state.cust_phone = st.text_input(
+        st.session_state["cust_name"] = st.text_input("Customer Name", value=st.session_state["cust_name"], disabled=st.session_state["payment_option"] is not None)
+        st.session_state["cust_phone"] = st.text_input(
             "Customer Phone (with country code for WhatsApp)",
-            value=st.session_state.cust_phone,
+            value=st.session_state["cust_phone"],
             help="e.g., 919876543210",
-            disabled=st.session_state.payment_option is not None
+            disabled=st.session_state["payment_option"] is not None
         )
-        st.session_state.cust_email = st.text_input("Customer Email", value=st.session_state.cust_email, disabled=st.session_state.payment_option is not None)
-        st.session_state.cust_addr = st.text_input("Customer Address", value=st.session_state.cust_addr, disabled=st.session_state.payment_option is not None)
+        st.session_state["cust_email"] = st.text_input("Customer Email", value=st.session_state["cust_email"], disabled=st.session_state["payment_option"] is not None)
+        st.session_state["cust_addr"] = st.text_input("Customer Address", value=st.session_state["cust_addr"], disabled=st.session_state["payment_option"] is not None)
 
         order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
         
@@ -730,16 +738,16 @@ with col2:
         st.subheader("Payment")
 
         if st.button("Confirm Order"):
-            st.session_state.payment_option = "pending"
+            st.session_state["payment_option"] = "pending"
 
-        if st.session_state.payment_option == "pending":
-            payment_method = st.radio("Select Payment Method", ["UPI", "Cash on Delivery"])
+        if st.session_state["payment_option"] == "pending":
+            payment_method = st.radio("Select Payment Method", ["UPI", "Cash on Delivery", "Razorpay (Card/Netbanking)"])
 
             if payment_method == "UPI":
                 upi_id = "9259317713@ybl"
-                subtotal = st.session_state.total
+                subtotal = st.session_state["total"]
                 delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
-                discount = float(st.session_state.discount)
+                discount = float(st.session_state["discount"])
                 delivery_charge = subtotal * delivery_charge_rate / 100.0
                 grand_total = subtotal + delivery_charge - discount
                 amount = grand_total
@@ -756,20 +764,72 @@ with col2:
                 st.markdown(f'<a href="{upi_link}" target="_blank">Click here to pay via UPI</a>', unsafe_allow_html=True)
 
                 if st.button("Payment Done"):
-                    st.session_state.payment_option = "done"
-                    st.session_state.payment_method = "UPI"
+                    st.session_state["payment_option"] = "done"
+                    st.session_state["payment_method"] = "UPI"
                     st.rerun()
 
             elif payment_method == "Cash on Delivery":
                 if st.button("Confirm Cash on Delivery"):
-                    st.session_state.payment_option = "cod_confirmed"
-                    st.session_state.payment_method = "Cash on Delivery"
+                    st.session_state["payment_option"] = "cod_confirmed"
+                    st.session_state["payment_method"] = "Cash on Delivery"
                     st.rerun()
 
-        if st.session_state.payment_option in ["done", "cod_confirmed"]:
-            if st.session_state.payment_option == "done":
+            elif payment_method == "Razorpay (Card/Netbanking)":
+                if not razorpay_client:
+                    st.error("Razorpay is not configured.")
+                else:
+                    subtotal = st.session_state["total"]
+                    delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
+                    discount = float(st.session_state["discount"])
+                    delivery_charge = subtotal * delivery_charge_rate / 100.0
+                    grand_total = subtotal + delivery_charge - discount
+
+                    order_currency = "INR"
+                    order_receipt = f"receipt_{order_id}"
+
+                    try:
+                        razorpay_order = razorpay_client.order.create({
+                            "amount": int(grand_total * 100),  # amount in paise
+                            "currency": order_currency,
+                            "receipt": order_receipt,
+                            "payment_capture": 1
+                        })
+
+                        st.success("Order created successfully. Click below to complete payment.")
+                        
+                        html = f"""
+                        <form>
+                            <script
+                                src="https://checkout.razorpay.com/v1/checkout.js"
+                                data-key="{RAZORPAY_KEY_ID}"
+                                data-amount="{int(grand_total * 100)}"
+                                data-currency="INR"
+                                data-order_id="{razorpay_order['id']}"
+                                data-buttontext="Pay ₹{grand_total:.2f} with Razorpay"
+                                data-name="Dhaliwal's Food Court"
+                                data-description="Order Payment"
+                                data-prefill.name="{st.session_state['cust_name']}"
+                                data-prefill.email="{st.session_state['cust_email']}"
+                                data-prefill.contact="{st.session_state['cust_phone']}"
+                                data-theme.color="#F37254"
+                            ></script>
+                        </form>
+                        """
+                        components.html(html, height=600)
+
+                        if st.button("Payment Done"):
+                            st.session_state["payment_option"] = "done"
+                            st.session_state["payment_method"] = "Razorpay"
+                            st.rerun()
+                    except Exception as e:
+                        st.error(f"Error creating Razorpay order: {e}")
+                        if "Authentication failed" in str(e):
+                            st.warning("Authentication failed. Please check if your Razorpay Key ID and Key Secret in `.streamlit/secrets.toml` are correct and belong to your account.")
+
+        if st.session_state["payment_option"] in ["done", "cod_confirmed"]:
+            if st.session_state["payment_option"] == "done":
                 st.success("We need to confirm your payment please send your payment details like transaction details on what's app. When we get your payment, we will contact you on call for confirmation of your order.")
-            elif st.session_state.payment_option == "cod_confirmed":
+            elif st.session_state["payment_option"] == "cod_confirmed":
                 st.success("Your order has been confirmed for Cash on Delivery.")
 
             pdf_buffer = build_pdf_receipt(order_id)
@@ -784,49 +844,49 @@ with col2:
             st.write("---")
             st.subheader("Finalize & Send")
 
-            send_email = st.checkbox("Email PDF to customer", value=bool(st.session_state.cust_email))
+            send_email = st.checkbox("Email PDF to customer", value=bool(st.session_state["cust_email"]))
             send_whatsapp = st.checkbox("Send Order Details to WhatsApp")
 
             if st.button("Finalize Order (Log + Selected Sends)"):
-                subtotal = st.session_state.total
+                subtotal = st.session_state["total"]
                 delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
                 delivery_charge = subtotal * delivery_charge_rate / 100.0
-                discount = float(st.session_state.discount)
+                discount = float(st.session_state["discount"])
                 grand_total = subtotal + delivery_charge - discount
 
-                append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, st.session_state.payment_method)
-                st.session_state.order_finalized_time = time.time()
+                append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, st.session_state["payment_method"])
+                st.session_state["order_finalized_time"] = time.time()
                 st.success(f"Order {order_id} has been saved to the order logs.")
 
                 if pdf_buffer:
                     send_email_to_owner(pdf_buffer.getvalue(), order_id)
 
                 if send_email:
-                    if not st.session_state.cust_email:
+                    if not st.session_state["cust_email"]:
                         st.warning("Customer email is empty — cannot send email.")
                     elif not pdf_buffer:
                         st.warning("Receipt PDF not available — cannot send email.")
                     else:
-                        ok_email = send_email_with_pdf(st.session_state.cust_email, pdf_buffer.getvalue(), order_id)
+                        ok_email = send_email_with_pdf(st.session_state["cust_email"], pdf_buffer.getvalue(), order_id)
                         if ok_email:
-                            st.success(f"Email sent to {st.session_state.cust_email}")
+                            st.success(f"Email sent to {st.session_state['cust_email']}")
                         else:
                             st.warning("Email failed—check SMTP settings.")
 
                 if send_whatsapp:
                     # Send to customer
-                    if not st.session_state.cust_phone:
+                    if not st.session_state["cust_phone"]:
                         st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
                     else:
                         st.info("Click the link below to send the order details to the customer via WhatsApp.")
-                        send_whatsapp_message(st.session_state.cust_phone, order_id, subtotal, delivery_charge, grand_total)
+                        send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, delivery_charge, grand_total)
 
                     # Send to owner
-                    if not st.session_state.owner_phone:
+                    if not st.session_state["owner_phone"]:
                         st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
                     else:
                         st.info("Click the link below to send the order details to the owner via WhatsApp.")
-                        send_whatsapp_message(st.session_state.owner_phone, order_id, subtotal, delivery_charge, grand_total)
+                        send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, delivery_charge, grand_total)
 
                 if not (send_email or send_whatsapp):
                     st.info("Order logged. Select Email or WhatsApp to send the receipt.")
