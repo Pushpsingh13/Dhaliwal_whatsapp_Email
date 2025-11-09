@@ -753,7 +753,7 @@ with col2:
                 qr_img.save(buf)
                 
                 st.image(buf, width=200)
-                st.markdown(f'<a href="{upi_link}" target="_blank">Click here to pay with UPI</a>', unsafe_allow_html=True)
+                st.write("Scan the QR code to pay.")
 
                 if st.button("Payment Done"):
                     st.session_state.payment_option = "done"
@@ -835,5 +835,3 @@ with col2:
 
     else:
         st.info("No items added yet.")
-
-
