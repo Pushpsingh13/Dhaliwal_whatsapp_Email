@@ -15,7 +15,7 @@ from email.mime.text import MIMEText
 import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
-import razorpay
+import razorpay  # type: ignore
 
 # --- PATH SETUP ---
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -741,27 +741,35 @@ with col2:
             st.session_state["payment_option"] = "pending"
 
         if st.session_state["payment_option"] == "pending":
-            payment_method = st.radio("Select Payment Method", ["UPI", "Cash on Delivery", "Razorpay (Card/Netbanking)"])
+            payment_method = st.radio(
+                "Select Payment Method",
+                ["UPI", "Cash on Delivery", "Razorpay (Card/Netbanking)"],
+            )
 
             if payment_method == "UPI":
                 upi_id = "9259317713@ybl"
                 subtotal = st.session_state["total"]
-                delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
+                delivery_charge_rate = float(
+                    st.session_state.get("delivery_charge_rate", 5.0)
+                )
                 discount = float(st.session_state["discount"])
                 delivery_charge = subtotal * delivery_charge_rate / 100.0
                 grand_total = subtotal + delivery_charge - discount
                 amount = grand_total
                 upi_link = f"upi://pay?pa={upi_id}&pn=Dhaliwal's%20Food%20Court&am={amount:.2f}&cu=INR"
-                
+
                 # Generate QR code
                 qr_img = qrcode.make(upi_link)
-                
+
                 # Save QR code to a BytesIO object
                 buf = BytesIO()
                 qr_img.save(buf)
-                
+
                 st.image(buf, width=200)
-                st.markdown(f'<a href="{upi_link}" target="_blank">Click here to pay via UPI</a>', unsafe_allow_html=True)
+                st.markdown(
+                    f'<a href="{upi_link}" target="_blank">Click here to pay via UPI</a>',
+                    unsafe_allow_html=True,
+                )
 
                 if st.button("Payment Done"):
                     st.session_state["payment_option"] = "done"
@@ -779,7 +787,9 @@ with col2:
                     st.error("Razorpay is not configured.")
                 else:
                     subtotal = st.session_state["total"]
-                    delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
+                    delivery_charge_rate = float(
+                        st.session_state.get("delivery_charge_rate", 5.0)
+                    )
                     discount = float(st.session_state["discount"])
                     delivery_charge = subtotal * delivery_charge_rate / 100.0
                     grand_total = subtotal + delivery_charge - discount
@@ -788,43 +798,38 @@ with col2:
                     order_receipt = f"receipt_{order_id}"
 
                     try:
-                        razorpay_order = razorpay_client.order.create({
-                            "amount": int(grand_total * 100),  # amount in paise
-                            "currency": order_currency,
-                            "receipt": order_receipt,
-                            "payment_capture": 1
+                        payment_link = razorpay_client.payment_link.create({
+                            "amount": int(grand_total * 100),
+                            "currency": "INR",
+                            "accept_partial": False,
+                            "description": f"Payment for Order {order_id}",
+                            "customer": {
+                                "name": st.session_state['cust_name'],
+                                "email": st.session_state['cust_email'],
+                                "contact": st.session_state['cust_phone']
+                            },
+                            "notify": {
+                                "sms": True,
+                                "email": True
+                            },
+                            "reminder_enable": True,
+                            "callback_url": "https://example.com/thankyou", # Replace with your actual thank you page
+                            "callback_method": "get"
                         })
 
-                        st.success("Order created successfully. Click below to complete payment.")
-                        
-                        html = f"""
-                        <form>
-                            <script
-                                src="https://checkout.razorpay.com/v1/checkout.js"
-                                data-key="{RAZORPAY_KEY_ID}"
-                                data-amount="{int(grand_total * 100)}"
-                                data-currency="INR"
-                                data-order_id="{razorpay_order['id']}"
-                                data-buttontext="Pay ₹{grand_total:.2f} with Razorpay"
-                                data-name="Dhaliwal's Food Court"
-                                data-description="Order Payment"
-                                data-prefill.name="{st.session_state['cust_name']}"
-                                data-prefill.email="{st.session_state['cust_email']}"
-                                data-prefill.contact="{st.session_state['cust_phone']}"
-                                data-theme.color="#F37254"
-                            ></script>
-                        </form>
-                        """
-                        components.html(html, height=600)
+                        st.success("Payment link created successfully!")
+                        st.markdown(f'<a href="{payment_link["short_url"]}" target="_blank" style="background-color: #F37254; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Pay ₹{grand_total:.2f} with Razorpay</a>', unsafe_allow_html=True)
 
                         if st.button("Payment Done"):
                             st.session_state["payment_option"] = "done"
                             st.session_state["payment_method"] = "Razorpay"
                             st.rerun()
                     except Exception as e:
-                        st.error(f"Error creating Razorpay order: {e}")
+                        st.error(f"Error creating Razorpay payment link: {e}")
                         if "Authentication failed" in str(e):
-                            st.warning("Authentication failed. Please check if your Razorpay Key ID and Key Secret in `.streamlit/secrets.toml` are correct and belong to your account.")
+                            st.warning(
+                                "Authentication failed. Please check if your Razorpay Key ID and Key Secret in `.streamlit/secrets.toml` are correct and belong to your account."
+                            )
 
         if st.session_state["payment_option"] in ["done", "cod_confirmed"]:
             if st.session_state["payment_option"] == "done":
