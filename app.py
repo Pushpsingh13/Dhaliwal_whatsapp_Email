@@ -138,8 +138,8 @@ _defaults = {
     "cust_phone": "",
     "cust_addr": "",
     "cust_email": "",
-    "tax_rate": 0.0,
-    "delivery_charge_rate": 5.0,
+    "tax_rate": 2.0,
+    "delivery_charge_rate": 5,
     "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
@@ -343,7 +343,10 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
     discount = float(st.session_state["discount"])
     delivery_charge = subtotal * delivery_charge_rate / 100.0
-    grand_total = subtotal + delivery_charge - discount
+    razorpay_fee = 0.0
+    if st.session_state.get("payment_method") == "Razorpay":
+        razorpay_fee = subtotal * 0.026
+    grand_total = subtotal + delivery_charge - discount + razorpay_fee
 
     c.line(0, y, thermal_width, y)
     y -= 12
@@ -354,6 +357,10 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.drawString(2, y, "Delivery Charge")
     c.drawRightString(thermal_width - 2, y, f"₹{delivery_charge:.2f}")
     y -= 10
+    if razorpay_fee > 0:
+        c.drawString(2, y, "Razorpay Fee")
+        c.drawRightString(thermal_width - 2, y, f"₹{razorpay_fee:.2f}")
+        y -= 10
     c.drawString(2, y, "Discount")
     c.drawRightString(thermal_width - 2, y, f"-₹{discount:.2f}")
     y -= 10
@@ -588,8 +595,8 @@ with st.sidebar:
 
         st.divider()
         st.subheader("Billing Settings")
-        st.session_state["tax_rate"] = st.number_input("Tax Rate (%)", value=float(st.session_state["tax_rate"]), step=0.5)
-        st.session_state["discount"] = st.number_input("Discount (₹)", value=float(st.session_state["discount"]), step=1.0)
+        st.session_state["tax_rate"] = st.number_input("Tax Rate (%)", value=float(st.session_state["tax_rate"]), step=0.5, disabled=True)
+        st.session_state["discount"] = st.number_input("Discount (₹)", value=float(st.session_state["discount"]), step=1.0, disabled=True)
 
         st.divider()
         st.subheader("Owner Settings")
@@ -812,7 +819,9 @@ with col2:
                     )
                     discount = float(st.session_state["discount"])
                     delivery_charge = subtotal * delivery_charge_rate / 100.0
-                    grand_total = subtotal + delivery_charge - discount
+                    razorpay_fee = subtotal * 0.026
+                    grand_total = subtotal + delivery_charge - discount + razorpay_fee
+
 
                     order_currency = "INR"
                     order_receipt = f"receipt_{order_id}"
@@ -832,8 +841,7 @@ with col2:
                                 "sms": True,
                                 "email": True
                             },
-                            
- })
+                                            })
 
                         st.success("Payment link created successfully!")
                         st.markdown(f'<a href="{payment_link["short_url"]}" target="_blank" style="background-color: #F37254; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Pay ₹{grand_total:.2f} with Razorpay</a>', unsafe_allow_html=True)
