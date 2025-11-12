@@ -772,14 +772,34 @@ with col2:
                 )
 
                 if st.button("Payment Done"):
+                    subtotal = st.session_state["total"]
+                    delivery_charge_rate = float(
+                        st.session_state.get("delivery_charge_rate", 5.0)
+                    )
+                    discount = float(st.session_state["discount"])
+                    delivery_charge = subtotal * delivery_charge_rate / 100.0
+                    grand_total = subtotal + delivery_charge - discount
+                    order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
+                    append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "UPI")
                     st.session_state["payment_option"] = "done"
                     st.session_state["payment_method"] = "UPI"
+                    st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
             elif payment_method == "Cash on Delivery":
                 if st.button("Confirm Cash on Delivery"):
+                    subtotal = st.session_state["total"]
+                    delivery_charge_rate = float(
+                        st.session_state.get("delivery_charge_rate", 5.0)
+                    )
+                    discount = float(st.session_state["discount"])
+                    delivery_charge = subtotal * delivery_charge_rate / 100.0
+                    grand_total = subtotal + delivery_charge - discount
+                    order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
+                    append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "Cash on Delivery")
                     st.session_state["payment_option"] = "cod_confirmed"
                     st.session_state["payment_method"] = "Cash on Delivery"
+                    st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
             elif payment_method == "Razorpay (Card/Netbanking)":
@@ -812,15 +832,25 @@ with col2:
                                 "sms": True,
                                 "email": True
                             },
-                           
-                        })
+                            
+ })
 
                         st.success("Payment link created successfully!")
                         st.markdown(f'<a href="{payment_link["short_url"]}" target="_blank" style="background-color: #F37254; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Pay ₹{grand_total:.2f} with Razorpay</a>', unsafe_allow_html=True)
 
                         if st.button("Payment Done"):
+                            subtotal = st.session_state["total"]
+                            delivery_charge_rate = float(
+                                st.session_state.get("delivery_charge_rate", 5.0)
+                            )
+                            discount = float(st.session_state["discount"])
+                            delivery_charge = subtotal * delivery_charge_rate / 100.0
+                            grand_total = subtotal + delivery_charge - discount
+                            order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
+                            append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "Razorpay")
                             st.session_state["payment_option"] = "done"
                             st.session_state["payment_method"] = "Razorpay"
+                            st.session_state["order_finalized_time"] = time.time()
                             st.rerun()
                     except Exception as e:
                         st.error(f"Error creating Razorpay payment link: {e}")
@@ -857,8 +887,6 @@ with col2:
                 discount = float(st.session_state["discount"])
                 grand_total = subtotal + delivery_charge - discount
 
-                append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, st.session_state["payment_method"])
-                st.session_state["order_finalized_time"] = time.time()
                 st.success(f"Order {order_id} has been saved to the order logs.")
 
                 if pdf_buffer:
@@ -898,4 +926,3 @@ with col2:
 
     else:
         st.info("No items added yet.")
-
