@@ -812,9 +812,7 @@ with col2:
                                 "sms": True,
                                 "email": True
                             },
-                            "reminder_enable": True,
-                            "callback_url": "https://example.com/thankyou", # Replace with your actual thank you page
-                            "callback_method": "get"
+                           
                         })
 
                         st.success("Payment link created successfully!")
@@ -900,3 +898,4 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
