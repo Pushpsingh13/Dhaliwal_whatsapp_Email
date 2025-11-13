@@ -856,10 +856,7 @@ with col2:
                                 "email": st.session_state['cust_email'],
                                 "contact": st.session_state['cust_phone']
                             },
-                            "reminder_enable": True,
-                            "callback_url": "https://example.com/thankyou", # Replace with your actual thank you page
-                            "callback_method": "get"
-                        })
+                            })
 
                         st.success("Payment link created successfully!")
                         st.markdown(f'<a href="{payment_link["short_url"]}" target="_blank" style="background-color: #F37254; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Pay ₹{grand_total:.2f} with Razorpay</a>', unsafe_allow_html=True)
@@ -960,3 +957,4 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
