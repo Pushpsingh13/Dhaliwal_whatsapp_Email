@@ -168,7 +168,7 @@ def ensure_orders_csv_exists():
         df = pd.DataFrame(columns=[
             "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
             "Address", "Items", "Subtotal", "DeliveryChargeAmount",
-            "Discount", "GrandTotal", "PaymentMethod"
+            "Discount", "GrandTotal", "PaymentMethod" , "razorpay_fee"
         ])
         df.to_csv(ORDERS_CSV, index=False)
 
@@ -375,7 +375,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.save()
     buf.seek(0)
     return buf
-def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float, discount: float, grand_total: float, payment_method: str):
+def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float, discount: float, grand_total: float, payment_method: str, razorpay_fee: float = 0.0):
     """Logs order to the daily Excel file AND appends to consolidated orders.csv"""
     ensure_orders_dir()
     path = today_orders_path()
@@ -394,6 +394,7 @@ def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float
         "Discount": discount,
         "GrandTotal": grand_total,
         "PaymentMethod": payment_method,
+        "razorpay_fee": razorpay_fee,
     }
 
     # Save to daily Excel
@@ -503,7 +504,7 @@ def send_email_to_owner(pdf_bytes: bytes, order_id: str) -> bool:
         return False
 
 
-def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, delivery_charge: float, grand_total: float) -> bool:
+def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, delivery_charge: float, grand_total: float, razorpay_fee: float = 0.0) -> bool:
     to_digits = "".join([c for c in str(to_number_raw) if c.isdigit()])
     if not to_digits:
         st.error("Invalid customer phone for WhatsApp.")
@@ -517,6 +518,8 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, de
     customer_name = st.session_state.get("cust_name", "").strip()
     cust_name_str = f"Hello {customer_name},\n\n" if customer_name else ""
 
+    razorpay_fee_str = f"*Razorpay Fee:* ₹{razorpay_fee:.2f}\n" if razorpay_fee > 0 else ""
+
     message = (
         f"{cust_name_str}Thank you for your order from Dhaliwal's Food Court!\n\n"
         f"*Order ID:* {order_id}\n"
@@ -524,6 +527,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, de
         f"*Items:*\n{items_str}\n\n"
         f"*Subtotal:* ₹{subtotal:.2f}\n"
         f"*Delivery Charge:* ₹{delivery_charge:.2f}\n"
+        f"{razorpay_fee_str}"
         f"*Grand Total:* ₹{grand_total:.2f}\n\n"
         f"We hope you enjoy your meal!"
     )
@@ -787,7 +791,7 @@ with col2:
                     delivery_charge = subtotal * delivery_charge_rate / 100.0
                     grand_total = subtotal + delivery_charge - discount
                     order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                    append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "UPI")
+                    append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "UPI", razorpay_fee=0)
                     st.session_state["payment_option"] = "done"
                     st.session_state["payment_method"] = "UPI"
                     st.session_state["order_finalized_time"] = time.time()
@@ -803,7 +807,7 @@ with col2:
                     delivery_charge = subtotal * delivery_charge_rate / 100.0
                     grand_total = subtotal + delivery_charge - discount
                     order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                    append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "Cash on Delivery")
+                    append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "Cash on Delivery", razorpay_fee=0)
                     st.session_state["payment_option"] = "cod_confirmed"
                     st.session_state["payment_method"] = "Cash on Delivery"
                     st.session_state["order_finalized_time"] = time.time()
@@ -827,21 +831,20 @@ with col2:
                     order_receipt = f"receipt_{order_id}"
 
                     try:
-                        payment_link = razorpay_client.payment_link.create({
+                        payment_link = razorpay_client.invoice.create({
+                            "type": "link",
                             "amount": int(grand_total * 100),
                             "currency": "INR",
-                            "accept_partial": False,
                             "description": f"Payment for Order {order_id}",
                             "customer": {
                                 "name": st.session_state['cust_name'],
                                 "email": st.session_state['cust_email'],
                                 "contact": st.session_state['cust_phone']
                             },
-                            "notify": {
-                                "sms": True,
-                                "email": True
-                            },
-                                            })
+                            "reminder_enable": True,
+                            "callback_url": "https://example.com/thankyou", # Replace with your actual thank you page
+                            "callback_method": "get"
+                        })
 
                         st.success("Payment link created successfully!")
                         st.markdown(f'<a href="{payment_link["short_url"]}" target="_blank" style="background-color: #F37254; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Pay ₹{grand_total:.2f} with Razorpay</a>', unsafe_allow_html=True)
@@ -853,9 +856,10 @@ with col2:
                             )
                             discount = float(st.session_state["discount"])
                             delivery_charge = subtotal * delivery_charge_rate / 100.0
-                            grand_total = subtotal + delivery_charge - discount
+                            razorpay_fee = subtotal * 0.026
+                            grand_total = subtotal + delivery_charge - discount + razorpay_fee
                             order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                            append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "Razorpay")
+                            append_order_to_excel(order_id, subtotal, delivery_charge, discount, grand_total, "Razorpay", razorpay_fee=razorpay_fee)
                             st.session_state["payment_option"] = "done"
                             st.session_state["payment_method"] = "Razorpay"
                             st.session_state["order_finalized_time"] = time.time()
@@ -893,7 +897,10 @@ with col2:
                 delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
                 delivery_charge = subtotal * delivery_charge_rate / 100.0
                 discount = float(st.session_state["discount"])
-                grand_total = subtotal + delivery_charge - discount
+                razorpay_fee = 0.0
+                if st.session_state.get("payment_method") == "Razorpay":
+                    razorpay_fee = subtotal * 0.026
+                grand_total = subtotal + delivery_charge - discount + razorpay_fee
 
                 st.success(f"Order {order_id} has been saved to the order logs.")
 
@@ -918,14 +925,14 @@ with col2:
                         st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
                     else:
                         st.info("Click the link below to send the order details to the customer via WhatsApp.")
-                        send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, delivery_charge, grand_total)
+                        send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, delivery_charge, grand_total, razorpay_fee)
 
                     # Send to owner
                     if not st.session_state["owner_phone"]:
                         st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
                     else:
                         st.info("Click the link below to send the order details to the owner via WhatsApp.")
-                        send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, delivery_charge, grand_total)
+                        send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, delivery_charge, grand_total, razorpay_fee)
 
                 if not (send_email or send_whatsapp):
                     st.info("Order logged. Select Email or WhatsApp to send the receipt.")
