@@ -841,9 +841,6 @@ with col2:
                                 "email": st.session_state['cust_email'],
                                 "contact": st.session_state['cust_phone']
                             },
-                            "reminder_enable": True,
-                            "callback_url": "https://example.com/thankyou", # Replace with your actual thank you page
-                            "callback_method": "get"
                         })
 
                         st.success("Payment link created successfully!")
@@ -941,3 +938,4 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
