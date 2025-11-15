@@ -151,6 +151,7 @@ _defaults = {
     "payment_option": None,
     "last_activity": time.time(),
     "order_finalized_time": None,
+    "show_upi": True,
 }
 for k, v in _defaults.items():
     if k not in st.session_state:
@@ -609,6 +610,7 @@ with st.sidebar:
         st.subheader("Billing Settings")
         st.session_state["gst_rate"] = st.number_input("GST Rate (%)", value=float(st.session_state.get("gst_rate", 0.0)), step=0.5)
         st.session_state["discount"] = st.number_input("Discount (₹)", value=float(st.session_state["discount"]), step=1.0)
+        st.session_state["show_upi"] = st.checkbox("Show UPI Payment Option", value=st.session_state.get("show_upi", True))
 
         st.divider()
         st.subheader("Owner Settings")
@@ -757,12 +759,19 @@ with col2:
         st.subheader("Payment")
 
         if st.button("Confirm Order"):
-            st.session_state["payment_option"] = "pending"
+            if not st.session_state["cust_name"] or not st.session_state["cust_phone"] or not st.session_state["cust_addr"]:
+                st.error("Customer Name, Phone, and Address are required.")
+            else:
+                st.session_state["payment_option"] = "pending"
 
         if st.session_state["payment_option"] == "pending":
+            payment_options = ["Cash on Delivery", "Razorpay (Card/Netbanking)"]
+            if st.session_state.get("show_upi", True):
+                payment_options.insert(0, "UPI")
+            
             payment_method = st.radio(
                 "Select Payment Method",
-                ["UPI", "Cash on Delivery", "Razorpay (Card/Netbanking)"],
+                payment_options,
             )
 
             if payment_method == "UPI":
@@ -847,7 +856,7 @@ with col2:
                     order_receipt = f"receipt_{order_id}"
 
                     try:
-                        payment_link = razorpay_client.payment_link.create({
+                        payment_link = razorpay_client.payment_link.create({ # type: ignore
                             "amount": int(grand_total * 100),
                             "currency": "INR",
                             "description": f"Payment for Order {order_id}",
@@ -856,9 +865,9 @@ with col2:
                                 "email": st.session_state['cust_email'],
                                 "contact": st.session_state['cust_phone']
                             },
-                            })
+                        })
 
-                        st.success("Payment link created successfully!")
+                        st.success("Payment link created successfully! After Successful payment click payment done")
                         st.markdown(f'<a href="{payment_link["short_url"]}" target="_blank" style="background-color: #F37254; color: white; padding: 10px 20px; text-align: center; text-decoration: none; display: inline-block; border-radius: 5px;">Pay ₹{grand_total:.2f} with Razorpay</a>', unsafe_allow_html=True)
 
                         if st.button("Payment Done"):
@@ -957,4 +966,3 @@ with col2:
 
     else:
         st.info("No items added yet.")
-
