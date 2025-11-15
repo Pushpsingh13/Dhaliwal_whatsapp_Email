@@ -151,7 +151,7 @@ _defaults = {
     "payment_option": None,
     "last_activity": time.time(),
     "order_finalized_time": None,
-    "show_upi": True,
+    "show_upi": False,
 }
 for k, v in _defaults.items():
     if k not in st.session_state:
@@ -966,3 +966,4 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
