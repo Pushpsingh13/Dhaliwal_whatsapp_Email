@@ -836,7 +836,7 @@ with col2:
                     st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
-            elif payment_method == "Razorpay (Card/Netbanking)":
+            elif payment_method == "Online Payment (Card/Netbanking)":
                 if not razorpay_client:
                     st.error("Razorpay is not configured.")
                 else:
@@ -966,5 +966,6 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
 
 
