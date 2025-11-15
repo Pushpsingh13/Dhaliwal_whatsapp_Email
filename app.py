@@ -765,7 +765,7 @@ with col2:
                 st.session_state["payment_option"] = "pending"
 
         if st.session_state["payment_option"] == "pending":
-            payment_options = ["Cash on Delivery", "Razorpay (Card/Netbanking)"]
+            payment_options = ["Cash on Delivery", "Online Payment (Card/Netbanking)"]
             if st.session_state.get("show_upi", True):
                 payment_options.insert(0, "UPI")
             
@@ -966,4 +966,5 @@ with col2:
 
     else:
         st.info("No items added yet.")
+
 
