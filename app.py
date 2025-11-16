@@ -982,7 +982,8 @@ with col2:
         st.info("No items added yet.")
 
 st.write("---")
-st.subheader("Your Policy Links")
+st.subheader("Policy Links")
 st.markdown("[Shipping](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/shipping)")
 st.markdown("[Terms and Conditions](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/terms)")
 st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/refund)")
+
