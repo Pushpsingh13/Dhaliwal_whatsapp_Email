@@ -16,6 +16,7 @@ import pandas as pd
 import streamlit as st
 import streamlit.components.v1 as components
 import razorpay  # type: ignore
+from privacy_policy import privacy_policy_component
 
 # --- PATH SETUP ---
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -987,3 +988,5 @@ st.markdown("[Shipping](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/ship
 st.markdown("[Terms and Conditions](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/terms)")
 st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/refund)")
 
+with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
+    privacy_policy_component("privacy_policy.html")
