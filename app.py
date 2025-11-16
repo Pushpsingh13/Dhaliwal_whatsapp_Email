@@ -67,7 +67,7 @@ with st.container():
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
-st.set_page_config(page_title="Dhaliwal's Food Court", layout="wide", page_icon=LOGO_PATH)
+st.set_page_config(page_title="Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal", layout="wide", page_icon=LOGO_PATH)
 
 img = ""
 try:
@@ -100,6 +100,15 @@ body {{
     text-shadow: 3px 3px 6px #000000;
     font-family: 'Garamond', serif;
     text-align: center;
+}}
+
+.sub-title {{
+    font-size: 20px;
+    font-style: italic;
+    color: #895129;
+    text-align: center;
+    margin-top: -20px;
+    margin-bottom: 20px;
 }}
 
 hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
@@ -298,9 +307,12 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.drawImage(LOGO_PATH, thermal_width - 22 * MM, y - 5 * MM, width=20 * MM, height=10 * MM)
     y -= 12
     c.setFont(FONT_NAME_BOLD, 10)
-    c.drawCentredString(thermal_width / 2, y, "Dhaliwal's Food Court")
-    y -= 12
-    c.setFont(FONT_NAME, 8)
+    c.drawCentredString(thermal_width / 2, y, "Dhaliwals Food Court")
+    y -= 5
+    c.setFont(FONT_NAME, 4)
+    c.drawCentredString(thermal_width / 2, y, "Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal")
+    y -= 7
+    c.setFont(FONT_NAME, 4)
     c.drawCentredString(thermal_width / 2, y, "Meerut, UP | Ph: +91-9259317713")
     y -= 10
     c.line(0, y, thermal_width, y)
@@ -442,14 +454,14 @@ def send_email_with_pdf(to_email: str, pdf_bytes: bytes, order_id: str) -> bool:
         msg["From"] = st.session_state["sender_email"]
         recipients = [to_email, st.session_state["sender_email"]]
         msg["To"] = to_email
-        msg["Subject"] = f"Your Dhaliwal's Food Court Bill (Order {order_id})"
+        msg["Subject"] = f"Your Dhaliwals Food Court Bill (Order {order_id})"
 
         body = MIMEText(
             f"Dear {st.session_state['cust_name'] or 'Customer'},\n\n"
             f"Thanks for your order. Your bill is attached as a PDF.\n\n"
             f"Order ID: {order_id}\n"
             f"Date: {get_local_time().strftime('%d %b %Y %H:%M')}\n\n"
-            f"Regards,\nDhaliwal's Food Court",
+            f"Regards,\nDhaliwals Food Court.",
             "plain",
         )
         msg.attach(body)
@@ -529,7 +541,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, de
     gst_rate = float(st.session_state.get("gst_rate", 0.0))
 
     message = (
-        f"{cust_name_str}Thank you for your order from Dhaliwal's Food Court!\n\n"
+        f"{cust_name_str}Thank you for your order from Dhaliwals Food Court!\n\n"
         f"*Order ID:* {order_id}\n"
         f"*Date:* {get_local_time().strftime('%d %b %Y %H:%M')}\n\n"
         f"*Items:*\n{items_str}\n\n"
@@ -567,14 +579,16 @@ ensure_orders_csv_exists()
 menu_df = load_menu(st.session_state["uploaded_menu_file"])
 
 
-# Top Header (Dhaliwal's Food Court)
-st.markdown('<p class="main-title">Dhaliwal\'s Food Court</p>', unsafe_allow_html=True)
+# Top Header (Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal)
+st.markdown('<p class="main-title">Dhaliwals Food Court</p>', unsafe_allow_html=True)
+st.markdown('<p class="sub-title">Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal</p>', unsafe_allow_html=True)
 
 st.markdown("*Date:* " + get_local_time().strftime("%d %b %Y %H:%M"))
 st.write("---")
 
 with st.sidebar:
     st.header("Admin Panel")
+
     password = st.text_input("Enter Admin Password", type="password")
 
     if password == ADMIN_PASSWORD:
@@ -680,7 +694,7 @@ with st.sidebar:
 col1, col2 = st.columns([3, 1], gap="large")
 
 with col1:
-    st.header("🍴 Dhaliwal's Food Court Menu")
+    st.header("🍴 Dhaliwals Food Court Menu")
 
     if not menu_df.empty:
         # Display menu in a grid (3 items per row)
@@ -967,5 +981,8 @@ with col2:
     else:
         st.info("No items added yet.")
 
-
-
+st.write("---")
+st.subheader("Your Policy Links")
+st.markdown("[Shipping](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/shipping)")
+st.markdown("[Terms and Conditions](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/terms)")
+st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4unI68N8m7V/refund)")
