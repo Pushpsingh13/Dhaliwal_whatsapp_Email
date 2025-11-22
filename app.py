@@ -123,7 +123,7 @@ hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
 # =========================
 MENU_EXCEL = os.path.join(APP_DIR, "DhalisMenu.xlsx")
 ORDERS_DIR = "Orders"  # daily order logs
-ADMIN_PASSWORD = "admin123"  # change after first run
+ADMIN_PASSWORD = "13@Dhaliwal84"  # change after first run
 
 # Consolidated CSV path (same directory as this app.py)
 ORDERS_CSV = os.path.join(os.path.dirname(__file__), "orders.csv")
@@ -990,3 +990,4 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
