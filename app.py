@@ -123,7 +123,7 @@ hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
 # =========================
 MENU_EXCEL = os.path.join(APP_DIR, "DhalisMenu.xlsx")
 ORDERS_DIR = "Orders"  # daily order logs
-ADMIN_PASSWORD = "13@Dhaliwal84"  # change after first run
+ADMIN_PASSWORD = "admin123"  # change after first run
 
 # Consolidated CSV path (same directory as this app.py)
 ORDERS_CSV = os.path.join(os.path.dirname(__file__), "orders.csv")
@@ -175,13 +175,17 @@ def get_local_time():
     return datetime.now(pytz.timezone('Asia/Calcutta'))
 
 def ensure_orders_csv_exists():
+    """Creates the orders.csv file with headers if it doesn't exist."""
     if not os.path.exists(ORDERS_CSV):
-        df = pd.DataFrame(columns=[
-            "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
-            "Address", "Items", "Subtotal", "DeliveryChargeAmount",
-            "Discount", "GrandTotal", "PaymentMethod" , "razorpay_fee"
-        ])
-        df.to_csv(ORDERS_CSV, index=False)
+        try:
+            df = pd.DataFrame(columns=[
+                "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
+                "Address", "Items", "Subtotal", "DeliveryChargeAmount", "GST",
+                "Discount", "GrandTotal", "PaymentMethod", "razorpay_fee"
+            ])
+            df.to_csv(ORDERS_CSV, index=False, mode='w')  # Explicitly use 'w' for creation
+        except Exception as e:
+            st.error(f"Failed to create {ORDERS_CSV}: {e}")
 
 def clean_text(txt):
     if not txt:
@@ -430,12 +434,15 @@ def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float
 
     # Save to consolidated CSV
     try:
-        if os.path.exists(ORDERS_CSV):
-            df_csv = pd.read_csv(ORDERS_CSV)
-            df_csv = pd.concat([df_csv, pd.DataFrame([row])], ignore_index=True)
-        else:
-            df_csv = pd.DataFrame([row])
-        df_csv.to_csv(ORDERS_CSV, index=False)
+        # Convert the row dictionary to a DataFrame
+        df_new_row = pd.DataFrame([row])
+        
+        # Check if the file exists to decide whether to write headers
+        header = not os.path.exists(ORDERS_CSV)
+        
+        # Append to the CSV file
+        df_new_row.to_csv(ORDERS_CSV, mode='a', header=header, index=False)
+        
     except Exception as e:
         st.warning(f"Could not log order to CSV ({ORDERS_CSV}): {e}")
 
@@ -990,4 +997,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-
