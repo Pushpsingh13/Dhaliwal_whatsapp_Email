@@ -181,9 +181,9 @@ def ensure_orders_csv_exists():
             df = pd.DataFrame(columns=[
                 "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
                 "Address", "Items", "Subtotal", "DeliveryChargeAmount", "GST",
-                "Discount", "GrandTotal", "PaymentMethod", "razorpay_fee"
+                "PaymentMethod", "Discount", "razorpay_fee", "GrandTotal"
             ])
-            df.to_csv(ORDERS_CSV, index=False, mode='w')  # Explicitly use 'w' for creation
+            df.to_csv(ORDERS_CSV, index=False, mode='w')
         except Exception as e:
             st.error(f"Failed to create {ORDERS_CSV}: {e}")
 
@@ -404,7 +404,7 @@ def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float
     path = today_orders_path()
     now = get_local_time()
     row = {
-        "Date": now.strftime("%Y-%m-%d"),
+        "Date": now.strftime("%d-%m-%Y"),
         "Time": now.strftime("%H:%M:%S"),
         "OrderID": order_id,
         "CustomerName": st.session_state["cust_name"],
@@ -415,10 +415,10 @@ def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float
         "Subtotal": subtotal,
         "DeliveryChargeAmount": delivery_charge,
         "GST": gst_amount,
-        "Discount": discount,
-        "GrandTotal": grand_total,
         "PaymentMethod": payment_method,
+        "Discount": discount,
         "razorpay_fee": razorpay_fee,
+        "GrandTotal": grand_total,
     }
 
     # Save to daily Excel
