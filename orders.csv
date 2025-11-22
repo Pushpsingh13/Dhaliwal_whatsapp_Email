@@ -1,2 +1,53 @@
 Date,Time,OrderID,CustomerName,Phone,Email,Address,Items,Subtotal,DeliveryChargeAmount,GST,Discount,GrandTotal,PaymentMethod,razorpay_fee
-2025-11-17,18:57:59,20251117-185759,One,+447823929509,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",5x Paneer tikki chees Burger(Full)-₹120.00,600.0,30.0,0.0,0.0,645.6,Razorpay,15.6
+02-11-2025,20:25:33,20251102-202529,hell,4.48E+11,Pushp.singh13uk@gmail.com,,2x Paneer tikki chees Burger(Full)-₹100.00,200,0,,Cash on Delivery,10,0,210
+02-11-2025,20:26:00,20251102-202557,hell,4.48E+11,Pushp.singh13uk@gmail.com,,2x Paneer tikki chees Burger(Full)-₹100.00,200,0,,Cash on Delivery,10,0,210
+09-11-2025,18:01:49,20251109-180147,Pushpinder singh Dhaliwal,9.19E+11,Pushp.singh13uk@gmail.com,41-B Tower wali gali,5x Paneer tikki chees Burger(Full)-₹120.00,600,0,,Razorpay,30,12.6,630
+09-11-2025,18:02:27,20251109-180225,Pushpinder singh Dhaliwal,9.19E+11,Pushp.singh13uk@gmail.com,41-B Tower wali gali,5x Paneer tikki chees Burger(Full)-₹120.00,600,0,,Razorpay,30,12.6,630
+09-11-2025,21:55:09,20251109-215506,Pushpinder singh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,0,,Razorpay,175,73.5,3675
+09-11-2025,21:55:44,20251109-215542,Pushpinder singh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,0,,Razorpay,175,73.5,3675
+09-11-2025,21:55:57,20251109-215555,Pushpinder singh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,0,,Razorpay,175,73.5,3675
+11-11-2025,18:29:26,20251111-182923,Pushpinder singh Dhaliwal,4.48E+11,,,10x Pizza Corn 10' Inch(Full)-₹140.00,1400,0,,UPI,70,0,1470
+11-11-2025,19:15:08,20251111-191504,Amit,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,0,,Razorpay,175,73.5,3675
+11-11-2025,20:27:53,20251111-202749,,,,,10x Pizza Onion and Capsicum 10' Inch(Full)-₹150.00,1500,0,,Razorpay,75,31.5,1575
+12-11-2025,10:12:40,20251112-101236,Aayush,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","5x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",1750,0,,Razorpay,87.5,36.75,1837.5
+12-11-2025,10:31:13,20251112-103108,Sunny,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","5x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",1750,0,,Razorpay,87.5,36.75,1837.5
+12-11-2025,11:07:16,20251112-110713,Pushpinder singh,,,,"4x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",1400,0,,Razorpay,70,29.4,1470
+12-11-2025,11:34:34,20251112-113430,Gogi,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",8x 7 Inch Pizza Paneer(Full)-₹99.00,792,0,,Razorpay,39.6,16.632,831.6
+12-11-2025,11:35:11,20251112-113507,Gogi,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",8x 7 Inch Pizza Paneer(Full)-₹99.00,792,0,,Razorpay,39.6,16.632,831.6
+12-11-2025,12:04:52,20251112-120450,Pushpinder singh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",7x Paneer tikki chees Burger(Full)-₹120.00,840,0,,Razorpay,42,17.64,882
+12-11-2025,12:05:18,20251112-120516,Pushpinder singh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",7x Paneer tikki chees Burger(Full)-₹120.00,840,0,,Razorpay,42,17.64,882
+12-11-2025,12:05:37,20251112-120535,Pushpinder singh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",7x Paneer tikki chees Burger(Full)-₹120.00,840,0,,Razorpay,42,17.64,882
+12-11-2025,12:05:42,20251112-120541,Pushpinder singh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",7x Paneer tikki chees Burger(Full)-₹120.00,840,0,,Razorpay,42,17.64,882
+12-11-2025,19:22:11,20251112-192211,Shivasnsh,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","7x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",2450,0,,Razorpay,122.5,51.45,2572.5
+12-11-2025,19:25:14,20251112-192514,Viom,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",9x Pizza Corn 10' Inch(Full)-₹140.00,1260,0,,Razorpay,63,26.46,1323
+12-11-2025,19:44:27,20251112-194427,Param,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Paneer tikki chees Burger(Full)-₹120.00,1200,0,,Razorpay,60,25.2,1260
+12-11-2025,19:49:23,20251112-194923,Pushpinder singh Dhaliwal,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,0,,Razorpay,175,73.5,3675
+12-11-2025,20:07:53,20251112-200753,Tawinder,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Paneer tikki chees Burger(Full)-₹120.00,1200,0,,Razorpay,30,25.2,1230
+12-11-2025,20:14:51,20251112-201451,Mehar,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Pizza Onion and Capsicum 10' Inch(Full)-₹150.00,1500,0,,Razorpay,75,31.5,1575
+13-11-2025,13:13:40,20251113-131340,Pushpinder singh Dhaliwal,,,,"10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,0,,Razorpay,175,73.5,3675
+13-11-2025,13:37:06,20251113-133706,Pushpinder singh Dhaliwal,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x 7 Inch Pizza Margarita(Full)-₹99.00,990,0,,Razorpay,49.5,,1039.5
+13-11-2025,13:55:22,20251113-135522,Pushpinder singh Dhaliwal,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Aloo tikki chees Burger(Full)-₹80.00,800,0,,Razorpay,40,20.8,860.8
+13-11-2025,14:28:44,20251113-142844,Pushpinder singh Dhaliwal,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Pizza Corn 10' Inch(Full)-₹140.00,1400,0,,Razorpay,70,36.4,1506.4
+13-11-2025,14:33:15,20251113-143315,zzzzz,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Quesadilla Paneer(Full)-₹100.00,1000,0,,UPI,50,0,1050
+13-11-2025,14:37:13,20251113-143713,Meet,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x 7 Inch Pizza Margarita(Full)-₹99.00,990,0,,Cash on Delivery,49.5,0,1039.5
+13-11-2025,15:39:14,20251113-153914,Kito,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Aloo tikki chees Burger(Full)-₹80.00,800,0,40,Razorpay,40,20.8,900.8
+13-11-2025,15:46:41,20251113-154641,Raju,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby","10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,0,175,Razorpay,175,91,3941
+13-11-2025,16:01:01,20251113-160101,Pushpinder singh Dhaliwal,,,,10x 7 Inch Pizza Margarita(Full)-₹99.00,990,0,0,Razorpay,49.5,25.74,1065.24
+15-11-2025,22:53:34,20251115-225334,Bani,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",5x Aloo tikki chees Burger(Full)-₹80.00,400,0,0,Razorpay,20,10.4,430.4
+16-11-2025,00:46:00,20251116-004600,NEw-5,4.48E+11,Pushp.singh13uk@gmail.com,Meerut,10x Paneer tikki chees Burger(Full)-₹120.00,1200,0,0,Razorpay,60,31.2,1291.2
+16-11-2025,09:49:15,20251116-094915,Pushpinder singh Dhaliwal,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x 7 Inch Pizza Paneer(Full)-₹99.00,990,0,0,Razorpay,49.5,25.74,1065.24
+16-11-2025,09:54:25,20251116-095425,Pushpinder singh Dhaliwal,4.48E+11,Pushp.singh13uk@gmail.com,41-B Tower wali gali,8x Paneer tikki chees Burger(Full)-₹120.00,960,0,0,Razorpay,48,24.96,1032.96
+16-11-2025,12:42:25,20251116-124225,New_9,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Paneer tikki chees Burger(Full)-₹120.00,1200,0,0,Razorpay,60,31.2,1291.2
+16-11-2025,12:51:51,20251116-125151,New_12,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Pizza Onion and Capsicum 10' Inch(Full)-₹150.00,1500,0,0,Razorpay,75,39,1614
+16-11-2025,12:58:46,20251116-125846,New_12,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",10x Pizza Onion and Capsicum 10' Inch(Full)-₹150.00,1500,0,0,Razorpay,75,39,1614
+16-11-2025,13:06:26,20251116-130626,Pushpinder singh Dhaliwal,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",3x Paneer tikki chees Burger(Full)-₹120.00,360,0,0,Razorpay,18,9.36,387.36
+16-11-2025,13:11:20,20251116-131120,New_14,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",3x Paneer tikki chees Burger(Full)-₹120.00,360,0,0,Razorpay,18,9.36,387.36
+16-11-2025,13:14:13,20251116-131413,New_15,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",6x Paneer tikki chees Burger(Full)-₹120.00,720,0,0,Razorpay,36,18.72,774.72
+17-11-2025,18:57:59,20251117-185759,One,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",5x Paneer tikki chees Burger(Full)-₹120.00,600,30,0,0,645.6,Razorpay,15.6
+17-11-2025,22:54:27,20251117-225427,Three,4.47824E+11,pushp.singh13uk@gmail.com,Meerut ,3x Pizza Margarita 10' Inch(Full)-₹120.00,360,18,0,0,378,Cash on Delivery,0
+17-11-2025,22:56:40,20251117-225640,Four,4.47824E+11,pushp.singh13uk@gmail.com,Meerut,3x Paneer tikki chees Burger(Full)-₹120.00,360,18,0,0,378,Cash on Delivery,0
+18-11-2025,08:36:36,20251118-083636,FIVE,;447823929509,pushp.singh13uk@gmail.com,Meerut,1x Pizza Margarita 10' Inch(Full)-₹120.00,120,6,0,0,126,Cash on Delivery,0
+18-11-2025,11:10:49,20251118-111049,Six,4.47824E+11,pushp.singh13@gmail.com,Meerut,8x Aloo tikki Burger (Full)-₹60.00,480,24,0,0,504,Cash on Delivery,0
+18-11-2025,11:14:34,20251118-111434,Seven,4.47824E+11,pushp.singh13@gmail.com,Ajanta,1x Aloo tikki Burger (Full)-₹60.00,60,3,0,0,64.56,Razorpay,1.56
+18-11-2025,11:27:33,20251118-112733,Eight,4.47824E+11,pushp.singh13uk@gmail.com,Nandan,1x Aloo tikki Burger (Full)-₹60.00,60,3,0,0,63,Cash on Delivery,0
+22-11-2025,11:09:03,20251122-110903,New_1,4.48E+11,Pushp.singh13uk@gmail.com,41-B TOWER WALI GALI,"10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,175,0,0,3766,Razorpay,91
