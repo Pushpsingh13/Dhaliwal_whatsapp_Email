@@ -1015,7 +1015,7 @@ import os
 OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
-SEND_TIME = st.secrets.get("SEND_TIME", "21:00")  # 20:50 PM default
+SEND_TIME = st.secrets.get("SEND_TIME", "21:05")  # 20:50 PM default
 
 
 # ==============================
@@ -1094,4 +1094,5 @@ st.markdown(
 )
 
 st.empty()
+
 
