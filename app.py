@@ -997,3 +997,100 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+import streamlit as st
+import smtplib
+import schedule
+import threading
+import time
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
+import os
+
+
+# ==============================
+#          CONFIG
+# ==============================
+OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
+SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
+SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
+SEND_TIME = st.secrets.get("SEND_TIME", "23:59")  # 20:50 PM default
+
+
+# ==============================
+#    SEND EMAIL FUNCTION
+# ==============================
+def send_end_of_day_orders():
+    filename = "orders.csv"
+
+    if not os.path.exists(filename):
+        print("orders.csv not found — skipping email.")
+        return
+
+    msg = MIMEMultipart()
+    msg["From"] = SENDER_EMAIL
+    msg["To"] = OWNER_EMAIL
+    msg["Subject"] = "End of Day Orders"
+
+    msg.attach(MIMEText(
+        "Hello,\n\nPlease find attached today's orders.\n\nBest regards.",
+        "plain"
+    ))
+
+    # Attach the CSV
+    with open(filename, "rb") as file:
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(file.read())
+        encoders.encode_base64(part)
+        part.add_header("Content-Disposition",
+                        f"attachment; filename={filename}")
+        msg.attach(part)
+
+    try:
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        print("End-of-day orders email sent.")
+    except Exception as e:
+        print("Failed to send email:", e)
+
+
+# ==============================
+#     SCHEDULER LOOP
+# ==============================
+def scheduler_loop():
+    schedule.every().day.at(SEND_TIME).do(send_end_of_day_orders)
+
+    while True:
+        schedule.run_pending()
+        time.sleep(20)
+
+
+# ==============================
+# START SCHEDULER ONLY ONCE
+# ==============================
+@st.cache_resource
+def start_scheduler():
+    thread = threading.Thread(target=scheduler_loop, daemon=True)
+    thread.start()
+    return True
+
+
+start_scheduler()
+
+# ==============================
+#    HIDE EVERYTHING ON PAGE
+# ==============================
+st.markdown(
+    """
+    <style>
+        div.block-container {padding-top: 0rem;}
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
+
+st.empty()
