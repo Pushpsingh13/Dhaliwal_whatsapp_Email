@@ -997,63 +997,103 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+#// Send_end_of_the_Day//
 import streamlit as st
 import smtplib
-import schedule
 import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
 import os
+from zoneinfo import ZoneInfo  # Python 3.9+
 
 OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
-SEND_TIME = st.secrets.get("SEND_TIME", "14:35")
+SEND_TIME = st.secrets.get("SEND_TIME", "14:50")  # string "HH:MM" (24h) - interpreted in Asia/Kolkata
 FILENAME = "orders.csv"
 
+LAST_RUN_FILE = "last_run_date.txt"  # stores YYYY-MM-DD of last successful run (on the server filesystem)
 
 def send_end_of_day_orders():
     if not os.path.exists(FILENAME):
-        return "orders.csv not found"
+        st.warning("orders.csv not found — skipping send.")
+        return False
 
-    msg = MIMEMultipart()
-    msg["From"] = SENDER_EMAIL
-    msg["To"] = OWNER_EMAIL
-    msg["Subject"] = "End of Day Orders"
-    msg.attach(MIMEText("Today's orders attached.", "plain"))
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = SENDER_EMAIL
+        msg["To"] = OWNER_EMAIL
+        msg["Subject"] = "End of Day Orders"
+        msg.attach(MIMEText("Today's orders attached.", "plain"))
 
-    with open(FILENAME, "rb") as f:
-        part = MIMEBase("application", "octet-stream")
-        part.set_payload(f.read())
-        encoders.encode_base64(part)
-        part.add_header("Content-Disposition",
-                        f"attachment; filename={FILENAME}")
-        msg.attach(part)
+        with open(FILENAME, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", f"attachment; filename={FILENAME}")
+            msg.attach(part)
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login(SENDER_EMAIL, SENDER_PASSWORD)
-    server.send_message(msg)
-    server.quit()
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.send_message(msg)
+        server.quit()
 
-    return "Email sent"
+        st.success("Email sent.")
+        return True
+    except Exception as e:
+        st.error(f"Failed to send email: {e}")
+        return False
 
+def get_server_utc_now():
+    # server local time (naive) might already be UTC, but using timezone-aware is safer
+    return datetime.datetime.now(tz=datetime.timezone.utc)
 
-@st.cache_resource
-def init_schedule():
-    schedule.every().day.at(SEND_TIME).do(send_end_of_day_orders)
-    return True
+def get_local_now(tz_name="Asia/Kolkata"):
+    # Convert server UTC now to desired timezone (Asia/Kolkata)
+    utc_now = get_server_utc_now()
+    local_tz = ZoneInfo(tz_name)
+    return utc_now.astimezone(local_tz)
 
+def read_last_run_date():
+    if not os.path.exists(LAST_RUN_FILE):
+        return None
+    try:
+        with open(LAST_RUN_FILE, "r") as f:
+            txt = f.read().strip()
+            return datetime.date.fromisoformat(txt)
+    except Exception:
+        return None
 
-init_schedule()
+def write_last_run_date(d: datetime.date):
+    with open(LAST_RUN_FILE, "w") as f:
+        f.write(d.isoformat())
 
-# 💡 Run pending jobs on each page load
-schedule.run_pending()
+# ---- check and run once per day ----
+local_now = get_local_now("Asia/Kolkata")
+st.write("Server UTC time:", get_server_utc_now().strftime("%Y-%m-%d %H:%M:%S %Z"))
+st.write("App local time (Asia/Kolkata):", local_now.strftime("%Y-%m-%d %H:%M:%S %Z"))
 
-st.write("Scheduler active. Last run:", datetime.datetime.now())
+# parse SEND_TIME "HH:MM"
+send_hour, send_minute = map(int, SEND_TIME.split(":"))
+send_time_today = local_now.replace(hour=send_hour, minute=send_minute, second=0, microsecond=0)
 
+last_run_date = read_last_run_date()
+today_date = local_now.date()
 
+# run the job if current local time is >= scheduled time and we haven't run today
+if local_now >= send_time_today and last_run_date != today_date:
+    st.info(f"Scheduled time reached ({SEND_TIME} Asia/Kolkata). Attempting to send.")
+    success = send_end_of_day_orders()
+    if success:
+        write_last_run_date(today_date)
+else:
+    if last_run_date == today_date:
+        st.write("Email already sent today.")
+    else:
+        st.write(f"Waiting until {SEND_TIME} Asia/Kolkata to send. Current local time: {local_now.strftime('%H:%M:%S')}")
 
-
+# optional: show the last run date
+st.write("Last run date (server file):", last_run_date)
