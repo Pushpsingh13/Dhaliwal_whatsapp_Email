@@ -1000,104 +1000,56 @@ with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Ente
 import streamlit as st
 import smtplib
 import schedule
-import threading
-import time
+import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
 from email import encoders
 import os
 
-
-# ==============================
-#          CONFIG
-# ==============================
 OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
-SEND_TIME = st.secrets.get("SEND_TIME", "09:50")  # 23:59 PM default
+SEND_TIME = st.secrets.get("SEND_TIME", "14:15")
+FILENAME = "orders.csv"
 
 
-# ==============================
-#    SEND EMAIL FUNCTION
-# ==============================
 def send_end_of_day_orders():
-    filename = "orders.csv"
-
-    if not os.path.exists(filename):
-        print("orders.csv not found — skipping email.")
-        return
+    if not os.path.exists(FILENAME):
+        return "orders.csv not found"
 
     msg = MIMEMultipart()
     msg["From"] = SENDER_EMAIL
     msg["To"] = OWNER_EMAIL
     msg["Subject"] = "End of Day Orders"
+    msg.attach(MIMEText("Today's orders attached.", "plain"))
 
-    msg.attach(MIMEText(
-        "Hello,\n\nPlease find attached today's orders.\n\nBest regards.",
-        "plain"
-    ))
-
-    # Attach the CSV
-    with open(filename, "rb") as file:
+    with open(FILENAME, "rb") as f:
         part = MIMEBase("application", "octet-stream")
-        part.set_payload(file.read())
+        part.set_payload(f.read())
         encoders.encode_base64(part)
         part.add_header("Content-Disposition",
-                        f"attachment; filename={filename}")
+                        f"attachment; filename={FILENAME}")
         msg.attach(part)
 
-    try:
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-        print("End-of-day orders email sent.")
-    except Exception as e:
-        print("Failed to send email:", e)
+    server = smtplib.SMTP("smtp.gmail.com", 587)
+    server.starttls()
+    server.login(SENDER_EMAIL, SENDER_PASSWORD)
+    server.send_message(msg)
+    server.quit()
+
+    return "Email sent"
 
 
-# ==============================
-#     SCHEDULER LOOP
-# ==============================
-def scheduler_loop():
-    schedule.every().day.at(SEND_TIME).do(send_end_of_day_orders)
-
-    while True:
-        schedule.run_pending()
-        time.sleep(20)
-
-
-# ==============================
-# START SCHEDULER ONLY ONCE
-# ==============================
 @st.cache_resource
-def start_scheduler():
-    thread = threading.Thread(target=scheduler_loop, daemon=True)
-    thread.start()
+def init_schedule():
+    schedule.every().day.at(SEND_TIME).do(send_end_of_day_orders)
     return True
 
 
-start_scheduler()
+init_schedule()
 
-# ==============================
-#    HIDE EVERYTHING ON PAGE
-# ==============================
-st.markdown(
-    """
-    <style>
-        div.block-container {padding-top: 0rem;}
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+# 💡 Run pending jobs on each page load
+schedule.run_pending()
 
-st.empty()
-
-
-
-
-
-
-
+st.write("Scheduler active. Last run:", datetime.datetime.now())
