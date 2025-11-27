@@ -1011,7 +1011,7 @@ from zoneinfo import ZoneInfo  # Python 3.9+
 OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
-SEND_TIME = st.secrets.get("SEND_TIME", "15:00")  # string "HH:MM" (24h) - interpreted in Asia/Kolkata
+SEND_TIME = st.secrets.get("SEND_TIME", "15:04")  # string "HH:MM" (24h) - interpreted in Asia/Kolkata
 FILENAME = "orders.csv"
 
 LAST_RUN_FILE = "last_run_date.txt"  # stores YYYY-MM-DD of last successful run (on the server filesystem)
@@ -1097,4 +1097,5 @@ else:
 
 # optional: show the last run date
 st.write("Last run date (server file):", last_run_date)
+
 
