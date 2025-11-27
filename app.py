@@ -1010,7 +1010,7 @@ import os
 OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
 SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
 SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
-SEND_TIME = st.secrets.get("SEND_TIME", "14:15")
+SEND_TIME = st.secrets.get("SEND_TIME", "14:35")
 FILENAME = "orders.csv"
 
 
@@ -1053,6 +1053,7 @@ init_schedule()
 schedule.run_pending()
 
 st.write("Scheduler active. Last run:", datetime.datetime.now())
+
 
 
 
