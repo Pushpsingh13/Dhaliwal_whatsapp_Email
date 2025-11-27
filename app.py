@@ -1073,8 +1073,7 @@ def write_last_run_date(d: datetime.date):
 
 # ---- check and run once per day ----
 local_now = get_local_now("Asia/Kolkata")
-st.write("Server UTC time:", get_server_utc_now().strftime("%Y-%m-%d %H:%M:%S %Z"))
-st.write("App local time (Asia/Kolkata):", local_now.strftime("%Y-%m-%d %H:%M:%S %Z"))
+st.write("App local time:", local_now.strftime("%Y-%m-%d %H:%M:%S %Z"))
 
 # parse SEND_TIME "HH:MM"
 send_hour, send_minute = map(int, SEND_TIME.split(":"))
@@ -1085,7 +1084,7 @@ today_date = local_now.date()
 
 # run the job if current local time is >= scheduled time and we haven't run today
 if local_now >= send_time_today and last_run_date != today_date:
-    st.info(f"Scheduled time reached ({SEND_TIME} Asia/Kolkata). Attempting to send.")
+    st.info(f"Scheduled time reached ({SEND_TIME}). Attempting to send.")
     success = send_end_of_day_orders()
     if success:
         write_last_run_date(today_date)
@@ -1093,10 +1092,11 @@ else:
     if last_run_date == today_date:
         st.write("Email already sent today.")
     else:
-        st.write(f"Waiting until {SEND_TIME} Asia/Kolkata to send. Current local time: {local_now.strftime('%H:%M:%S')}")
+        st.write(f"Waiting until {SEND_TIME} to send. Current local time: {local_now.strftime('%H:%M:%S')}")
 
 # optional: show the last run date
 st.write("Last run date (server file):", last_run_date)
+
 
 
 
