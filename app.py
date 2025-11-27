@@ -1000,7 +1000,6 @@ with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Ente
 import streamlit as st
 import smtplib
 import schedule
-import datetime
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email.mime.text import MIMEText
@@ -1053,3 +1052,4 @@ init_schedule()
 schedule.run_pending()
 
 st.write("Scheduler active. Last run:", datetime.datetime.now())
+
