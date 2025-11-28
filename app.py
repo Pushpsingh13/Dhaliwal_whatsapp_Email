@@ -4,19 +4,23 @@ import smtplib
 import time
 import urllib.parse
 import base64
+import streamlit as st
+from zoneinfo import ZoneInfo
+from email.mime.multipart import MIMEMultipart
+from email.mime.base import MIMEBase
+from email.mime.text import MIMEText
+from email import encoders
 from io import BytesIO
-from datetime import datetime
+from datetime import datetime,timezone
 import pytz
 import qrcode
-from email.mime.multipart import MIMEMultipart
 from email.mime.application import MIMEApplication
-from email.mime.text import MIMEText
 
 import pandas as pd
-import streamlit as st
 import streamlit.components.v1 as components
-import razorpay  # type: ignore
+import razorpay
 from privacy_policy import privacy_policy_component
+import datetime as dt
 
 # --- PATH SETUP ---
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -612,6 +616,85 @@ st.markdown('<p class="sub-title">Unit of Param Mehar Enterprise Prop Pushpinder
 st.markdown("*Date:* " + get_local_time().strftime("%d %b %Y %H:%M"))
 st.write("---")
 
+# ------------------------------
+# ADMIN PANEL (FULL MERGED VERSION)
+# ------------------------------
+
+# -----------------------------
+# CONSTANTS / SECRETS
+# -----------------------------
+ADMIN_PASSWORD = st.secrets["ADMIN_PASSWORD"]
+OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
+SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
+SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
+SEND_TIME = st.secrets.get("SEND_TIME", "23:30")   # HH:MM IST
+ORDERS_CSV = "orders.csv"
+LAST_RUN_FILE = "last_run_date.txt"
+
+
+
+# ======================================================
+# 📌 EMAIL SCHEDULER HELPER FUNCTIONS
+# ======================================================
+
+def send_end_of_day_orders():
+    """Send today's orders.csv to the owner via email."""
+    if not os.path.exists(ORDERS_CSV):
+        st.warning("orders.csv not found — skipping send.")
+        return False
+
+    try:
+        msg = MIMEMultipart()
+        msg["From"] = SENDER_EMAIL
+        msg["To"] = OWNER_EMAIL
+        msg["Subject"] = "End of Day Orders"
+        msg.attach(MIMEText("Today's orders are attached.", "plain"))
+
+        with open(ORDERS_CSV, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", "attachment; filename=orders.csv")
+            msg.attach(part)
+
+        server = smtplib.SMTP("smtp.gmail.com", 587)
+        server.starttls()
+        server.login(SENDER_EMAIL, SENDER_PASSWORD)
+        server.send_message(msg)
+        server.quit()
+        return True
+
+    except Exception as e:
+        st.error(f"Email send failed: {e}")
+        return False
+
+def get_server_utc_now():
+    return datetime.now(timezone.utc)
+
+def get_local_now(tz_name):
+    tz = pytz.timezone(tz_name)
+    utc_now = get_server_utc_now()
+    return utc_now.astimezone(tz)
+
+# Example usage
+local_now = get_local_now("Asia/Kolkata")
+
+def read_last_run_date():
+    if not os.path.exists(LAST_RUN_FILE):
+        return None
+    try:
+        with open(LAST_RUN_FILE, "r") as f:
+            return dt.date.fromisoformat(f.read().strip())
+    except:
+        return None
+
+def write_last_run_date(d: dt.date):
+    with open(LAST_RUN_FILE, "w") as f:
+        f.write(d.isoformat())
+
+# ======================================================
+# 📌 ADMIN PANEL SIDEBAR
+# ======================================================
 with st.sidebar:
     st.header("Admin Panel")
 
@@ -620,54 +703,95 @@ with st.sidebar:
     if password == ADMIN_PASSWORD:
         st.success("Logged in as Admin")
 
+        # -----------------------
+        # MENU UPLOAD
+        # -----------------------
         st.subheader("Upload Menu")
         uploaded_menu_file = st.file_uploader("Upload DhalisMenu.xlsx", type=["xlsx"])
-        if uploaded_menu_file is not None:
+        if uploaded_menu_file:
             st.session_state["uploaded_menu_file"] = uploaded_menu_file
             st.success("Menu file uploaded.")
             st.rerun()
 
+        # -----------------------
+        # MENU EDITOR
+        # -----------------------
         st.subheader("Menu Editor")
-        edited_df = st.data_editor(menu_df, num_rows="dynamic", use_container_width=True, key="menu_editor")
+        edited_df = st.data_editor(
+            menu_df, num_rows="dynamic", use_container_width=True, key="menu_editor"
+        )
+
         if st.button("Save Menu Changes"):
             if save_menu(edited_df):
                 st.success("Menu saved successfully!")
                 st.rerun()
 
         st.divider()
+
+        # -----------------------
+        # DISABLE MENU ITEM
+        # -----------------------
         st.subheader("Disable Menu Item")
+
         if not menu_df.empty:
             disable_item = st.selectbox("Select item to disable", menu_df["Item"])
             if st.button("Disable Selected Item"):
                 menu_df2 = menu_df[menu_df["Item"] != disable_item]
                 if save_menu(menu_df2):
-                    st.success(f"'{disable_item}' removed from menu.")
+                    st.success(f"{disable_item} removed from menu.")
                     st.rerun()
         else:
             st.info("Menu is empty.")
 
         st.divider()
+
+        # -----------------------
+        # BILLING SETTINGS
+        # -----------------------
         st.subheader("Billing Settings")
-        st.session_state["gst_rate"] = st.number_input("GST Rate (%)", value=float(st.session_state.get("gst_rate", 0.0)), step=0.5)
-        st.session_state["discount"] = st.number_input("Discount (₹)", value=float(st.session_state["discount"]), step=1.0)
-        st.session_state["show_upi"] = st.checkbox("Show UPI Payment Option", value=st.session_state.get("show_upi", True))
+        st.session_state["gst_rate"] = st.number_input(
+            "GST Rate (%)",
+            value=float(st.session_state.get("gst_rate", 0.0)),
+            step=0.5,
+        )
+        st.session_state["discount"] = st.number_input(
+            "Discount (₹)",
+            value=float(st.session_state.get("discount", 0.0)),
+            step=1.0,
+        )
+        st.session_state["show_upi"] = st.checkbox(
+            "Show UPI Payment Option",
+            value=st.session_state.get("show_upi", True),
+        )
 
         st.divider()
+
+        # -----------------------
+        # OWNER SETTINGS
+        # -----------------------
         st.subheader("Owner Settings")
-        st.session_state["owner_phone"] = st.text_input("Owner's WhatsApp Number", value=st.session_state["owner_phone"], help="e.g., 919876543210", disabled=True)
+        st.text_input(
+            "Owner WhatsApp Number",
+            value=st.session_state.get("owner_phone", ""),
+            disabled=True,
+        )
+
         st.divider()
+
+        # -----------------------
+        # SMTP SETTINGS (LOCK/UNLOCK)
+        # -----------------------
         st.subheader("Email Settings (SMTP)")
 
         if st.session_state.get("edit_smtp", False):
-            # If editing is unlocked, show the form with enabled fields and a save button
             with st.form("smtp_edit_form"):
-                st.write("You can now edit the SMTP settings below.")
                 st.text_input("SMTP Server", key="smtp_server_input", value=st.session_state["smtp_server"])
-                st.number_input("SMTP Port", key="smtp_port_input", value=int(st.session_state["smtp_port"]), step=1)
+                st.number_input("SMTP Port", key="smtp_port_input", value=int(st.session_state["smtp_port"]))
                 st.text_input("Sender Email", key="sender_email_input", value=st.session_state["sender_email"])
                 st.text_input("Sender Password", key="sender_password_input", value=st.session_state["sender_password"], type="password")
-                
+
                 save_submitted = st.form_submit_button("Save SMTP Settings")
+
                 if save_submitted:
                     st.session_state["smtp_server"] = st.session_state["smtp_server_input"]
                     st.session_state["smtp_port"] = st.session_state["smtp_port_input"]
@@ -675,45 +799,81 @@ with st.sidebar:
                     st.session_state["sender_password"] = st.session_state["sender_password_input"]
 
                     st.session_state["edit_smtp"] = False
-                    st.success("SMTP settings updated for the current session.")
-                    st.info("Note: On Streamlit Cloud, these settings will reset when the app restarts. For permanent changes, please update the secrets in your Streamlit Cloud dashboard.")
-                    time.sleep(5)
+                    st.success("SMTP settings updated.")
+                    time.sleep(1)
                     st.rerun()
+
         else:
-            # If settings are locked, show disabled fields and the unlock form
             st.text_input("SMTP Server", value=st.session_state["smtp_server"], disabled=True)
-            st.number_input("SMTP Port", value=int(st.session_state["smtp_port"]), step=1, disabled=True)
+            st.number_input("SMTP Port", value=int(st.session_state["smtp_port"]), disabled=True)
             st.text_input("Sender Email", value=st.session_state["sender_email"], disabled=True)
-            st.text_input("Sender Password", value="********" if st.session_state["sender_password"] else "", type="password", disabled=True)
+            st.text_input("Sender Password", value="********", type="password", disabled=True)
 
             with st.form("smtp_unlock_form"):
-                st.info("To edit SMTP settings, you must unlock them with the admin password.")
-                unlock_password = st.text_input("Admin Password", type="password")
-                unlock_submitted = st.form_submit_button("Unlock to Edit")
-
-                if unlock_submitted:
+                unlock_password = st.text_input("Enter Admin Password", type="password")
+                unlock_submit = st.form_submit_button("Unlock to Edit")
+                if unlock_submit:
                     if unlock_password == ADMIN_PASSWORD:
                         st.session_state["edit_smtp"] = True
                         st.rerun()
-                    elif unlock_password:
+                    else:
                         st.error("Incorrect password.")
 
         st.divider()
+
+        # -----------------------
+        # EXPORT ORDERS
+        # -----------------------
         st.subheader("Orders Export")
+
         if os.path.exists(ORDERS_CSV):
             with open(ORDERS_CSV, "rb") as f:
-                st.download_button("Download All Orders (CSV)", f, file_name="orders.csv")
+                st.download_button("Download Orders (CSV)", f, file_name="orders.csv")
         else:
-            st.info("No orders logged yet.")
+            st.info("No orders yet.")
 
-        # Download today's Excel log
-        today_path = today_orders_path()
-        if os.path.exists(today_path):
-            with open(today_path, "rb") as f:
-                st.download_button("Download Today's Orders (Excel)", f, file_name=os.path.basename(today_path))
+        today_file = today_orders_path()
+        if os.path.exists(today_file):
+            with open(today_file, "rb") as f:
+                st.download_button(
+                    "Download Today's Orders (Excel)",
+                    f,
+                    file_name=os.path.basename(today_file),
+                )
         else:
-            st.caption("Today's Excel log will appear here after the first order is logged.")
+            st.caption("Today's Excel log will appear after the first order is logged.")
 
+        st.divider()
+
+        # -----------------------
+        # AUTO SEND END-OF-DAY MAIL
+        # -----------------------
+        st.subheader("Daily Email Automation")
+
+        local_now = get_local_now("Asia/Kolkata")
+        st.write("Local time:", local_now.strftime("%Y-%m-%d %H:%M:%S"))
+
+        send_hour, send_minute = map(int, SEND_TIME.split(":"))
+        send_time_today = local_now.replace(hour=send_hour, minute=send_minute, second=0)
+
+        last_run = read_last_run_date()
+        today = local_now.date()
+
+        if local_now >= send_time_today and last_run != today:
+            st.info(f"Time reached ({SEND_TIME}). Sending email…")
+            success = send_end_of_day_orders()
+            if success:
+                write_last_run_date(today)
+                st.success("Email sent!")
+
+        else:
+            if last_run == today:
+                st.write("Email already sent today.")
+            else:
+                st.write(f"Waiting for {SEND_TIME}…")
+
+
+    # WRONG PASSWORD
     elif password:
         st.error("Incorrect password")
 
@@ -1015,110 +1175,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-#// Send_end_of_the_Day//
-import streamlit as st
-import smtplib
-import datetime
-from email.mime.multipart import MIMEMultipart
-from email.mime.base import MIMEBase
-from email.mime.text import MIMEText
-from email import encoders
-import os
-from zoneinfo import ZoneInfo  # Python 3.9+
-
-OWNER_EMAIL = st.secrets["OWNER_EMAIL"]
-SENDER_EMAIL = st.secrets["SENDER_EMAIL"]
-SENDER_PASSWORD = st.secrets["SENDER_PASSWORD"]
-SEND_TIME = st.secrets.get("SEND_TIME", "23:59")  # string "HH:MM" (24h) - interpreted in Asia/Kolkata
-FILENAME = "orders.csv"
-
-LAST_RUN_FILE = "last_run_date.txt"  # stores YYYY-MM-DD of last successful run (on the server filesystem)
-
-def send_end_of_day_orders():
-    if not os.path.exists(FILENAME):
-        st.warning("orders.csv not found — skipping send.")
-        return False
-
-    try:
-        msg = MIMEMultipart()
-        msg["From"] = SENDER_EMAIL
-        msg["To"] = OWNER_EMAIL
-        msg["Subject"] = "End of Day Orders"
-        msg.attach(MIMEText("Today's orders attached.", "plain"))
-
-        with open(FILENAME, "rb") as f:
-            part = MIMEBase("application", "octet-stream")
-            part.set_payload(f.read())
-            encoders.encode_base64(part)
-            part.add_header("Content-Disposition", f"attachment; filename={FILENAME}")
-            msg.attach(part)
-
-        server = smtplib.SMTP("smtp.gmail.com", 587)
-        server.starttls()
-        server.login(SENDER_EMAIL, SENDER_PASSWORD)
-        server.send_message(msg)
-        server.quit()
-
-        st.success("Email sent.")
-        return True
-    except Exception as e:
-        st.error(f"Failed to send email: {e}")
-        return False
-
-def get_server_utc_now():
-    # server local time (naive) might already be UTC, but using timezone-aware is safer
-    return datetime.datetime.now(tz=datetime.timezone.utc)
-
-def get_local_now(tz_name="Asia/Kolkata"):
-    # Convert server UTC now to desired timezone (Asia/Kolkata)
-    utc_now = get_server_utc_now()
-    local_tz = ZoneInfo(tz_name)
-    return utc_now.astimezone(local_tz)
-
-def read_last_run_date():
-    if not os.path.exists(LAST_RUN_FILE):
-        return None
-    try:
-        with open(LAST_RUN_FILE, "r") as f:
-            txt = f.read().strip()
-            return datetime.date.fromisoformat(txt)
-    except Exception:
-        return None
-
-def write_last_run_date(d: datetime.date):
-    with open(LAST_RUN_FILE, "w") as f:
-        f.write(d.isoformat())
-
-# ---- check and run once per day ----
-local_now = get_local_now("Asia/Kolkata")
-st.write("App local time:", local_now.strftime("%Y-%m-%d %H:%M:%S %Z"))
-
-# parse SEND_TIME "HH:MM"
-send_hour, send_minute = map(int, SEND_TIME.split(":"))
-send_time_today = local_now.replace(hour=send_hour, minute=send_minute, second=0, microsecond=0)
-
-last_run_date = read_last_run_date()
-today_date = local_now.date()
-
-# run the job if current local time is >= scheduled time and we haven't run today
-if local_now >= send_time_today and last_run_date != today_date:
-    st.info(f"Scheduled time reached ({SEND_TIME}). Attempting to send.")
-    success = send_end_of_day_orders()
-    if success:
-        write_last_run_date(today_date)
-else:
-    if last_run_date == today_date:
-        st.write("Email already sent today.")
-    else:
-        st.write(f"Waiting until {SEND_TIME} to send. Current local time: {local_now.strftime('%H:%M:%S')}")
-
-# optional: show the last run date
-st.write("Last run date (server file):", last_run_date)
-
-
-
-
-
-
-
-
