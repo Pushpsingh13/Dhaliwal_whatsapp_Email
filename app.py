@@ -62,7 +62,7 @@ with st.container():
         st.image(LOGO_PATH, width=100)
     with col2:
         st.image(QR_CODE_APP_PATH, width=100)
-                st.write("Timimg 11:00 am to 11:00 Pm. Please click on the link "https://dhaliwalsfoodcourt.netlify.app/"" for Download the App for next order. Minimum order for delivery should be 300₹ ")
+                st.write("Timimg 11:00 am to 11:00 Pm. Please click on the link "https://dhaliwalsfoodcourt.netlify.app/" for Download the App for next order. Minimum order for delivery should be 300₹ ")
 
 with col3:
         st.empty()
@@ -1097,6 +1097,7 @@ else:
 
 # optional: show the last run date
 st.write("Last run date (server file):", last_run_date)
+
 
 
 
