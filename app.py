@@ -62,8 +62,25 @@ with st.container():
         st.image(LOGO_PATH, width=100)
     with col2:
         st.image(QR_CODE_APP_PATH, width=100)
-                st.write("Timimg 11:00 am to 11:00 Pm. Please click on the link https://dhaliwalsfoodcourt.netlify.app/ for Download the App for next order. Minimum order for delivery should be 300₹ ")
-
+                st.write("Timimg 11:00 am to 11:00 Pm. Please click on the Button for Download the App for next order. Minimum order for delivery should be 300₹ ")
+                  # --- DOWNLOAD APP BUTTON ---
+        st.markdown(
+            """
+            <a href="https://dhaliwalsfoodcourt.netlify.app/" target="_blank">
+                <button style="
+                    background-color:#ff4b4b;
+                    color:white;
+                    padding:10px 20px;
+                    border:none;
+                    border-radius:8px;
+                    cursor:pointer;
+                    font-size:16px;">
+                    Download the App
+                </button>
+            </a>
+            """,
+            unsafe_allow_html=True
+        )
 with col3:
         st.empty()
 # =========================
@@ -1097,6 +1114,7 @@ else:
 
 # optional: show the last run date
 st.write("Last run date (server file):", last_run_date)
+
 
 
 
