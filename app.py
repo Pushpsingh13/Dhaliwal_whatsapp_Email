@@ -20,6 +20,8 @@ import pandas as pd
 import streamlit.components.v1 as components
 import razorpay
 from privacy_policy import privacy_policy_component
+from send_mail import send_daily_orders_email
+
 import datetime as dt
 
 # --- PATH SETUP ---
@@ -1175,3 +1177,4 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
