@@ -24,6 +24,9 @@ jobs:
     - name: Install dependencies
       run: |
         pip install pandas
+      run: |
+  echo "Sender: $SENDER_EMAIL"
+  echo "Receiver: $OWNER_EMAIL"
 
     - name: Send Orders CSV Email
       env:
