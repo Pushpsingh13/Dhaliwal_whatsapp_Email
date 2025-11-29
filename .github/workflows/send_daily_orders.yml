@@ -2,7 +2,7 @@ name: Send Daily Orders Report
 
 on:
   schedule:
-    - cron: "0 18 * * *" # 12:35 PM IST daily
+    - cron: "0 18 * * *" 
   workflow_dispatch:
 
 jobs:
