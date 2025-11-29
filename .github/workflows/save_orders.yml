@@ -3,7 +3,7 @@ name: Save Updated Orders
 on:
   push:
     paths:
-      - 'restaurant_billing_app/orders.csv'
+      - '.github/workflows/orders.csv'
   workflow_dispatch:
 
 jobs:
