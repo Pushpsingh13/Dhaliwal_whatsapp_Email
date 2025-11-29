@@ -422,7 +422,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.save()
     buf.seek(0)
     return buf
-def append_order_to_excel(order_id: str, subtotal: float, delivery_charge: float, gst_amount: float, discount: float, grand_total: float, payment_method: str, razorpay_fee: float = 0.0):
+def save_order_log(order_id: str, subtotal: float, delivery_charge: float, gst_amount: float, discount: float, grand_total: float, payment_method: str, razorpay_fee: float = 0.0):
     """Logs order to the daily Excel file AND appends to consolidated orders.csv"""
     ensure_orders_dir()
     path = today_orders_path()
@@ -1026,7 +1026,7 @@ with col2:
                     gst_amount = subtotal * gst_rate / 100.0
                     grand_total = subtotal + delivery_charge + gst_amount - discount
                     order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                    append_order_to_excel(order_id, subtotal, delivery_charge, gst_amount, discount, grand_total, "UPI", razorpay_fee=0)
+                    save_order_log(order_id, subtotal, delivery_charge, gst_amount, discount, grand_total, "UPI", razorpay_fee=0)
                     st.session_state["payment_option"] = "done"
                     st.session_state["payment_method"] = "UPI"
                     st.session_state["order_finalized_time"] = time.time()
@@ -1044,7 +1044,7 @@ with col2:
                     gst_amount = subtotal * gst_rate / 100.0
                     grand_total = subtotal + delivery_charge + gst_amount - discount
                     order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                    append_order_to_excel(order_id, subtotal, delivery_charge, gst_amount, discount, grand_total, "Cash on Delivery", razorpay_fee=0)
+                    save_order_log(order_id, subtotal, delivery_charge, gst_amount, discount, grand_total, "Cash on Delivery", razorpay_fee=0)
                     st.session_state["payment_option"] = "cod_confirmed"
                     st.session_state["payment_method"] = "Cash on Delivery"
                     st.session_state["order_finalized_time"] = time.time()
@@ -1096,7 +1096,7 @@ with col2:
                             razorpay_fee = subtotal * 0.026
                             grand_total = subtotal + delivery_charge + gst_amount - discount + razorpay_fee
                             order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                            append_order_to_excel(order_id, subtotal, delivery_charge, gst_amount, discount, grand_total, "Razorpay", razorpay_fee=razorpay_fee)
+                            save_order_log(order_id, subtotal, delivery_charge, gst_amount, discount, grand_total, "Razorpay", razorpay_fee=razorpay_fee)
                             st.session_state["payment_option"] = "done"
                             st.session_state["payment_method"] = "Razorpay"
                             st.session_state["order_finalized_time"] = time.time()
