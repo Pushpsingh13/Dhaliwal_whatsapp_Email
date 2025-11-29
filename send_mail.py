@@ -1,77 +1,67 @@
-# send_mail.py
-def send_daily_orders_email():
-    import smtplib
-    from email.mime.multipart import MIMEMultipart
-    from email.mime.base import MIMEBase
-    from email.mime.text import MIMEText
-    from email import encoders
-    import os
+import smtplib
+import os
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from email.mime.base import MIMEBase
+from email import encoders
 
+
+def send_daily_orders_email():
     ORDERS_FILE = "orders.csv"
 
-    # FIX: Prevent None values
-    sender = os.getenv("SENDER_EMAIL") or ""
-    password = os.getenv("SENDER_PASSWORD") or ""
-    receiver = os.getenv("OWNER_EMAIL") or ""
+    print("=== Starting Email Script ===")
 
+    # Always return a string (fixes Pylance errors)
+    sender: str = os.getenv("SENDER_EMAIL") or ""
+    password: str = os.getenv("SENDER_PASSWORD") or ""
+    receiver: str = os.getenv("OWNER_EMAIL") or ""
+
+    print(f"SENDER_EMAIL set? {'YES' if sender else 'NO'}")
+    print(f"SENDER_PASSWORD set? {'YES' if password else 'NO'}")
+    print(f"OWNER_EMAIL set? {'YES' if receiver else 'NO'}")
+
+    # Validate all secrets
     if not sender or not password or not receiver:
-        print("ERROR: Missing environment variables.")
+        print("ERROR: Missing required environment variables.")
         return
 
-    msg = MIMEMultipart()
-    msg["From"] = sender
-    msg["To"] = receiver
-    msg["Subject"] = "Daily Orders Report - Dhaliwal Food Court"
+    # Check file exists
+    if not os.path.exists(ORDERS_FILE):
+        print(f"ERROR: File not found: {ORDERS_FILE}")
+        return
 
-    msg.attach(MIMEText("Attached is the daily consolidated orders.csv report.", "plain"))
+    try:
+        print("Preparing email...")
 
-    with open(ORDERS_FILE, "rb") as f:
-        part = MIMEBase("application", "octet-stream")
-        part.set_payload(f.read())
-        encoders.encode_base64(part)
-        part.add_header("Content-Disposition", "attachment; filename=orders.csv")
-        msg.attach(part)
+        msg = MIMEMultipart()
+        msg["From"] = sender
+        msg["To"] = receiver
+        msg["Subject"] = "Daily Orders Report - Dhaliwal Food Court"
 
-    server = smtplib.SMTP("smtp.gmail.com", 587)
-    server.starttls()
-    server.login(sender, password)
-    server.send_message(msg)
-    server.quit()
+        msg.attach(MIMEText("Attached is the daily consolidated orders.csv report.", "plain"))
 
-    print("Email sent successfully!")
-# .github/workflows/send_daily_orders.yml
-# Place this file under: .github/workflows/send_daily_orders.yml
+        # Attach file
+        with open(ORDERS_FILE, "rb") as f:
+            part = MIMEBase("application", "octet-stream")
+            part.set_payload(f.read())
+            encoders.encode_base64(part)
+            part.add_header("Content-Disposition", 'attachment; filename="orders.csv"')
+            msg.attach(part)
 
-"""
-name: Send Daily Orders Report
+        print("Connecting to Gmail SMTP...")
+        with smtplib.SMTP("smtp.gmail.com", 587) as server:
+            server.starttls()
+            print("Logging in...")
+            server.login(sender, password)
+            print("Sending email...")
+            server.send_message(msg)
 
-on:
-  schedule:
-    - cron: "0 18 * * *"   # 11:30 PM IST daily
-  workflow_dispatch:
+        print("=== Email sent successfully! ===")
 
-jobs:
-  send-report:
-    runs-on: ubuntu-latest
+    except Exception as e:
+        print("=== ERROR SENDING EMAIL ===")
+        print(str(e))
 
-    steps:
-    - name: Checkout repo
-      uses: actions/checkout@v3
 
-    - name: Set up Python
-      uses: actions/setup-python@v4
-      with:
-        python-version: "3.10"
-
-    - name: Install dependencies
-      run: |
-        pip install pandas
-
-    - name: Send Orders CSV Email
-      env:
-        SENDER_EMAIL: ${{ secrets.SENDER_EMAIL }}
-        SENDER_PASSWORD: ${{ secrets.SENDER_PASSWORD }}
-        OWNER_EMAIL: ${{ secrets.OWNER_EMAIL }}
-      run: |
-        python send_mail.py
-"""
+if __name__ == "__main__":
+    send_daily_orders_email()
