@@ -704,6 +704,7 @@ with st.sidebar:
 
     if password == ADMIN_PASSWORD:
         st.success("Logged in as Admin")
+        
 
         # -----------------------
         # MENU UPLOAD
@@ -847,8 +848,21 @@ with st.sidebar:
 
         st.divider()
 
-        # -----------------------
+    # -----------------------
         # AUTO SEND END-OF-DAY MAIL
+        # -----------------------
+        st.subheader("Admin Controls")
+
+        # Manual Send Button
+        if st.button("Send Orders Email Now"):
+            try:
+                send_daily_orders_email()
+                st.success("Email sent successfully!")
+            except Exception as e:
+                st.error(f"Error sending email: {e}")
+
+        # -----------------------
+        # DAILY EMAIL AUTOMATION
         # -----------------------
         st.subheader("Daily Email Automation")
 
@@ -867,17 +881,15 @@ with st.sidebar:
             if success:
                 write_last_run_date(today)
                 st.success("Email sent!")
-
         else:
             if last_run == today:
                 st.write("Email already sent today.")
             else:
                 st.write(f"Waiting for {SEND_TIME}…")
-
-
     # WRONG PASSWORD
     elif password:
         st.error("Incorrect password")
+
 
 col1, col2 = st.columns([3, 1], gap="large")
 
@@ -1177,4 +1189,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-
