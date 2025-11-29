@@ -1,0 +1,26 @@
+name: Save Updated Orders
+
+on:
+  push:
+    paths:
+      - 'orders.csv'
+  workflow_dispatch:
+
+jobs:
+  commit-orders:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Configure Git
+      run: |
+        git config user.name "github-actions"
+        git config user.email "github-actions@github.com"
+
+    - name: Commit updated orders.csv
+      run: |
+        git add orders.csv
+        git commit -m "Update orders.csv" || echo "No changes to commit"
+        git push
