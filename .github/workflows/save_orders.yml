@@ -3,7 +3,7 @@ name: Save Updated Orders
 on:
   push:
     paths:
-      - 'orders.csv'
+      - 'restaurant_billing_app/orders.csv'
   workflow_dispatch:
 
 jobs:
@@ -21,6 +21,6 @@ jobs:
 
     - name: Commit updated orders.csv
       run: |
-        git add orders.csv
+        git add restaurant_billing_app/orders.csv
         git commit -m "Update orders.csv" || echo "No changes to commit"
         git push
