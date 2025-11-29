@@ -53,7 +53,25 @@ Date,Time,OrderID,CustomerName,Phone,Email,Address,Items,Subtotal,DeliveryCharge
 22-11-2025,11:09:03,20251122-110903,New_1,4.48E+11,Pushp.singh13uk@gmail.com,41-B TOWER WALI GALI,"10x 7 Inch Combo Pack (Pizza Margarita, Onion and Capsicum, Corn, Pizza Paneer)(Full)-₹350.00",3500,175,0,Razorpay,,91,3766
 22-11-2025,11:26:48,20251122-112648,New-2,4.48E+11,pushp.singh13uk@gmail.com,Meerut jagrati vihar,2x Aloo tikki chees Burger(Full)-₹80.00,160,8,0,Cash on Delivery,,0,168
 22-11-2025,11:47:04,20251122-114704,Love,4.48E+11,Pushp.singh13uk@gmail.com,41-B TOWER WALI GALI,2x Aloo tikki chees Burger(Full)-₹80.00,160,8,0,Razorpay,0,4.16,172.16
+22-11-2025,11:47:04,20251122-114704,Love,4.48E+11,Pushp.singh13uk@gmail.com,41-B TOWER WALI GALI,2x Aloo tikki chees Burger(Full)-₹80.00,160,8,0,Razorpay,0,4.16,172.16
+22-11-2025,11:52:26,20251122-115226,Love_1,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
+22-11-2025,11:56:55,20251122-115655,Love_2,4.48E+11,pushp.singh13uk@gmail.com,Meerut,2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
+22-11-2025,18:33:48,20251122-183348,Love_3,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
+22-11-2025,23:01:12,20251122-230112,Love_4,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki chees Burger(Full)-₹80.00,160,8,0,Cash on Delivery,0,0,168
 26-11-2025,19:53:16,20251126-195316,Try_01,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Pizza Corn 10' Inch(Full)-₹140.00,280,14,0,Razorpay,0,7.28,301.28
+27-11-2025,02:48:18,20251127-024818,love_01,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
 28-11-2025,15:48:06,20251128-154806,Try_4,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Veg Biryani Paneer with Dip Garlic Mayo Dip *1(Full)-₹175.00,350,17.5,0,Razorpay,0,9.1,376.6
+28-11-2025,15:17:18,20251128-151718,Tyr-04,9.19E+11,Pushp.singh13uk@gmail.com,Meerut ,2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
+28-11-2025,15:50:16,20251128-155016,Try_05,4.48E+11,Pushp.singh13uk@gmail.com,Meerut,1x Aloo tikki chees Burger(Full)-₹80.00,80,4,0,Cash on Delivery,0,0,84
+28-11-2025,16:06:43,20251128-160643,Try_07,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
+28-11-2025,17:19:40,20251128-171940,Try_08,4.48E+11,pushp.singh13uk@gmail.com,Meerut,2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
+28-11-2025,11:57:37,20251128-115737,TRY04,9.18E+11,pushp.singh13uk@gmail.com,Meerut,1x Aloo tikki Burger (Full)-?60.00,60,3,0,Cash on Delivery,0,0,63
+28-11-2025,15:55:46,20251128-155546,Try_05,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki chees Burger(Full)-?80.00,160,8,0,Cash on Delivery,0,0,168
+28-11-2025,15:58:03,20251128-155803,Try_06,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki chees Burger(Full)-?80.00,160,8,0,Razorpay,0,4.16,172.16
+29-11-2025,15:53:35,20251129-155335,Try_01,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-₹60.00,120,6,0,Cash on Delivery,0,0,126
+29-11-2025,16:24:12,20251129-162412,Try_02,4.48E+11,pushp.singh13uk@gmail.com,Meerut,2x 7 Inch Pizza Paneer(Full)-₹99.00,198,9.9,0,Cash on Delivery,0,0,207.9
+29-11-2025,18:15:51,20251129-181551,Try_03,4.48E+11,pushp.singh13uk@gmail.com,Meerut,2x 7 Inch Pizza Corn(Full)-₹99.00,198,9.9,0,Cash on Delivery,0,0,207.9
+29-11-2025,22:50:54,20251129-225054,Try_03,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",1x Aloo tikki Burger (Full)-₹60.00,60,3,0,Cash on Delivery,0,0,63
+29-11-2025,16:09:51,20251129-160951,try_01,4.47824E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-?60.00,120,6,0,Cash on Delivery,0,0,126
 30-11-2025,00:30:45,20251130-003045,Try_01,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",1x Aloo tikki Burger (Full)-?60.00,60,3,0,Cash on Delivery,0,0,63
-30-11-2025,00:37:43,20251130-003743,Try_03,4.47824E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-?60.00,120,6,0,Cash on Delivery,0,0,126
+30-11-2025,00:37:43,20251130-003743,Try_03,4.48E+11,Pushp.singh13uk@gmail.com,"93 Oxford street , Rugby",2x Aloo tikki Burger (Full)-?60.00,120,6,0,Cash on Delivery,0,0,126
