@@ -1,7 +1,6 @@
 # .github/workflows/send_daily_orders.yml
 # Place this file under: .github/workflows/send_daily_orders.yml
 
-"""
 name: Send Daily Orders Report
 
 on:
@@ -33,4 +32,3 @@ jobs:
         OWNER_EMAIL: ${{ secrets.OWNER_EMAIL }}
       run: |
         python send_mail.py
-"""
