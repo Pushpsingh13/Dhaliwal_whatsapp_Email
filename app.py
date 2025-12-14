@@ -66,7 +66,10 @@ with st.container():
         st.image(LOGO_PATH, width=100)
     with col2:
         st.image(QR_CODE_APP_PATH, width=100)
-        st.write("Timimg 11:00 am to 11:00 Pm. Please click on the Button for Download the App for next order. Minimum order for delivery should be 300₹")
+        st.write("Dhaliwal’s Food Court
+Operating Hours: 10:00 AM – 10:00 PM
+Click the button below to download the app and place your next order.
+Pickup only (as per order).")
                   # --- DOWNLOAD APP BUTTON ---
         st.markdown(
             """
@@ -1187,3 +1190,4 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
