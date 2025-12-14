@@ -171,7 +171,7 @@ _defaults = {
     "cust_addr": "",
     "cust_email": "",
     "gst_rate": 0.0,
-    "Pick up_charge_rate": 0,
+    "Delivery_charge_rate": 0,
     "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
@@ -202,7 +202,7 @@ def ensure_orders_csv_exists():
         try:
             df = pd.DataFrame(columns=[
                 "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
-                "Address", "Items", "Subtotal", "Pick upChargeAmount", "GST",
+                "Address", "Items", "Subtotal", "DeliveryChargeAmount", "GST",
                 "PaymentMethod", "Discount", "razorpay_fee", "GrandTotal"
             ])
             df.to_csv(ORDERS_CSV, index=False, mode='w')
@@ -380,15 +380,15 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
         y -= 10
         subtotal += float(row["price"]) * row['quantity']
 
-    Pick up_charge_rate = float(st.session_state.get("Pick up_charge_rate", 0.0))
+    Delivery_charge_rate = float(st.session_state.get("Delivery_charge_rate", 0.0))
     gst_rate = float(st.session_state.get("gst_rate", 0.0))
     discount = float(st.session_state["discount"])
-    Pick up_charge = subtotal * Pick up_charge_rate / 100.0
+    Delivery_charge = subtotal * Delivery_charge_rate / 100.0
     gst_amount = subtotal * gst_rate / 100.0
     razorpay_fee = 0.0
     if st.session_state.get("payment_method") == "Razorpay":
         razorpay_fee = subtotal * 0.026
-    grand_total = subtotal + Pick up_charge + gst_amount - discount + razorpay_fee
+    grand_total = subtotal + Delivery_charge + gst_amount - discount + razorpay_fee
 
     c.line(0, y, thermal_width, y)
     y -= 12
@@ -396,8 +396,8 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.drawString(2, y, "Subtotal")
     c.drawRightString(thermal_width - 2, y, f"₹{subtotal:.2f}")
     y -= 10
-    c.drawString(2, y, "Pick up Charge")
-    c.drawRightString(thermal_width - 2, y, f"₹{Pick up_charge:.2f}")
+    c.drawString(2, y, "Delivery Charge")
+    c.drawRightString(thermal_width - 2, y, f"₹{Delivery_charge:.2f}")
     y -= 10
     c.drawString(2, y, f"GST ({gst_rate}%)")
     c.drawRightString(thermal_width - 2, y, f"₹{gst_amount:.2f}")
@@ -420,7 +420,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
     c.save()
     buf.seek(0)
     return buf
-def save_order_log(order_id: str, subtotal: float, Pick up_charge: float, gst_amount: float, discount: float, grand_total: float, payment_method: str, razorpay_fee: float = 0.0):
+def save_order_log(order_id: str, subtotal: float, Delivery_charge: float, gst_amount: float, discount: float, grand_total: float, payment_method: str, razorpay_fee: float = 0.0):
     """Logs order to the daily Excel file AND appends to consolidated orders.csv"""
     ensure_orders_dir()
     path = today_orders_path()
@@ -435,7 +435,7 @@ def save_order_log(order_id: str, subtotal: float, Pick up_charge: float, gst_am
         "Address": st.session_state["cust_addr"],
         "Items": "; ".join([f"{i['quantity']}x {i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state["bill"]]),
         "Subtotal": subtotal,
-        "Pick upChargeAmount": Pick up_charge,
+        "DeliveryChargeAmount": Delivery_charge,
         "GST": gst_amount,
         "PaymentMethod": payment_method,
         "Discount": discount,
@@ -553,7 +553,7 @@ def send_email_to_owner(pdf_bytes: bytes, order_id: str) -> bool:
         return False
 
 
-def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, Pick up_charge: float, gst_amount: float, grand_total: float, razorpay_fee: float = 0.0) -> bool:
+def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, Delivery_charge: float, gst_amount: float, grand_total: float, razorpay_fee: float = 0.0) -> bool:
     to_digits = "".join([c for c in str(to_number_raw) if c.isdigit()])
     if not to_digits:
         st.error("Invalid customer phone for WhatsApp.")
@@ -576,7 +576,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, Pi
         f"*Date:* {get_local_time().strftime('%d %b %Y %H:%M')}\n\n"
         f"*Items:*\n{items_str}\n\n"
         f"*Subtotal:* ₹{subtotal:.2f}\n"
-        f"*Pick up Charge:* ₹{Pick up_charge:.2f}\n"
+        f"*Delivery Charge:* ₹{Delivery_charge:.2f}\n"
         f"*GST ({gst_rate}%):* ₹{gst_amount:.2f}\n"
         f"{razorpay_fee_str}"
         f"*Grand Total:* ₹{grand_total:.2f}\n\n"
@@ -977,7 +977,7 @@ with col2:
                 st.session_state["payment_option"] = "pending"
 
         if st.session_state["payment_option"] == "pending":
-            payment_options = ["Cash on Pick up", "Online Payment (Card/Netbanking)"]
+            payment_options = ["Cash on Delivery", "Online Payment (Card/Netbanking)"]
             if st.session_state.get("show_upi", True):
                 payment_options.insert(0, "UPI")
             
@@ -989,14 +989,14 @@ with col2:
             if payment_method == "UPI":
                 upi_id = "9259317713@ybl"
                 subtotal = st.session_state["total"]
-                Pick up_charge_rate = float(
-                    st.session_state.get("Pick up_charge_rate", 0.0)
+                Delivery_charge_rate = float(
+                    st.session_state.get("Delivery_charge_rate", 0.0)
                 )
                 gst_rate = float(st.session_state.get("gst_rate", 0.0))
                 discount = float(st.session_state["discount"])
-                Pick up_charge = subtotal * Pick up_charge_rate / 100.0
+                Delivery_charge = subtotal * Delivery_charge_rate / 100.0
                 gst_amount = subtotal * gst_rate / 100.0
-                grand_total = subtotal + Pick up_charge + gst_amount - discount
+                grand_total = subtotal + Delivery_charge + gst_amount - discount
                 amount = grand_total
                 upi_link = f"upi://pay?pa={upi_id}&pn=Dhaliwal's%20Food%20Court&am={amount:.2f}&cu=INR"
 
@@ -1015,36 +1015,36 @@ with col2:
 
                 if st.button("Payment Done"):
                     subtotal = st.session_state["total"]
-                    Pick up_charge_rate = float(
-                        st.session_state.get("Pick up_charge_rate", 0.0)
+                    Delivery_charge_rate = float(
+                        st.session_state.get("Delivery_charge_rate", 0.0)
                     )
                     gst_rate = float(st.session_state.get("gst_rate", 0.0))
                     discount = float(st.session_state["discount"])
-                    Pick up_charge = subtotal * Pick up_charge_rate / 100.0
+                    Delivery_charge = subtotal * Delivery_charge_rate / 100.0
                     gst_amount = subtotal * gst_rate / 100.0
-                    grand_total = subtotal + Pick up_charge + gst_amount - discount
+                    grand_total = subtotal + Delivery_charge + gst_amount - discount
                     order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                    save_order_log(order_id, subtotal, Pick up_charge, gst_amount, discount, grand_total, "UPI", razorpay_fee=0)
+                    save_order_log(order_id, subtotal, Delivery_charge, gst_amount, discount, grand_total, "UPI", razorpay_fee=0)
                     st.session_state["payment_option"] = "done"
                     st.session_state["payment_method"] = "UPI"
                     st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
-            elif payment_method == "Cash on Pick up":
-                if st.button("Confirm Cash on Pick up"):
+            elif payment_method == "Cash on Delivery":
+                if st.button("Confirm Cash on Delivery"):
                     subtotal = st.session_state["total"]
-                    Pick up_charge_rate = float(
-                        st.session_state.get("Pick up_charge_rate", 0.0)
+                    Delivery_charge_rate = float(
+                        st.session_state.get("Delivery_charge_rate", 0.0)
                     )
                     gst_rate = float(st.session_state.get("gst_rate", 0.0))
                     discount = float(st.session_state["discount"])
-                    Pick up_charge = subtotal * Pick up_charge_rate / 100.0
+                    Delivery_charge = subtotal * Delivery_charge_rate / 100.0
                     gst_amount = subtotal * gst_rate / 100.0
-                    grand_total = subtotal + Pick up_charge + gst_amount - discount
+                    grand_total = subtotal + Delivery_charge + gst_amount - discount
                     order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                    save_order_log(order_id, subtotal, Pick up_charge, gst_amount, discount, grand_total, "Cash on Pick up", razorpay_fee=0)
+                    save_order_log(order_id, subtotal, Delivery_charge, gst_amount, discount, grand_total, "Cash on Delivery", razorpay_fee=0)
                     st.session_state["payment_option"] = "cod_confirmed"
-                    st.session_state["payment_method"] = "Cash on Pick up"
+                    st.session_state["payment_method"] = "Cash on Delivery"
                     st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
@@ -1053,15 +1053,15 @@ with col2:
                     st.error("Razorpay is not configured.")
                 else:
                     subtotal = st.session_state["total"]
-                    Pick up_charge_rate = float(
-                        st.session_state.get("Pick up_charge_rate", 0.0)
+                    Delivery_charge_rate = float(
+                        st.session_state.get("Delivery_charge_rate", 0.0)
                     )
                     gst_rate = float(st.session_state.get("gst_rate", 0.0))
                     discount = float(st.session_state["discount"])
-                    Pick up_charge = subtotal * Pick up_charge_rate / 100.0
+                    Delivery_charge = subtotal * Delivery_charge_rate / 100.0
                     gst_amount = subtotal * gst_rate / 100.0
                     razorpay_fee = subtotal * 0.026
-                    grand_total = subtotal + Pick up_charge + gst_amount - discount + razorpay_fee
+                    grand_total = subtotal + Delivery_charge + gst_amount - discount + razorpay_fee
 
 
                     order_currency = "INR"
@@ -1084,17 +1084,17 @@ with col2:
 
                         if st.button("Payment Done"):
                             subtotal = st.session_state["total"]
-                            Pick up_charge_rate = float(
-                                st.session_state.get("Pick up_charge_rate", 0.0)
+                            Delivery_charge_rate = float(
+                                st.session_state.get("Delivery_charge_rate", 0.0)
                             )
                             gst_rate = float(st.session_state.get("gst_rate", 0.0))
                             discount = float(st.session_state["discount"])
-                            Pick up_charge = subtotal * Pick up_charge_rate / 100.0
+                            Delivery_charge = subtotal * Delivery_charge_rate / 100.0
                             gst_amount = subtotal * gst_rate / 100.0
                             razorpay_fee = subtotal * 0.026
-                            grand_total = subtotal + Pick up_charge + gst_amount - discount + razorpay_fee
+                            grand_total = subtotal + Delivery_charge + gst_amount - discount + razorpay_fee
                             order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                            save_order_log(order_id, subtotal, Pick up_charge, gst_amount, discount, grand_total, "Razorpay", razorpay_fee=razorpay_fee)
+                            save_order_log(order_id, subtotal, Delivery_charge, gst_amount, discount, grand_total, "Razorpay", razorpay_fee=razorpay_fee)
                             st.session_state["payment_option"] = "done"
                             st.session_state["payment_method"] = "Razorpay"
                             st.session_state["order_finalized_time"] = time.time()
@@ -1110,7 +1110,7 @@ with col2:
             if st.session_state["payment_option"] == "done":
                 st.success("We need to confirm your payment please send your payment details like transaction details on what's app. When we get your payment, we will contact you on call for confirmation of your order.")
             elif st.session_state["payment_option"] == "cod_confirmed":
-                st.success("Your order has been confirmed for Cash on Pick up.")
+                st.success("Your order has been confirmed for Cash on Delivery.")
 
             pdf_buffer = build_pdf_receipt(order_id)
             if pdf_buffer:
@@ -1129,15 +1129,15 @@ with col2:
 
             if st.button("Finalize Order (Log + Selected Sends)"):
                 subtotal = st.session_state["total"]
-                Pick up_charge_rate = float(st.session_state.get("Pick up_charge_rate", 0.0))
-                Pick up_charge = subtotal * Pick up_charge_rate / 100.0
+                Delivery_charge_rate = float(st.session_state.get("Delivery_charge_rate", 0.0))
+                Delivery_charge = subtotal * Delivery_charge_rate / 100.0
                 gst_rate = float(st.session_state.get("gst_rate", 0.0))
                 gst_amount = subtotal * gst_rate / 100.0
                 discount = float(st.session_state["discount"])
                 razorpay_fee = 0.0
                 if st.session_state.get("payment_method") == "Razorpay":
                     razorpay_fee = subtotal * 0.026
-                grand_total = subtotal + Pick up_charge + gst_amount - discount + razorpay_fee
+                grand_total = subtotal + Delivery_charge + gst_amount - discount + razorpay_fee
 
                 st.success(f"Order {order_id} has been saved to the order logs.")
 
@@ -1162,14 +1162,14 @@ with col2:
                         st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
                     else:
                         st.info("Click the link below to send the order details to the customer via WhatsApp.")
-                        send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, Pick up_charge, gst_amount, grand_total, razorpay_fee)
+                        send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, Delivery_charge, gst_amount, grand_total, razorpay_fee)
 
                     # Send to owner
                     if not st.session_state["owner_phone"]:
                         st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
                     else:
                         st.info("Click the link below to send the order details to the owner via WhatsApp.")
-                        send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, Pick up_charge, gst_amount, grand_total, razorpay_fee)
+                        send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, Delivery_charge, gst_amount, grand_total, razorpay_fee)
 
                 if not (send_email or send_whatsapp):
                     st.info("Order logged. Select Email or WhatsApp to send the receipt.")
@@ -1187,6 +1187,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
