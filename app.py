@@ -32,7 +32,7 @@ PICKUP_TIME_SLOTS = [
     "Ready in 20–30 minutes",
     "Ready in 30–45 minutes",
     "Ready in 45–60 minutes",
-    "Select specific pickup time",# --- END PATH SETUP ---
+    "Select specific pickup time",]# --- END PATH SETUP ---
 
 RAZORPAY_KEY_ID = st.secrets.get("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = st.secrets.get("RAZORPAY_KEY_SECRET")
@@ -1194,6 +1194,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
