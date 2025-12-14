@@ -977,7 +977,7 @@ with col2:
                 st.session_state["payment_option"] = "pending"
 
         if st.session_state["payment_option"] == "pending":
-            payment_options = ["Cash on Delivery", "Online Payment (Card/Netbanking)"]
+            payment_options = ["Cash on Pick_up", "Online Payment (Card/Netbanking)"]
             if st.session_state.get("show_upi", True):
                 payment_options.insert(0, "UPI")
             
@@ -1030,8 +1030,8 @@ with col2:
                     st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
-            elif payment_method == "Cash on Delivery":
-                if st.button("Confirm Cash on Delivery"):
+            elif payment_method == "Cash on Pick up":
+                if st.button("Confirm Cash on Pick up"):
                     subtotal = st.session_state["total"]
                     Delivery_charge_rate = float(
                         st.session_state.get("Delivery_charge_rate", 0.0)
@@ -1042,9 +1042,9 @@ with col2:
                     gst_amount = subtotal * gst_rate / 100.0
                     grand_total = subtotal + Delivery_charge + gst_amount - discount
                     order_id = get_local_time().strftime("%Y%m%d-%H%M%S")
-                    save_order_log(order_id, subtotal, Delivery_charge, gst_amount, discount, grand_total, "Cash on Delivery", razorpay_fee=0)
+                    save_order_log(order_id, subtotal, Delivery_charge, gst_amount, discount, grand_total, "Cash on Pick up", razorpay_fee=0)
                     st.session_state["payment_option"] = "cod_confirmed"
-                    st.session_state["payment_method"] = "Cash on Delivery"
+                    st.session_state["payment_method"] = "Cash on Pick up"
                     st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
@@ -1110,7 +1110,7 @@ with col2:
             if st.session_state["payment_option"] == "done":
                 st.success("We need to confirm your payment please send your payment details like transaction details on what's app. When we get your payment, we will contact you on call for confirmation of your order.")
             elif st.session_state["payment_option"] == "cod_confirmed":
-                st.success("Your order has been confirmed for Cash on Delivery.")
+                st.success("Your order has been confirmed for Cash on Pick up.")
 
             pdf_buffer = build_pdf_receipt(order_id)
             if pdf_buffer:
@@ -1187,6 +1187,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
