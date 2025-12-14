@@ -27,7 +27,12 @@ APP_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
 QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
 BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
-# --- END PATH SETUP ---
+ORDER_TYPE = "Pickup Only"
+PICKUP_TIME_SLOTS = [
+    "Ready in 20–30 minutes",
+    "Ready in 30–45 minutes",
+    "Ready in 45–60 minutes",
+    "Select specific pickup time",# --- END PATH SETUP ---
 
 RAZORPAY_KEY_ID = st.secrets.get("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = st.secrets.get("RAZORPAY_KEY_SECRET")
@@ -1174,6 +1179,7 @@ with col2:
 
                 if not (send_email or send_whatsapp):
                     st.info("Order logged. Select Email or WhatsApp to send the receipt.")
+                    
 
         st.button("Clear Bill", on_click=clear_bill)
 
@@ -1188,6 +1194,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
