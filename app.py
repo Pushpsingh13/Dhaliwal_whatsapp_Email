@@ -381,7 +381,7 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
         y -= 10
         subtotal += float(row["price"]) * row['quantity']
 
-    delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
+    delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 0.0))
     gst_rate = float(st.session_state.get("gst_rate", 0.0))
     discount = float(st.session_state["discount"])
     delivery_charge = subtotal * delivery_charge_rate / 100.0
@@ -991,7 +991,7 @@ with col2:
                 upi_id = "9259317713@ybl"
                 subtotal = st.session_state["total"]
                 delivery_charge_rate = float(
-                    st.session_state.get("delivery_charge_rate", 5.0)
+                    st.session_state.get("delivery_charge_rate", 0.0)
                 )
                 gst_rate = float(st.session_state.get("gst_rate", 0.0))
                 discount = float(st.session_state["discount"])
@@ -1017,7 +1017,7 @@ with col2:
                 if st.button("Payment Done"):
                     subtotal = st.session_state["total"]
                     delivery_charge_rate = float(
-                        st.session_state.get("delivery_charge_rate", 5.0)
+                        st.session_state.get("delivery_charge_rate", 0.0)
                     )
                     gst_rate = float(st.session_state.get("gst_rate", 0.0))
                     discount = float(st.session_state["discount"])
@@ -1035,7 +1035,7 @@ with col2:
                 if st.button("Confirm Cash on Delivery"):
                     subtotal = st.session_state["total"]
                     delivery_charge_rate = float(
-                        st.session_state.get("delivery_charge_rate", 5.0)
+                        st.session_state.get("delivery_charge_rate", 0.0)
                     )
                     gst_rate = float(st.session_state.get("gst_rate", 0.0))
                     discount = float(st.session_state["discount"])
@@ -1055,7 +1055,7 @@ with col2:
                 else:
                     subtotal = st.session_state["total"]
                     delivery_charge_rate = float(
-                        st.session_state.get("delivery_charge_rate", 5.0)
+                        st.session_state.get("delivery_charge_rate", 0.0)
                     )
                     gst_rate = float(st.session_state.get("gst_rate", 0.0))
                     discount = float(st.session_state["discount"])
@@ -1086,7 +1086,7 @@ with col2:
                         if st.button("Payment Done"):
                             subtotal = st.session_state["total"]
                             delivery_charge_rate = float(
-                                st.session_state.get("delivery_charge_rate", 5.0)
+                                st.session_state.get("delivery_charge_rate", 0.0)
                             )
                             gst_rate = float(st.session_state.get("gst_rate", 0.0))
                             discount = float(st.session_state["discount"])
@@ -1130,7 +1130,7 @@ with col2:
 
             if st.button("Finalize Order (Log + Selected Sends)"):
                 subtotal = st.session_state["total"]
-                delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 5.0))
+                delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 0.0))
                 delivery_charge = subtotal * delivery_charge_rate / 100.0
                 gst_rate = float(st.session_state.get("gst_rate", 0.0))
                 gst_amount = subtotal * gst_rate / 100.0
@@ -1188,6 +1188,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
