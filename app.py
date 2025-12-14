@@ -1111,7 +1111,7 @@ with col2:
             if st.session_state["payment_option"] == "done":
                 st.success("We need to confirm your payment please send your payment details like transaction details on what's app. When we get your payment, we will contact you on call for confirmation of your order.")
             elif st.session_state["payment_option"] == "cod_confirmed":
-                st.success("Your order has been confirmed for Cash on Delivery.")
+                st.success("Your order has been confirmed for Cash on Pick up.")
 
             pdf_buffer = build_pdf_receipt(order_id)
             if pdf_buffer:
@@ -1188,6 +1188,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
