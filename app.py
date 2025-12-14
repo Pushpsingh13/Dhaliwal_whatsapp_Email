@@ -172,7 +172,7 @@ _defaults = {
     "cust_addr": "",
     "cust_email": "",
     "gst_rate": 0.0,
-    "delivery_charge_rate": 5,
+    "delivery_charge_rate": 0,
     "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
@@ -1188,6 +1188,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
