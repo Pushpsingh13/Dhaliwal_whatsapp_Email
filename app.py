@@ -171,7 +171,7 @@ _defaults = {
     "cust_addr": "",
     "cust_email": "",
     "gst_rate": 0.0,
-    "Delivery_charge_rate": 0,
+"pickup_charge": 0.0,  # Pickup only – always zero
     "discount": 0.0,
     "smtp_server": DEFAULT_SMTP_SERVER,
     "smtp_port": DEFAULT_SMTP_PORT,
@@ -202,7 +202,7 @@ def ensure_orders_csv_exists():
         try:
             df = pd.DataFrame(columns=[
                 "Date", "Time", "OrderID", "CustomerName", "Phone", "Email",
-                "Address", "Items", "Subtotal", "DeliveryChargeAmount", "GST",
+                "Address", "Items", "Subtotal", "GST",
                 "PaymentMethod", "Discount", "razorpay_fee", "GrandTotal"
             ])
             df.to_csv(ORDERS_CSV, index=False, mode='w')
@@ -380,25 +380,23 @@ def build_pdf_receipt(order_id: str) -> BytesIO | None:
         y -= 10
         subtotal += float(row["price"]) * row['quantity']
 
-    Delivery_charge_rate = float(st.session_state.get("Delivery_charge_rate", 0.0))
-    gst_rate = float(st.session_state.get("gst_rate", 0.0))
+pickup_charge = 0.0
+gst_rate = float(st.session_state.get("gst_rate", 0.0))
     discount = float(st.session_state["discount"])
-    Delivery_charge = subtotal * Delivery_charge_rate / 100.0
     gst_amount = subtotal * gst_rate / 100.0
     razorpay_fee = 0.0
     if st.session_state.get("payment_method") == "Razorpay":
         razorpay_fee = subtotal * 0.026
-    grand_total = subtotal + Delivery_charge + gst_amount - discount + razorpay_fee
-
+grand_total = subtotal + gst_amount - discount + razorpay_fee
     c.line(0, y, thermal_width, y)
     y -= 12
     c.setFont(FONT_NAME_BOLD, 8)
     c.drawString(2, y, "Subtotal")
     c.drawRightString(thermal_width - 2, y, f"₹{subtotal:.2f}")
     y -= 10
-    c.drawString(2, y, "Delivery Charge")
-    c.drawRightString(thermal_width - 2, y, f"₹{Delivery_charge:.2f}")
-    y -= 10
+   c.drawString(2, y, "Order Type")
+c.drawRightString(thermal_width - 2, y, "Pickup Only")
+y -= 10
     c.drawString(2, y, f"GST ({gst_rate}%)")
     c.drawRightString(thermal_width - 2, y, f"₹{gst_amount:.2f}")
     y -= 10
@@ -435,7 +433,6 @@ def save_order_log(order_id: str, subtotal: float, Delivery_charge: float, gst_a
         "Address": st.session_state["cust_addr"],
         "Items": "; ".join([f"{i['quantity']}x {i['item']}({i['size']})-₹{i['price']:.2f}" for i in st.session_state["bill"]]),
         "Subtotal": subtotal,
-        "DeliveryChargeAmount": Delivery_charge,
         "GST": gst_amount,
         "PaymentMethod": payment_method,
         "Discount": discount,
@@ -576,7 +573,7 @@ def send_whatsapp_message(to_number_raw: str, order_id: str, subtotal: float, De
         f"*Date:* {get_local_time().strftime('%d %b %Y %H:%M')}\n\n"
         f"*Items:*\n{items_str}\n\n"
         f"*Subtotal:* ₹{subtotal:.2f}\n"
-        f"*Delivery Charge:* ₹{Delivery_charge:.2f}\n"
+        f"*Order Type:* Pickup Only\n"
         f"*GST ({gst_rate}%):* ₹{gst_amount:.2f}\n"
         f"{razorpay_fee_str}"
         f"*Grand Total:* ₹{grand_total:.2f}\n\n"
@@ -1030,8 +1027,8 @@ with col2:
                     st.session_state["order_finalized_time"] = time.time()
                     st.rerun()
 
-            elif payment_method == "Cash on Delivery":
-                if st.button("Confirm Cash on Pick up"):
+                elif payment_method == "Cash on Pick_up":
+                if st.button("Confirm Pickup Order"):
                     subtotal = st.session_state["total"]
                     Delivery_charge_rate = float(
                         st.session_state.get("Delivery_charge_rate", 0.0)
@@ -1187,6 +1184,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
