@@ -1032,7 +1032,7 @@ with col2:
                     st.rerun()
 
             elif payment_method == "Cash on Delivery":
-                if st.button("Confirm Cash on Pick UP"):
+                if st.button("Confirm Cash on Delivery"):
                     subtotal = st.session_state["total"]
                     delivery_charge_rate = float(
                         st.session_state.get("delivery_charge_rate", 0.0)
@@ -1188,6 +1188,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
