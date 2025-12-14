@@ -88,7 +88,6 @@ with st.container():
     with col3:
         st.divider()
 st.info("🛍️ Order Type: Pickup Only | No Delivery Available")
-        st.empty()
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
@@ -1189,4 +1188,5 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
