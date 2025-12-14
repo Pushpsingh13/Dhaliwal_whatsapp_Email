@@ -952,6 +952,13 @@ with col2:
                     removed_item = st.session_state["bill"].pop(i)
                     st.session_state["total"] -= removed_item['price'] * removed_item['quantity']
                     st.rerun()
+                    st.subheader("🕒 Pickup Time")
+        choice = st.selectbox("Select pickup time", PICKUP_TIME_SLOTS)
+        if choice == "Select specific pickup time":
+            t = st.time_input("Pickup at")
+            st.session_state["pickup_time"] = t.strftime("%H:%M")
+        else:
+            st.session_state["pickup_time"] = choice
         
         st.markdown("---")
         st.markdown(f"### Total: ₹{st.session_state['total']:.2f}")
@@ -1188,5 +1195,6 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
