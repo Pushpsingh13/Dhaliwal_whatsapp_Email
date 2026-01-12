@@ -65,33 +65,39 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-with st.container():
-    col1, col2, col3 = st.columns([1, 1, 1])
-    with col1:
-        st.image(LOGO_PATH, width=100)
-    with col2:
-        st.image(QR_CODE_APP_PATH, width=100)
-        st.write("**Opening Hours:** 10:00 AM – 10:00 PM  \n"     "**Download our app for quick and easy ordering**.  \n"     "**Pickup only.** Order preparation time depends on the items selected.")
-                  # --- DOWNLOAD APP BUTTON ---
-        st.markdown(
-            """
-            <a href="https://dhaliwalsfoodcourt.netlify.app/" target="_blank">
-                <button style="
-                    background-color:#ff4b4b;
-                    color:white;
-                    padding:10px 20px;
-                    border:none;
-                    border-radius:8px;
-                    cursor:pointer;
-                    font-size:16px;">
-                    Download the App
-                </button>
-            </a>
-            """,
-            unsafe_allow_html=True
-        )
-    with col3:
-        st.divider()
+st.markdown('<div class="header-card">', unsafe_allow_html=True)
+
+c1, c2, c3 = st.columns([1, 3, 1])
+with c1:
+    st.image(LOGO_PATH, width=90)
+with c2:
+    st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
+    st.markdown(
+        "<p>Opening Hours: 10:00 AM – 10:00 PM<br>"
+        "Pickup Only • Freshly Prepared Orders</p>",
+        unsafe_allow_html=True
+    )
+    st.markdown(
+        """
+        <a href="https://dhaliwalsfoodcourt.netlify.app/" target="_blank">
+            <button style="
+                background:#ff5722;
+                color:white;
+                padding:10px 25px;
+                border:none;
+                border-radius:12px;
+                font-size:16px;
+                cursor:pointer;">
+                📲 Download Our App
+            </button>
+        </a>
+        """,
+        unsafe_allow_html=True
+    )
+with c3:
+    st.image(QR_CODE_APP_PATH, width=90)
+
+st.markdown('</div>', unsafe_allow_html=True)
 st.info("🛍️ Order Type: Pickup Only | No Delivery Available")
 # =========================
 # PAGE CONFIG & STYLING
@@ -108,39 +114,105 @@ except FileNotFoundError:
 st.markdown(
     f"""
 <style>
-body {{
-    font-size: 16px;
-    color: White;
+/* ===== GLOBAL ===== */
+html, body, [class*="css"] {{
+    font-family: 'Segoe UI', sans-serif;
 }}
+
 .stApp {{
     background-image: url("data:image/png;base64,{img}");
     background-size: cover;
+    background-attachment: fixed;
 }}
-.main {{ background-color: rgba(0, 0, 0, 0.5); padding: 20px; border-radius: 10px;}}
 
-/* Main Title (Home Header) */
-.main-title {{
-    font-size: 80px;         /* Bigger */
-    font-weight: bold;       /* Bold */
-    font-style: italic;      /* Italic */
-    color: #895129;          /* Bright Brown */
-    transform: scale(2);  /* Scale 2x larger */
+.block-container {{
+    padding-top: 1rem;
+}}
+
+/* ===== HEADER ===== */
+.header-card {{
+    background: rgba(0,0,0,0.65);
+    border-radius: 14px;
+    padding: 20px;
     margin-bottom: 20px;
-    text-shadow: 3px 3px 6px #000000;
-    font-family: 'Garamond', serif;
     text-align: center;
 }}
 
-.sub-title {{
+.header-card h1 {{
+    font-size: 48px;
+    color: #ffcc80;
+    margin-bottom: 5px;
+}}
+
+.header-card p {{
+    color: #f5f5f5;
+    font-size: 16px;
+}}
+
+/* ===== MENU CARD ===== */
+.menu-card {{
+    background: white;
+    border-radius: 14px;
+    padding: 15px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    transition: transform 0.2s ease;
+    height: 100%;
+}}
+
+.menu-card:hover {{
+    transform: translateY(-4px);
+}}
+
+.menu-title {{
+    font-size: 18px;
+    font-weight: 600;
+    margin-top: 10px;
+}}
+
+.menu-price {{
+    color: #d32f2f;
+    font-weight: bold;
+    margin-bottom: 8px;
+}}
+
+/* ===== BUTTONS ===== */
+.stButton > button {{
+    border-radius: 10px;
+    font-weight: 600;
+    padding: 8px;
+}}
+
+.stButton > button:hover {{
+    opacity: 0.9;
+}}
+
+/* ===== BILL PANEL ===== */
+.bill-card {{
+    background: rgba(255,255,255,0.95);
+    border-radius: 14px;
+    padding: 15px;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+}}
+
+.bill-item {{
+    display: flex;
+    justify-content: space-between;
+    font-size: 14px;
+    margin-bottom: 4px;
+}}
+
+.total-amount {{
     font-size: 20px;
-    font-style: italic;
-    color: #895129;
-    text-align: center;
-    margin-top: -20px;
-    margin-bottom: 20px;
+    font-weight: bold;
+    color: #2e7d32;
 }}
 
-hr {{ border: 0; border-top: 1px solid #ddd; margin: 8px 0 16px; }}
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {{
+    .header-card h1 {{
+        font-size: 32px;
+    }}
+}}
 </style>
 """,
     unsafe_allow_html=True,
@@ -1194,6 +1266,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
