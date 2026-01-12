@@ -74,7 +74,7 @@ with c2:
     st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p>Opening Hours: 10:00 AM – 10:00 PM<br>"
-        "Pickup Only • Freshly Prepared Orders</p>",
+        "Pickup Only • Freshly Prepared Orders required time as per order item</p>",
         unsafe_allow_html=True
     )
     st.markdown(
@@ -150,6 +150,7 @@ html, body, [class*="css"] {{
 }}
 
 /* ===== MENU CARD ===== */
+st.markdown('<div class="menu-card">', unsafe_allow_html=True)
 .menu-card {{
     background: white;
     border-radius: 14px;
@@ -184,9 +185,11 @@ html, body, [class*="css"] {{
 
 .stButton > button:hover {{
     opacity: 0.9;
-}}
+    
+}}st.markdown('</div>', unsafe_allow_html=True)
 
 /* ===== BILL PANEL ===== */
+st.markdown('<div class="bill-card">', unsafe_allow_html=True)
 .bill-card {{
     background: rgba(255,255,255,0.95);
     border-radius: 14px;
@@ -205,7 +208,7 @@ html, body, [class*="css"] {{
     font-size: 20px;
     font-weight: bold;
     color: #2e7d32;
-}}
+    }}st.markdown('</div>', unsafe_allow_html=True)
 
 /* ===== MOBILE ===== */
 @media (max-width: 768px) {{
@@ -1031,7 +1034,10 @@ with col2:
                     st.rerun()
                             
         st.markdown("---")
-        st.markdown(f"### Total: ₹{st.session_state['total']:.2f}")
+        st.markdown(
+    f'<div class="total-amount">Total: ₹{st.session_state["total"]:.2f}</div>',
+    unsafe_allow_html=True
+)
 
         st.session_state["cust_name"] = st.text_input("Customer Name", value=st.session_state["cust_name"], disabled=st.session_state["payment_option"] is not None)
         st.session_state["cust_phone"] = st.text_input(
@@ -1266,6 +1272,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
