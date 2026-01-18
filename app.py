@@ -73,7 +73,7 @@ with c1:
 with c2:
     st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
     st.markdown(
-        "<p>Opening Hours: 10:00 AM – 10:00 PM<br>"
+        "<p>Opening Hours: 10:00 AM – 10:00 PM Call on +91-9259317713 for any enquiry<br>"
         "Pickup Only • Freshly Prepared Orders required time as per order item</p>",
         unsafe_allow_html=True
     )
@@ -1272,6 +1272,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
