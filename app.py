@@ -97,7 +97,7 @@ with c2:
     )
 with c3:
     st.image(QR_CODE_APP_PATH, width=90)
-    st.info("🛍️ ****Scan This QR Code for App Download***")
+    st.info("🔍****Scan This QR Code for App Download***")
 st.markdown('</div>', unsafe_allow_html=True)
 st.info("🛍️ Order Type: Pickup Only | No Delivery Available.  \n\n ***For Google Review Please Click on this link***  \n**https://g.page/r/CUkluFmztWfYEBM/review **  \n\n***For Review on Google Scan The QR Code below.***")
 st.image(QR_Review_APP_PATH, width=100)
@@ -1274,6 +1274,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
