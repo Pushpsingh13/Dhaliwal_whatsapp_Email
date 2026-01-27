@@ -97,7 +97,7 @@ with c2:
     )
 with c3:
     st.image(QR_CODE_APP_PATH, width=90)
-
+st.image(QR_Review_APP_PATH, width=100)
 st.markdown('</div>', unsafe_allow_html=True)
 st.info("🛍️ Order Type: Pickup Only | No Delivery Available")
 # =========================
@@ -1018,7 +1018,7 @@ with col1:
         st.warning("Menu is empty. Please add items via Admin Panel.")
 
 with col2:
-    st.image(QR_Review_APP_PATH, width=100)
+    
     st.header("Current Bill")
     if st.session_state["bill"]:
         for i, bill_item in reversed(list(enumerate(st.session_state["bill"]))):
@@ -1273,6 +1273,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
