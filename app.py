@@ -25,7 +25,8 @@ import datetime as dt
 # --- PATH SETUP ---
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
-QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.png")
+QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
+QR_Review_APP_PATH = os.path.join(APP_DIR, "Review QR.png")
 BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
 ORDER_TYPE = "Pickup Only"
 PICKUP_TIME_SLOTS = [
@@ -1017,7 +1018,7 @@ with col1:
         st.warning("Menu is empty. Please add items via Admin Panel.")
 
 with col2:
-    st.image(QR_CODE_APP_PATH, width=100)
+    st.image(QR_Review_APP_PATH, width=100)
     st.header("Current Bill")
     if st.session_state["bill"]:
         for i, bill_item in reversed(list(enumerate(st.session_state["bill"]))):
@@ -1272,6 +1273,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
