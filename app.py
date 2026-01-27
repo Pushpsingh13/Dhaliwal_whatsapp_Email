@@ -75,7 +75,7 @@ with c2:
     st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
     st.markdown(
         "<p>Opening Hours: 10:00 AM – 10:00 PM Call on +91-9259317713 for any enquiry<br>"
-        "Pickup Only • Freshly Prepared Orders required time as per order item. For Review Please copy the Review URL 'https://g.page/r/CUkluFmztWfYEBM/review' or Scan the QR Code for review</p>",
+        "Pickup Only • Freshly Prepared Orders required time as per order item.</p>",
         unsafe_allow_html=True
     )
     st.markdown(
@@ -98,7 +98,7 @@ with c2:
 with c3:
     st.image(QR_CODE_APP_PATH, width=90)
 st.markdown('</div>', unsafe_allow_html=True)
-st.info("🛍️ Order Type: Pickup Only | No Delivery Available For Review on Google Scan The QR Code")
+st.info("🛍️ Order Type: Pickup Only | No Delivery Available. 'For Review on Google Scan The QR Code below.' 'For Review or Please copy the Review URL' 'https://g.page/r/CUkluFmztWfYEBM/review'")
 st.image(QR_Review_APP_PATH, width=100)
 # =========================
 # PAGE CONFIG & STYLING
@@ -1273,6 +1273,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
