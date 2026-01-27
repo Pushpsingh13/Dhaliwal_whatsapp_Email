@@ -25,7 +25,7 @@ import datetime as dt
 # --- PATH SETUP ---
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
-QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
+QR_CODE_APP_PATH = os.path.join(APP_DIR, "Review QR.png")
 BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
 ORDER_TYPE = "Pickup Only"
 PICKUP_TIME_SLOTS = [
@@ -1272,6 +1272,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
