@@ -29,6 +29,7 @@ QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
 QR_Review_APP_PATH = os.path.join(APP_DIR, "Review QR.png")
 BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
 GOOGLE_REVIEW_URL = "https://g.page/r/CUkluFmztWfYEBM/review"
+APP_DOWNLOAD_URL = "https://dhaliwalsfoodcourt.netlify.app/"
 ORDER_TYPE = "Pickup Only"
 PICKUP_TIME_SLOTS = [
     "Ready in 20–30 minutes",
@@ -71,64 +72,59 @@ st.markdown('<div class="header-card">', unsafe_allow_html=True)
 
 st.markdown('<div class="header-card">', unsafe_allow_html=True)
 
-# Create 3 columns: Left (Logo), Middle (Text & Button), Right (QR Code)
+# --- HEADER SECTION ---
+st.markdown('<div class="header-card">', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 4, 1])
 
-# --- COLUMN 1: LOGO ---
+# LOGO
 with c1:
-    if os.path.exists(LOGO_PATH):
-        st.image(LOGO_PATH, width=90)
+    if os.path.exists(LOGO_PATH): 
+        st.image(LOGO_PATH, width=100)
 
-# --- COLUMN 2: TITLE & DOWNLOAD BUTTON ---
+# TITLE & DETAILS
 with c2:
     st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
-    st.markdown(
-        "<p>Opening Hours: 10:00 AM – 10:00 PM • Call +91-9259317713<br>"
-        "Pickup Only • Freshly Prepared Orders require time as per item.</p>",
-        unsafe_allow_html=True
-    )
+    st.markdown("Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal")
+    st.markdown("🕒 10:00 AM – 10:00 PM • 📞 +91-9259317713")
     
-    # Fixed Indentation Here
+    # Download Button and Review Link (Stacked)
     st.markdown(
-        """
-        <a href="https://dhaliwalsfoodcourt.netlify.app/" target="_blank">
-            <button style="
-                background:#ff5722;
-                color:white;
-                padding:10px 25px;
-                border:none;
-                border-radius:12px;
-                font-size:16px;
-                cursor:pointer;">
-                📲 Download Our App
-            </button>
-        </a>
+        f"""
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <a href="{APP_DOWNLOAD_URL}" target="_blank" style="text-decoration:none;">
+                <button style="padding:10px 24px; border-radius:8px; background:#ff5722; color:white; border:none; font-weight:600; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    📲 Download Our App
+                </button>
+            </a>
+            <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#222; background-color:#fff; padding:6px 12px; border-radius:6px; font-weight:700; font-size:12px; text-decoration:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                ⭐ Rate Us on Google
+            </a>
+        </div>
         """,
         unsafe_allow_html=True
     )
 
-# --- COLUMN 3: QR CODE ---
+# APP DOWNLOAD QR (Clickable)
 with c3:
     if os.path.exists(QR_CODE_APP_PATH):
-        st.image(QR_CODE_APP_PATH, width=90)
-        st.caption("Scan to Download")
-
-st.markdown('</div>', unsafe_allow_html=True)
-
-# GOOGLE REVIEW LINK / QR
-with c3:
-    if os.path.exists(QR_Review_APP_PATH):
         # Image wrapped in a link to be clickable
-        st.markdown(f"""
-            <a href="{GOOGLE_REVIEW_URL}" target="_blank">
-                <img src="data:image/png;base64,{base64.b64encode(open(QR_Review_APP_PATH, "rb").read()).decode()}" width="100" style="border-radius:10px; cursor:pointer;" alt="Rate Us">
-            </a>
-            <div style="margin-top:5px;">
-                <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:black; background-color:white; padding:5px; border-radius:5px; font-weight:bold; font-size:12px; text-decoration:none;">⭐ Rate Us on Google</a>
-            </div>
-        """, unsafe_allow_html=True)
+        try:
+            with open(QR_CODE_APP_PATH, "rb") as f:
+                qr_b64 = base64.b64encode(f.read()).decode()
+            
+            st.markdown(f"""
+                <a href="{APP_DOWNLOAD_URL}" target="_blank">
+                    <img src="data:image/png;base64,{qr_b64}" width="100" style="border-radius:10px; cursor:pointer; border: 2px solid white;" alt="Download App">
+                </a>
+                <div style="margin-top:5px; color:#ddd; font-size:11px;">
+                    Scan to Download
+                </div>
+            """, unsafe_allow_html=True)
+        except Exception:
+             st.warning("QR Error")
     else:
-        st.link_button("⭐ Rate Us", GOOGLE_REVIEW_URL)
+        # Fallback if image missing
+        st.info("App QR Missing")
 
 st.markdown('</div>', unsafe_allow_html=True)
 
@@ -1306,4 +1302,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-
