@@ -96,12 +96,9 @@ with c2:
         """,
         unsafe_allow_html=True
     )
-    # GOOGLE REVIEW LINK / QR
+# GOOGLE REVIEW LINK / QR
 with c3:
-    st.image(QR_CODE_APP_PATH, width=90)
-    st.info("🔍**_Scan This QR Code for App Download_**")
-st.markdown('</div>', unsafe_allow_html=True)
-if os.path.exists(QR_Review_APP_PATH):
+    if os.path.exists(QR_Review_APP_PATH):
         # Image wrapped in a link to be clickable
         st.markdown(f"""
             <a href="{GOOGLE_REVIEW_URL}" target="_blank">
@@ -1290,48 +1287,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
