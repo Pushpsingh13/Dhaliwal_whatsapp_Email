@@ -123,6 +123,20 @@ with c3:
         st.info("App QR Missing")
 
 st.markdown('</div>', unsafe_allow_html=True)
+if os.path.exists(QR_Review_APP_PATH):
+        # Image wrapped in a link to be clickable
+        st.markdown(f"""
+            <a href="{GOOGLE_REVIEW_URL}" target="_blank">
+                <img src="data:image/png;base64,{base64.b64encode(open(QR_Review_APP_PATH, "rb").read()).decode()}" width="100" style="border-radius:10px; cursor:pointer;" alt="Rate Us">
+            </a>
+            <div style="margin-top:5px;">
+                <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#ffcc80; font-size:12px; text-decoration:none;">⭐ Rate Us on Google</a>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.link_button("⭐ Rate Us", GOOGLE_REVIEW_URL)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 st.info("🛍️ Pickup Only | No Delivery Available. Please collect your order from the counter.")
 # =========================
@@ -1298,6 +1312,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
