@@ -69,16 +69,26 @@ st.markdown(
 )
 st.markdown('<div class="header-card">', unsafe_allow_html=True)
 
-c1, c2, c3 = st.columns([1, 3, 1])
+st.markdown('<div class="header-card">', unsafe_allow_html=True)
+
+# Create 3 columns: Left (Logo), Middle (Text & Button), Right (QR Code)
+c1, c2, c3 = st.columns([1, 4, 1])
+
+# --- COLUMN 1: LOGO ---
 with c1:
-    st.image(LOGO_PATH, width=90)
+    if os.path.exists(LOGO_PATH):
+        st.image(LOGO_PATH, width=90)
+
+# --- COLUMN 2: TITLE & DOWNLOAD BUTTON ---
 with c2:
     st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
     st.markdown(
-        "<p>Opening Hours: 10:00 AM – 10:00 PM Call on +91-9259317713 for any enquiry<br>"
-        "Pickup Only • Freshly Prepared Orders required time as per order item.</p>",
+        "<p>Opening Hours: 10:00 AM – 10:00 PM • Call +91-9259317713<br>"
+        "Pickup Only • Freshly Prepared Orders require time as per item.</p>",
         unsafe_allow_html=True
     )
+    
+    # Fixed Indentation Here
     st.markdown(
         """
         <a href="https://dhaliwalsfoodcourt.netlify.app/" target="_blank">
@@ -96,8 +106,18 @@ with c2:
         """,
         unsafe_allow_html=True
     )
+
+# --- COLUMN 3: QR CODE ---
+with c3:
+    if os.path.exists(QR_CODE_APP_PATH):
+        st.image(QR_CODE_APP_PATH, width=90)
+        st.caption("Scan to Download")
+
+st.markdown('</div>', unsafe_allow_html=True)
+
 # GOOGLE REVIEW LINK / QR
 with c3:
+    
     if os.path.exists(QR_Review_APP_PATH):
         # Image wrapped in a link to be clickable
         st.markdown(f"""
