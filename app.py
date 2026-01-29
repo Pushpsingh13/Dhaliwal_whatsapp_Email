@@ -28,6 +28,7 @@ LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
 QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
 QR_Review_APP_PATH = os.path.join(APP_DIR, "Review QR.png")
 BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
+GOOGLE_REVIEW_URL = "https://g.page/r/CUkluFmztWfYEBM/review"
 ORDER_TYPE = "Pickup Only"
 PICKUP_TIME_SLOTS = [
     "Ready in 20–30 minutes",
@@ -1289,6 +1290,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
