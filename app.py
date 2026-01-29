@@ -68,6 +68,10 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
+st.markdown('<div class="header-card">', unsafe_allow_html=True)
+
+st.markdown('<div class="header-card">', unsafe_allow_html=True)
+
 # --- HEADER SECTION ---
 st.markdown('<div class="header-card">', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 4, 1])
@@ -81,7 +85,7 @@ with c1:
 with c2:
     st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
     st.markdown("Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal")
-    st.markdown("🕒Timming 10:00 AM – 10:00 PM • For any enquiry 📞 +91-9259317713.\n\n ***Pickup Only*** **_Freshly Prepared Orders required time as per order item._**")
+    st.markdown("🕒 10:00 AM – 10:00 PM • 📞 +91-9259317713")
     
     # Download Button and Review Link (Stacked)
     st.markdown(
@@ -92,19 +96,14 @@ with c2:
                     📲 Download Our App
                 </button>
             </a>
-            if os.path.exists(QR_Review_APP_PATH):
-        # Image wrapped in a link to be clickable
-        st.markdown(f"""
-            <a href="{GOOGLE_REVIEW_URL}" target="_blank">
-                <img src="data:image/png;base64,{base64.b64encode(open(QR_Review_APP_PATH, "rb").read()).decode()}" width="100" style="border-radius:10px; cursor:pointer;" alt="Rate Us">
+            <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#222; background-color:#fff; padding:6px 12px; border-radius:6px; font-weight:700; font-size:12px; text-decoration:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                ⭐ Rate Us on Google
             </a>
-            
-         <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:black; background-color:white; padding:5px; border-radius:5px; font-weight:bold; font-size:12px; text-decoration:none;">⭐ Rate Us on Google</a>
-            </div>
-        """, unsafe_allow_html=True)
+        </div>
+        """,
+        unsafe_allow_html=True
     )
 
-            
 # APP DOWNLOAD QR (Clickable)
 with c3:
     if os.path.exists(QR_CODE_APP_PATH):
@@ -117,7 +116,7 @@ with c3:
                 <a href="{APP_DOWNLOAD_URL}" target="_blank">
                     <img src="data:image/png;base64,{qr_b64}" width="100" style="border-radius:10px; cursor:pointer; border: 2px solid white;" alt="Download App">
                 </a>
-                <div style="margin-top:5px; color:#222; font-size:11px;">
+                <div style="margin-top:5px; color:#ddd; font-size:11px;">
                     Scan to Download
                 </div>
             """, unsafe_allow_html=True)
@@ -1303,12 +1302,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-
-
-
-
-
-
-
-
-
