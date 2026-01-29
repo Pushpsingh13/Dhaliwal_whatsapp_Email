@@ -28,6 +28,7 @@ LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
 QR_CODE_APP_PATH = os.path.join(APP_DIR, "QR_Code For App.jpg")
 QR_Review_APP_PATH = os.path.join(APP_DIR, "Review QR.png")
 BACKGROUND_PATH = os.path.join(APP_DIR, "Dhaliwal Food Court.png")
+GOOGLE_REVIEW_URL = "https://g.page/r/CUkluFmztWfYEBM/review"
 ORDER_TYPE = "Pickup Only"
 PICKUP_TIME_SLOTS = [
     "Ready in 20–30 minutes",
@@ -99,8 +100,22 @@ with c3:
     st.image(QR_CODE_APP_PATH, width=90)
     st.info("🔍**_Scan This QR Code for App Download_**")
 st.markdown('</div>', unsafe_allow_html=True)
-st.info("🛍️ Order Type: Pickup Only | No Delivery Available.  \n\n ***For Google Review Please Click on this link***  \n**https://g.page/r/CUkluFmztWfYEBM/review **  \n\n***For Review on Google Scan The QR Code below.***")
-st.image(QR_Review_APP_PATH, width=100)
+if os.path.exists(QR_Review_APP_PATH):
+        # Image wrapped in a link to be clickable
+        st.markdown(f"""
+            <a href="{GOOGLE_REVIEW_URL}" target="_blank">
+                <img src="data:image/png;base64,{base64.b64encode(open(QR_Review_APP_PATH, "rb").read()).decode()}" width="100" style="border-radius:10px; cursor:pointer;" alt="Rate Us">
+            </a>
+            <div style="margin-top:5px;">
+                <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#ffcc80; font-size:12px; text-decoration:none;">⭐ Rate Us on Google</a>
+            </div>
+        """, unsafe_allow_html=True)
+    else:
+        st.link_button("⭐ Rate Us", GOOGLE_REVIEW_URL)
+
+st.markdown('</div>', unsafe_allow_html=True)
+st.info("🛍️ Order Type: Pickup Only | No Delivery Available.  \n\n "")
+
 # =========================
 # PAGE CONFIG & STYLING
 # =========================
@@ -1274,6 +1289,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
