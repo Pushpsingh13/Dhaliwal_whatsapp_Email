@@ -68,10 +68,6 @@ st.markdown(
     """,
     unsafe_allow_html=True
 )
-st.markdown('<div class="header-card">', unsafe_allow_html=True)
-
-st.markdown('<div class="header-card">', unsafe_allow_html=True)
-
 # --- HEADER SECTION ---
 st.markdown('<div class="header-card">', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 4, 1])
@@ -1302,3 +1298,4 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
