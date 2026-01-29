@@ -134,6 +134,8 @@ if os.path.exists(QR_Review_APP_PATH):
             </div>
         """, unsafe_allow_html=True)
     else:
+    # Fallback if image missing
+        st.info("App QR Missing")
         st.link_button("⭐ Rate Us", GOOGLE_REVIEW_URL)
 
 st.markdown('</div>', unsafe_allow_html=True)
@@ -1312,6 +1314,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
