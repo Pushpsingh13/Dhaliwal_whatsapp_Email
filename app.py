@@ -102,43 +102,46 @@ with c2:
 
 # APP DOWNLOAD QR (Clickable)
 with c3:
+    # 1. APP DOWNLOAD QR
     if os.path.exists(QR_CODE_APP_PATH):
-        # Image wrapped in a link to be clickable
         try:
             with open(QR_CODE_APP_PATH, "rb") as f:
-                qr_b64 = base64.b64encode(f.read()).decode()
+                qr_app_b64 = base64.b64encode(f.read()).decode()
             
             st.markdown(f"""
-                <a href="{APP_DOWNLOAD_URL}" target="_blank">
-                    <img src="data:image/png;base64,{qr_b64}" width="100" style="border-radius:10px; cursor:pointer; border: 2px solid white;" alt="Download App">
-                </a>
-                <div style="margin-top:5px; color:#222; font-size:11px;">
-                    Scan to Download
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <a href="{APP_DOWNLOAD_URL}" target="_blank">
+                        <img src="data:image/png;base64,{qr_app_b64}" width="80" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Download App">
+                    </a>
+                    <div style="color:#ddd; font-size:10px; margin-top:2px;">Scan to Download</div>
                 </div>
             """, unsafe_allow_html=True)
         except Exception:
-             st.warning("QR Error")
+            st.warning("App QR Error")
     else:
-        # Fallback if image missing
         st.info("App QR Missing")
 
-st.markdown('</div>', unsafe_allow_html=True)
-if os.path.exists(QR_Review_APP_PATH):
-        # Image wrapped in a link to be clickable
-        st.markdown(f"""
-            <a href="{GOOGLE_REVIEW_URL}" target="_blank">
-                <img src="data:image/png;base64,{base64.b64encode(open(QR_Review_APP_PATH, "rb").read()).decode()}" width="100" style="border-radius:10px; cursor:pointer;" alt="Rate Us">
-            </a>
-            <div style="margin-top:5px;">
-                <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#ffcc80; font-size:12px; text-decoration:none;">⭐ Rate Us on Google</a>
-            </div>
-        """, unsafe_allow_html=True)
-    else:
-    # Fallback if image missing
-        st.info("Review QR Missing")
-        
-st.markdown('</div>', unsafe_allow_html=True)
+    # 2. GOOGLE REVIEW QR
+    if os.path.exists(QR_Review_APP_PATH):
+        try:
+            with open(QR_Review_APP_PATH, "rb") as f:
+                qr_rev_b64 = base64.b64encode(f.read()).decode()
 
+            st.markdown(f"""
+                <div style="text-align: center;">
+                    <a href="{GOOGLE_REVIEW_URL}" target="_blank">
+                        <img src="data:image/png;base64,{qr_rev_b64}" width="80" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Rate Us">
+                    </a>
+                    <div style="color:#ddd; font-size:10px; margin-top:2px;">Scan to Rate</div>
+                </div>
+            """, unsafe_allow_html=True)
+        except Exception:
+            st.warning("Review QR Error")
+    else:
+        st.info("Review QR Missing")
+
+# Close the header card div AFTER both columns are done
+st.markdown('</div>', unsafe_allow_html=True)
 st.info("🛍️ Pickup Only | No Delivery Available. Please collect your order from the counter.")
 # =========================
 # PAGE CONFIG & STYLING
@@ -1313,6 +1316,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
