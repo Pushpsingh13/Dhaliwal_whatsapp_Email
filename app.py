@@ -92,9 +92,16 @@ with c2:
                     📲 Download Our App
                 </button>
             </a>
+            if os.path.exists(QR_Review_APP_PATH):
+        # Image wrapped in a link to be clickable
+        st.markdown(f"""
             <a href="{GOOGLE_REVIEW_URL}" target="_blank">
-                    <img src="data:image/png;base64,{qr_b64}" width="100" style="border-radius:10px; cursor:pointer; border: 2px solid white;" alt="Review App">
-                </a>
+                <img src="data:image/png;base64,{base64.b64encode(open(QR_Review_APP_PATH, "rb").read()).decode()}" width="100" style="border-radius:10px; cursor:pointer;" alt="Rate Us">
+            </a>
+            <div style="margin-top:5px;">
+                <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:black; background-color:white; padding:5px; border-radius:5px; font-weight:bold; font-size:12px; text-decoration:none;">⭐ Rate Us on Google</a>
+            </div>
+        """, unsafe_allow_html=True)
             <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#222; background-color:#fff; padding:6px 12px; border-radius:6px; font-weight:700; font-size:12px; text-decoration:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
                 ⭐ Rate Us on Google
             </a>
@@ -1301,6 +1308,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
