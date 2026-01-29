@@ -112,7 +112,7 @@ with c3:
                 <a href="{APP_DOWNLOAD_URL}" target="_blank">
                     <img src="data:image/png;base64,{qr_b64}" width="100" style="border-radius:10px; cursor:pointer; border: 2px solid white;" alt="Download App">
                 </a>
-                <div style="margin-top:5px; color:#ddd; font-size:11px;">
+                <div style="margin-top:5px; color:#222; font-size:11px;">
                     Scan to Download
                 </div>
             """, unsafe_allow_html=True)
@@ -1298,6 +1298,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
