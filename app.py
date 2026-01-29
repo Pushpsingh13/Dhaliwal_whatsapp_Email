@@ -113,7 +113,7 @@ with c3:
                     <a href="{APP_DOWNLOAD_URL}" target="_blank">
                         <img src="data:image/png;base64,{qr_app_b64}" width="80" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Download App">
                     </a>
-                    <div style="color:#ddd; font-size:10px; margin-top:2px;">Scan to Download</div>
+                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Download</div>
                 </div>
             """, unsafe_allow_html=True)
         except Exception:
@@ -132,7 +132,7 @@ with c3:
                     <a href="{GOOGLE_REVIEW_URL}" target="_blank">
                         <img src="data:image/png;base64,{qr_rev_b64}" width="80" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Rate Us">
                     </a>
-                    <div style="color:#ddd; font-size:10px; margin-top:2px;">Scan to Rate</div>
+                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Rate</div>
                 </div>
             """, unsafe_allow_html=True)
         except Exception:
@@ -1316,6 +1316,7 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
 
 
 
