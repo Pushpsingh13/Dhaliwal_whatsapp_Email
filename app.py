@@ -158,107 +158,321 @@ except FileNotFoundError:
 st.markdown(
     f"""
 <style>
-/* ===== GLOBAL ===== */
-html, body, [class*="css"] {{
-    font-family: 'Segoe UI', sans-serif;
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+
+/* ===== GLOBAL STYLES ===== */
+* {{
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
 }}
 
+html, body, [class*="css"] {{
+    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
+}}
+
+/* Dark Background */
 .stApp {{
-    background-image: url("data:image/png;base64,{img}");
-    background-size: cover;
+    background: linear-gradient(135deg, #171311 0%, #211511 100%) !important;
     background-attachment: fixed;
 }}
 
-.block-container {{
-    padding-top: 1rem;
+.main .block-container {{
+    padding-top: 2rem;
+    padding-bottom: 3rem;
+    max-width: 1400px;
 }}
 
-/* ===== HEADER ===== */
+/* ===== HEADER CARD ===== */
 .header-card {{
-    background: rgba(0,0,0,0.65);
-    border-radius: 14px;
-    padding: 20px;
-    margin-bottom: 20px;
-    text-align: center;
+    background: linear-gradient(135deg, rgba(229, 101, 62, 0.15) 0%, rgba(33, 21, 17, 0.95) 100%);
+    border: 1px solid rgba(229, 101, 62, 0.2);
+    border-radius: 16px;
+    padding: 24px;
+    margin-bottom: 24px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    backdrop-filter: blur(10px);
 }}
 
 .header-card h1 {{
-    font-size: 48px;
-    color: #ffcc80;
-    margin-bottom: 5px;
+    font-size: 42px;
+    font-weight: 800;
+    color: #e5653e;
+    margin-bottom: 8px;
+    text-shadow: 0 2px 10px rgba(229, 101, 62, 0.3);
 }}
 
 .header-card p {{
     color: #f5f5f5;
-    font-size: 16px;
+    font-size: 15px;
+    line-height: 1.6;
 }}
 
-/* ===== MENU CARD ===== */
-st.markdown('<div class="menu-card">', unsafe_allow_html=True)
+/* ===== MENU CARD (DARK THEME) ===== */
 .menu-card {{
-    background: white;
-    border-radius: 14px;
-    padding: 15px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    transition: transform 0.2s ease;
+    background: #211511;
+    border: 1px solid rgba(229, 101, 62, 0.15);
+    border-radius: 16px;
+    padding: 16px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s ease;
     height: 100%;
 }}
 
 .menu-card:hover {{
-    transform: translateY(-4px);
+    transform: translateY(-6px);
+    box-shadow: 0 8px 30px rgba(229, 101, 62, 0.3);
+    border-color: rgba(229, 101, 62, 0.4);
 }}
 
 .menu-title {{
     font-size: 18px;
-    font-weight: 600;
-    margin-top: 10px;
+    font-weight: 700;
+    margin-top: 12px;
+    color: #ffffff;
 }}
 
 .menu-price {{
-    color: #d32f2f;
-    font-weight: bold;
-    margin-bottom: 8px;
+    color: #e5653e;
+    font-weight: 800;
+    font-size: 16px;
+    margin: 8px 0;
 }}
 
-/* ===== BUTTONS ===== */
+/* ===== BUTTONS (ORANGE PRIMARY) ===== */
 .stButton > button {{
-    border-radius: 10px;
-    font-weight: 600;
-    padding: 8px;
+    background: linear-gradient(135deg, #e5653e 0%, #d85533 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    padding: 10px 20px !important;
+    box-shadow: 0 4px 15px rgba(229, 101, 62, 0.3) !important;
+    transition: all 0.3s ease !important;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
 }}
 
 .stButton > button:hover {{
-    opacity: 0.9;
-    
-}}st.markdown('</div>', unsafe_allow_html=True)
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(229, 101, 62, 0.5) !important;
+    background: linear-gradient(135deg, #d85533 0%, #e5653e 100%) !important;
+}}
 
-/* ===== BILL PANEL ===== */
-st.markdown('<div class="bill-card">', unsafe_allow_html=True)
+.stButton > button:active {{
+    transform: translateY(0px) !important;
+}}
+
+/* ===== BILL PANEL (DARK CARD) ===== */
 .bill-card {{
-    background: rgba(255,255,255,0.95);
-    border-radius: 14px;
-    padding: 15px;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    background: linear-gradient(135deg, #211511 0%, #2d1e1a 100%);
+    border: 1px solid rgba(229, 101, 62, 0.2);
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
+    margin-bottom: 20px;
 }}
 
 .bill-item {{
     display: flex;
     justify-content: space-between;
     font-size: 14px;
-    margin-bottom: 4px;
+    margin-bottom: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    color: #f5f5f5;
 }}
 
 .total-amount {{
-    font-size: 20px;
-    font-weight: bold;
-    color: #2e7d32;
-    }}st.markdown('</div>', unsafe_allow_html=True)
+    font-size: 28px;
+    font-weight: 800;
+    color: #e5653e;
+    text-align: center;
+    padding: 16px;
+    background: rgba(229, 101, 62, 0.1);
+    border-radius: 12px;
+    margin: 16px 0;
+    text-shadow: 0 2px 10px rgba(229, 101, 62, 0.3);
+}}
 
-/* ===== MOBILE ===== */
+/* ===== INPUT FIELDS (DARK THEME) ===== */
+.stTextInput > div > div > input,
+.stNumberInput > div > div > input,
+.stTextArea > div > div > textarea {{
+    background-color: #2d1e1a !important;
+    color: #ffffff !important;
+    border: 2px solid rgba(229, 101, 62, 0.2) !important;
+    border-radius: 12px !important;
+    padding: 12px !important;
+    font-size: 14px !important;
+}}
+
+.stTextInput > div > div > input:focus,
+.stNumberInput > div > div > input:focus,
+.stTextArea > div > div > textarea:focus {{
+    border-color: #e5653e !important;
+    box-shadow: 0 0 0 2px rgba(229, 101, 62, 0.2) !important;
+}}
+
+/* ===== RADIO BUTTONS ===== */
+.stRadio > label {{
+    color: #f5f5f5 !important;
+    font-weight: 600 !important;
+}}
+
+.stRadio > div {{
+    background: #211511;
+    padding: 12px;
+    border-radius: 12px;
+    border: 1px solid rgba(229, 101, 62, 0.15);
+}}
+
+/* ===== CHECKBOX ===== */
+.stCheckbox > label {{
+    color: #f5f5f5 !important;
+    font-weight: 600 !important;
+}}
+
+/* ===== HEADERS ===== */
+h1, h2, h3, h4, h5, h6 {{
+    color: #ffffff !important;
+    font-weight: 700 !important;
+}}
+
+h1 {{
+    color: #e5653e !important;
+}}
+
+/* ===== TEXT ===== */
+p, span, div {{
+    color: #f5f5f5 !important;
+}}
+
+/* ===== SIDEBAR (ADMIN PANEL) ===== */
+.css-1d391kg, [data-testid="stSidebar"] {{
+    background: linear-gradient(180deg, #171311 0%, #211511 100%) !important;
+    border-right: 1px solid rgba(229, 101, 62, 0.2);
+}}
+
+.css-1d391kg .element-container, [data-testid="stSidebar"] .element-container {{
+    color: #f5f5f5 !important;
+}}
+
+/* ===== DIVIDER ===== */
+hr {{
+    border-color: rgba(229, 101, 62, 0.2) !important;
+}}
+
+/* ===== SUCCESS/ERROR/WARNING/INFO MESSAGES ===== */
+.stSuccess {{
+    background-color: rgba(11, 218, 18, 0.1) !important;
+    color: #0bda12 !important;
+    border: 1px solid rgba(11, 218, 18, 0.3) !important;
+    border-radius: 12px !important;
+}}
+
+.stError {{
+    background-color: rgba(229, 101, 62, 0.1) !important;
+    color: #e5653e !important;
+    border: 1px solid rgba(229, 101, 62, 0.3) !important;
+    border-radius: 12px !important;
+}}
+
+.stWarning {{
+    background-color: rgba(255, 193, 7, 0.1) !important;
+    color: #ffc107 !important;
+    border: 1px solid rgba(255, 193, 7, 0.3) !important;
+    border-radius: 12px !important;
+}}
+
+.stInfo {{
+    background-color: rgba(33, 150, 243, 0.1) !important;
+    color: #2196f3 !important;
+    border: 1px solid rgba(33, 150, 243, 0.3) !important;
+    border-radius: 12px !important;
+}}
+
+/* ===== DATAFRAME/TABLE ===== */
+.dataframe {{
+    background-color: #211511 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(229, 101, 62, 0.2) !important;
+    border-radius: 12px !important;
+}}
+
+/* ===== EXPANDER ===== */
+.streamlit-expanderHeader {{
+    background-color: #211511 !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(229, 101, 62, 0.2) !important;
+    border-radius: 12px !important;
+    font-weight: 600 !important;
+}}
+
+.streamlit-expanderHeader:hover {{
+    background-color: #2d1e1a !important;
+    border-color: rgba(229, 101, 62, 0.4) !important;
+}}
+
+/* ===== DOWNLOAD BUTTON ===== */
+.stDownloadButton > button {{
+    background: linear-gradient(135deg, #0bda12 0%, #0bb80f 100%) !important;
+    color: white !important;
+    border: none !important;
+    border-radius: 12px !important;
+    font-weight: 700 !important;
+    padding: 10px 20px !important;
+    box-shadow: 0 4px 15px rgba(11, 218, 18, 0.3) !important;
+}}
+
+.stDownloadButton > button:hover {{
+    transform: translateY(-2px) !important;
+    box-shadow: 0 6px 20px rgba(11, 218, 18, 0.5) !important;
+}}
+
+/* ===== MOBILE RESPONSIVE ===== */
 @media (max-width: 768px) {{
     .header-card h1 {{
-        font-size: 32px;
+        font-size: 28px;
     }}
+    
+    .main .block-container {{
+        padding-left: 1rem;
+        padding-right: 1rem;
+    }}
+    
+    .total-amount {{
+        font-size: 22px;
+    }}
+}}
+
+/* ===== SCROLLBAR ===== */
+::-webkit-scrollbar {{
+    width: 10px;
+    height: 10px;
+}}
+
+::-webkit-scrollbar-track {{
+    background: #171311;
+}}
+
+::-webkit-scrollbar-thumb {{
+    background: #e5653e;
+    border-radius: 5px;
+}}
+
+::-webkit-scrollbar-thumb:hover {{
+    background: #d85533;
+}}
+
+/* ===== LINKS ===== */
+a {{
+    color: #e5653e !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+}}
+
+a:hover {{
+    color: #ff7a50 !important;
+    text-decoration: underline !important;
 }}
 </style>
 """,
