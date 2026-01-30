@@ -132,7 +132,7 @@ with c3:
                     <a href="{GOOGLE_REVIEW_URL}" target="_blank">
                         <img src="data:image/png;base64,{qr_rev_b64}" width="240" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Rate Us">
                     </a>
-                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Rate us on Google</div>
+                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Rate</div>
                 </div>
             """, unsafe_allow_html=True)
         except Exception:
@@ -1255,7 +1255,11 @@ with col2:
             send_email = st.checkbox("Email PDF to customer", value=bool(st.session_state["cust_email"]))
             send_whatsapp = st.checkbox("Send Order Details to WhatsApp")
 
-            if st.button("Finalize Order (Log + Selected Sends)"):
+            # Validation
+            if not send_email and not send_whatsapp:
+                st.warning("Please select Email or WhatsApp option.")
+
+            if st.button("Finalize Order (Log + Email)"):
                 subtotal = st.session_state["total"]
                 delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 0.0))
                 delivery_charge = subtotal * delivery_charge_rate / 100.0
@@ -1284,23 +1288,37 @@ with col2:
                         else:
                             st.warning("Email failed—check SMTP settings.")
 
-                if send_whatsapp:
-                    # Send to customer
-                    if not st.session_state["cust_phone"]:
-                        st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
-                    else:
-                        st.info("Click the link below to send the order details to the customer via WhatsApp.")
-                        send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, delivery_charge, gst_amount, grand_total, razorpay_fee)
+            # WhatsApp buttons
+            if send_whatsapp:
+                st.divider()
+                st.markdown("### 📱 Send via WhatsApp")
 
-                    # Send to owner
-                    if not st.session_state["owner_phone"]:
-                        st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
-                    else:
-                        st.info("Click the link below to send the order details to the owner via WhatsApp.")
-                        send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, delivery_charge, gst_amount, grand_total, razorpay_fee)
+                subtotal = st.session_state["total"]
+                delivery_charge_rate = float(st.session_state.get("delivery_charge_rate", 0.0))
+                delivery_charge = subtotal * delivery_charge_rate / 100.0
+                gst_rate = float(st.session_state.get("gst_rate", 0.0))
+                gst_amount = subtotal * gst_rate / 100.0
+                discount = float(st.session_state["discount"])
+                razorpay_fee = 0.0
+                if st.session_state.get("payment_method") == "Razorpay":
+                    razorpay_fee = subtotal * 0.026
+                grand_total = subtotal + delivery_charge + gst_amount - discount + razorpay_fee
 
-                if not (send_email or send_whatsapp):
-                    st.info("Order logged. Select Email or WhatsApp to send the receipt.")
+                col1, col2 = st.columns(2)
+
+                with col1:
+                    if st.button("📩 Send to Customer", use_container_width=True):
+                        if not st.session_state["cust_phone"]:
+                            st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
+                        else:
+                            send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, delivery_charge, gst_amount, grand_total, razorpay_fee)
+
+                with col2:
+                    if st.button("📩 Send to Owner", use_container_width=True):
+                        if not st.session_state["owner_phone"]:
+                            st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
+                        else:
+                            send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, delivery_charge, gst_amount, grand_total, razorpay_fee)
                     
 
         st.button("Clear Bill", on_click=clear_bill)
@@ -1316,20 +1334,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
