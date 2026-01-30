@@ -30,7 +30,11 @@ st.set_page_config(
     page_icon="Dhaliwal Food court_logo.png",
     layout="wide"
 )
-
+# =====================================================
+# SIDEBAR TOGGLE STATE
+# =====================================================
+if "show_admin" not in st.session_state:
+    st.session_state.show_admin = False
 # --- PATH SETUP ---
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
@@ -74,216 +78,102 @@ try:
 except FileNotFoundError:
     pass
 
-
+# =====================================================
+# GLOBAL CSS (SAFE & ISOLATED)
+# =====================================================
 st.markdown(
-    """
+    f"""
     <style>
 
-    /* =========================
-       MATERIAL ICONS – FIX
-       ========================= */
-    .material-symbols-outlined,
-    [class^="material-symbols"],
-    [class*=" material-symbols"] {
-        font-family: 'Material Symbols Outlined' !important;
-        font-weight: normal !important;
-        font-style: normal !important;
-        font-size: 20px !important;
-        line-height: 1 !important;
-        letter-spacing: normal !important;
-        text-transform: none !important;
-        display: inline-block !important;
-        white-space: nowrap !important;
-        direction: ltr !important;
-    }
-
-    /* =========================
+    /* ---------------------------
        GOOGLE FONT
-       ========================= */
+       --------------------------- */
     @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-    * {
-        font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
-    }
+    html, body, .stApp {{
+        font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
+        background: linear-gradient(135deg, #171311, #211511);
+    }}
 
-    html, body {
-        font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
-    }
+    /* ---------------------------
+       MATERIAL ICONS FIX
+       --------------------------- */
+    .material-symbols-outlined,
+    [class^="material-symbols"],
+    [class*=" material-symbols"] {{
+        font-family: 'Material Symbols Outlined' !important;
+        font-size: 20px !important;
+        line-height: 1;
+        white-space: nowrap;
+    }}
 
-    /* =========================
-       APP BACKGROUND
-       ========================= */
-    .stApp {
-        background: linear-gradient(135deg, #171311 0%, #211511 100%) !important;
-        background-attachment: fixed;
-    }
-
-    .main .block-container {
-        padding-top: 2rem;
-        padding-bottom: 3rem;
-        max-width: 1400px;
-    }
-
-    /* =========================
+    /* ---------------------------
        HEADER CARD
-       ========================= */
-    .header-card {
+       --------------------------- */
+    .header-card {{
         background: linear-gradient(135deg, rgba(229,101,62,0.15), rgba(33,21,17,0.95));
-        border: 1px solid rgba(229,101,62,0.2);
+        border: 1px solid rgba(229,101,62,0.25);
         border-radius: 16px;
         padding: 24px;
         margin-bottom: 24px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
-        backdrop-filter: blur(10px);
-    }
+        box-shadow: 0 8px 30px rgba(0,0,0,0.45);
+    }}
 
-    .header-card h1 {
+    .header-card h1 {{
+        color: #e5653e;
         font-size: 42px;
         font-weight: 800;
-        color: #e5653e;
-        margin-bottom: 8px;
-    }
+        margin-bottom: 6px;
+    }}
 
-    .header-card p {
+    .header-card p {{
         color: #f5f5f5;
         font-size: 15px;
-        line-height: 1.6;
-    }
+    }}
 
-    /* =========================
-       MENU CARDS
-       ========================= */
-    .menu-card {
-        background: #211511;
-        border: 1px solid rgba(229,101,62,0.15);
-        border-radius: 16px;
-        padding: 16px;
-        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
-        transition: 0.3s;
-    }
-
-    .menu-card:hover {
-        transform: translateY(-6px);
-        box-shadow: 0 8px 30px rgba(229,101,62,0.3);
-        border-color: rgba(229,101,62,0.4);
-    }
-
-    .menu-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: #ffffff;
-    }
-
-    .menu-price {
-        color: #e5653e;
-        font-weight: 800;
-    }
-
-    /* =========================
+    /* ---------------------------
        BUTTONS
-       ========================= */
-    .stButton > button {
-        background: linear-gradient(135deg, #e5653e, #d85533) !important;
-        color: white !important;
-        border-radius: 12px !important;
-        font-weight: 700 !important;
-        padding: 10px 20px !important;
-        transition: 0.3s !important;
-    }
+       --------------------------- */
+    .stButton > button {{
+        background: linear-gradient(135deg, #e5653e, #d85533);
+        color: #fff;
+        border-radius: 12px;
+        font-weight: 700;
+        padding: 10px 20px;
+        border: none;
+    }}
 
-    .stButton > button:hover {
+    .stButton > button:hover {{
         transform: translateY(-2px);
-        box-shadow: 0 6px 20px rgba(229,101,62,0.5);
-    }
+        box-shadow: 0 6px 20px rgba(229,101,62,0.45);
+    }}
 
-    /* =========================
+    /* ---------------------------
        INPUTS
-       ========================= */
-    input, textarea {
+       --------------------------- */
+    input, textarea {{
         background-color: #2d1e1a !important;
         color: #ffffff !important;
         border-radius: 12px !important;
-        border: 2px solid rgba(229,101,62,0.2) !important;
-    }
+        border: 1px solid rgba(229,101,62,0.25) !important;
+    }}
 
-    input:focus, textarea:focus {
-        border-color: #e5653e !important;
-        box-shadow: 0 0 0 2px rgba(229,101,62,0.2);
-    }
-
-    /* =========================
-       TEXT
-       ========================= */
-    p, .stMarkdown, .stText, .stCaption {
-        color: #f5f5f5 !important;
-    }
-
-    h1 { color: #e5653e !important; }
-    h2, h3, h4, h5, h6 { color: #ffffff !important; }
-
-    /* =========================
-       SIDEBAR
-       ========================= */
-    [data-testid="stSidebar"] {
-        background: linear-gradient(180deg, #171311, #211511) !important;
+    /* ---------------------------
+       SIDEBAR SAFE ICONS
+       --------------------------- */
+    [data-testid="stSidebar"] {{
+        background: linear-gradient(180deg, #171311, #211511);
         border-right: 1px solid rgba(229,101,62,0.2);
-    }
+    }}
 
-    [data-testid="stSidebar"] label,
-    [data-testid="stSidebar"] h2,
-    [data-testid="stSidebar"] h3 {
-        color: #ffffff !important;
-    }
-
-    /* Sidebar arrows – SAFE */
-    [data-testid="stSidebar"] details summary svg {
-        color: #e5653e !important;
-    }
-
-    /* =========================
-       EXPANDER
-       ========================= */
-    .streamlit-expanderHeader {
-        background: #211511 !important;
-        border: 1px solid rgba(229,101,62,0.2);
-        border-radius: 12px;
-        color: #ffffff !important;
-    }
-
-    .streamlit-expanderHeader svg {
-        color: #e5653e !important;
-    }
-
-    /* =========================
-       SCROLLBAR
-       ========================= */
-    ::-webkit-scrollbar {
-        width: 10px;
-    }
-
-    ::-webkit-scrollbar-thumb {
-        background: #e5653e;
-        border-radius: 5px;
-    }
-
-    /* =========================
-       LINKS
-       ========================= */
-    a {
-        color: #e5653e !important;
-        font-weight: 600;
-    }
-
-    a:hover {
-        color: #ff7a50 !important;
-        text-decoration: underline;
-    }
+    [data-testid="stSidebar"] svg {{
+        color: #e5653e;
+    }}
 
     </style>
     """,
     unsafe_allow_html=True
 )
-
 # --- HEADER SECTION ---
 st.markdown('<div class="header-card">', unsafe_allow_html=True)
 c1, c2, c3 = st.columns([1, 4, 1])
@@ -1465,4 +1355,3 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
-
