@@ -74,378 +74,214 @@ try:
 except FileNotFoundError:
     pass
 
+
 st.markdown(
-    f"""
-<style>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
+    """
+    <style>
 
-/* ===== GLOBAL STYLES ===== */
-* {{
-    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
-}}
+    /* =========================
+       MATERIAL ICONS – FIX
+       ========================= */
+    .material-symbols-outlined,
+    [class^="material-symbols"],
+    [class*=" material-symbols"] {
+        font-family: 'Material Symbols Outlined' !important;
+        font-weight: normal !important;
+        font-style: normal !important;
+        font-size: 20px !important;
+        line-height: 1 !important;
+        letter-spacing: normal !important;
+        text-transform: none !important;
+        display: inline-block !important;
+        white-space: nowrap !important;
+        direction: ltr !important;
+    }
 
-html, body, [class*="css"] {{
-    font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
-}}
+    /* =========================
+       GOOGLE FONT
+       ========================= */
+    @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap');
 
-/* Dark Background */
-.stApp {{
-    background: linear-gradient(135deg, #171311 0%, #211511 100%) !important;
-    background-attachment: fixed;
-}}
+    * {
+        font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
+    }
 
-.main .block-container {{
-    padding-top: 2rem;
-    padding-bottom: 3rem;
-    max-width: 1400px;
-}}
+    html, body {
+        font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif !important;
+    }
 
-/* ===== HEADER CARD ===== */
-.header-card {{
-    background: linear-gradient(135deg, rgba(229, 101, 62, 0.15) 0%, rgba(33, 21, 17, 0.95) 100%);
-    border: 1px solid rgba(229, 101, 62, 0.2);
-    border-radius: 16px;
-    padding: 24px;
-    margin-bottom: 24px;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    backdrop-filter: blur(10px);
-}}
+    /* =========================
+       APP BACKGROUND
+       ========================= */
+    .stApp {
+        background: linear-gradient(135deg, #171311 0%, #211511 100%) !important;
+        background-attachment: fixed;
+    }
 
-.header-card h1 {{
-    font-size: 42px;
-    font-weight: 800;
-    color: #e5653e;
-    margin-bottom: 8px;
-    text-shadow: 0 2px 10px rgba(229, 101, 62, 0.3);
-}}
+    .main .block-container {
+        padding-top: 2rem;
+        padding-bottom: 3rem;
+        max-width: 1400px;
+    }
 
-.header-card p {{
-    color: #f5f5f5;
-    font-size: 15px;
-    line-height: 1.6;
-}}
+    /* =========================
+       HEADER CARD
+       ========================= */
+    .header-card {
+        background: linear-gradient(135deg, rgba(229,101,62,0.15), rgba(33,21,17,0.95));
+        border: 1px solid rgba(229,101,62,0.2);
+        border-radius: 16px;
+        padding: 24px;
+        margin-bottom: 24px;
+        box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+        backdrop-filter: blur(10px);
+    }
 
-.logo-container {{
-    display: flex;
-    justify-content: center;
-}}
+    .header-card h1 {
+        font-size: 42px;
+        font-weight: 800;
+        color: #e5653e;
+        margin-bottom: 8px;
+    }
 
-/* ===== MENU CARD (DARK THEME) ===== */
-.menu-card {{
-    background: #211511;
-    border: 1px solid rgba(229, 101, 62, 0.15);
-    border-radius: 16px;
-    padding: 16px;
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-    transition: all 0.3s ease;
-    height: 100%;
-}}
+    .header-card p {
+        color: #f5f5f5;
+        font-size: 15px;
+        line-height: 1.6;
+    }
 
-.menu-card:hover {{
-    transform: translateY(-6px);
-    box-shadow: 0 8px 30px rgba(229, 101, 62, 0.3);
-    border-color: rgba(229, 101, 62, 0.4);
-}}
+    /* =========================
+       MENU CARDS
+       ========================= */
+    .menu-card {
+        background: #211511;
+        border: 1px solid rgba(229,101,62,0.15);
+        border-radius: 16px;
+        padding: 16px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+        transition: 0.3s;
+    }
 
-.menu-title {{
-    font-size: 18px;
-    font-weight: 700;
-    margin-top: 12px;
-    color: #ffffff;
-}}
+    .menu-card:hover {
+        transform: translateY(-6px);
+        box-shadow: 0 8px 30px rgba(229,101,62,0.3);
+        border-color: rgba(229,101,62,0.4);
+    }
 
-.menu-price {{
-    color: #e5653e;
-    font-weight: 800;
-    font-size: 16px;
-    margin: 8px 0;
-}}
+    .menu-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: #ffffff;
+    }
 
-/* ===== BUTTONS (ORANGE PRIMARY) ===== */
-.stButton > button {{
-    background: linear-gradient(135deg, #e5653e 0%, #d85533 100%) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-    padding: 10px 20px !important;
-    box-shadow: 0 4px 15px rgba(229, 101, 62, 0.3) !important;
-    transition: all 0.3s ease !important;
-    text-transform: uppercase;
-    letter-spacing: 0.5px;
-}}
+    .menu-price {
+        color: #e5653e;
+        font-weight: 800;
+    }
 
-.stButton > button:hover {{
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(229, 101, 62, 0.5) !important;
-    background: linear-gradient(135deg, #d85533 0%, #e5653e 100%) !important;
-}}
+    /* =========================
+       BUTTONS
+       ========================= */
+    .stButton > button {
+        background: linear-gradient(135deg, #e5653e, #d85533) !important;
+        color: white !important;
+        border-radius: 12px !important;
+        font-weight: 700 !important;
+        padding: 10px 20px !important;
+        transition: 0.3s !important;
+    }
 
-.stButton > button:active {{
-    transform: translateY(0px) !important;
-}}
+    .stButton > button:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(229,101,62,0.5);
+    }
 
-/* ===== BILL PANEL (DARK CARD) ===== */
-.bill-card {{
-    background: linear-gradient(135deg, #211511 0%, #2d1e1a 100%);
-    border: 1px solid rgba(229, 101, 62, 0.2);
-    border-radius: 16px;
-    padding: 20px;
-    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.5);
-    margin-bottom: 20px;
-}}
+    /* =========================
+       INPUTS
+       ========================= */
+    input, textarea {
+        background-color: #2d1e1a !important;
+        color: #ffffff !important;
+        border-radius: 12px !important;
+        border: 2px solid rgba(229,101,62,0.2) !important;
+    }
 
-.bill-item {{
-    display: flex;
-    justify-content: space-between;
-    font-size: 14px;
-    margin-bottom: 8px;
-    padding: 8px 0;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.05);
-    color: #f5f5f5;
-}}
+    input:focus, textarea:focus {
+        border-color: #e5653e !important;
+        box-shadow: 0 0 0 2px rgba(229,101,62,0.2);
+    }
 
-.total-amount {{
-    font-size: 28px;
-    font-weight: 800;
-    color: #e5653e;
-    text-align: center;
-    padding: 16px;
-    background: rgba(229, 101, 62, 0.1);
-    border-radius: 12px;
-    margin: 16px 0;
-    text-shadow: 0 2px 10px rgba(229, 101, 62, 0.3);
-}}
+    /* =========================
+       TEXT
+       ========================= */
+    p, .stMarkdown, .stText, .stCaption {
+        color: #f5f5f5 !important;
+    }
 
-/* ===== INPUT FIELDS (DARK THEME) ===== */
-.stTextInput > div > div > input,
-.stNumberInput > div > div > input,
-.stTextArea > div > div > textarea {{
-    background-color: #2d1e1a !important;
-    color: #ffffff !important;
-    border: 2px solid rgba(229, 101, 62, 0.2) !important;
-    border-radius: 12px !important;
-    padding: 12px !important;
-    font-size: 14px !important;
-}}
+    h1 { color: #e5653e !important; }
+    h2, h3, h4, h5, h6 { color: #ffffff !important; }
 
-.stTextInput > div > div > input:focus,
-.stNumberInput > div > div > input:focus,
-.stTextArea > div > div > textarea:focus {{
-    border-color: #e5653e !important;
-    box-shadow: 0 0 0 2px rgba(229, 101, 62, 0.2) !important;
-}}
+    /* =========================
+       SIDEBAR
+       ========================= */
+    [data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #171311, #211511) !important;
+        border-right: 1px solid rgba(229,101,62,0.2);
+    }
 
-/* ===== RADIO BUTTONS ===== */
-.stRadio > label {{
-    color: #f5f5f5 !important;
-    font-weight: 600 !important;
-}}
+    [data-testid="stSidebar"] label,
+    [data-testid="stSidebar"] h2,
+    [data-testid="stSidebar"] h3 {
+        color: #ffffff !important;
+    }
 
-.stRadio > div {{
-    background: #211511;
-    padding: 12px;
-    border-radius: 12px;
-    border: 1px solid rgba(229, 101, 62, 0.15);
-}}
+    /* Sidebar arrows – SAFE */
+    [data-testid="stSidebar"] details summary svg {
+        color: #e5653e !important;
+    }
 
-/* ===== CHECKBOX ===== */
-.stCheckbox > label {{
-    color: #f5f5f5 !important;
-    font-weight: 600 !important;
-}}
+    /* =========================
+       EXPANDER
+       ========================= */
+    .streamlit-expanderHeader {
+        background: #211511 !important;
+        border: 1px solid rgba(229,101,62,0.2);
+        border-radius: 12px;
+        color: #ffffff !important;
+    }
 
-/* ===== HEADERS ===== */
-h1, h2, h3, h4, h5, h6 {{
-    color: #ffffff !important;
-    font-weight: 700 !important;
-}}
+    .streamlit-expanderHeader svg {
+        color: #e5653e !important;
+    }
 
-h1 {{
-    color: #e5653e !important;
-}}
+    /* =========================
+       SCROLLBAR
+       ========================= */
+    ::-webkit-scrollbar {
+        width: 10px;
+    }
 
-/* ===== TEXT ===== */
-p, span, div {{
-    color: #f5f5f5 !important;
-}}
+    ::-webkit-scrollbar-thumb {
+        background: #e5653e;
+        border-radius: 5px;
+    }
 
-/* ===== SIDEBAR (ADMIN PANEL) ===== */
-.css-1d391kg, [data-testid="stSidebar"] {{
-    background: linear-gradient(180deg, #171311 0%, #211511 100%) !important;
-    border-right: 1px solid rgba(229, 101, 62, 0.2);
-}}
+    /* =========================
+       LINKS
+       ========================= */
+    a {
+        color: #e5653e !important;
+        font-weight: 600;
+    }
 
-.css-1d391kg .element-container, [data-testid="stSidebar"] .element-container {{
-    color: #f5f5f5 !important;
-}}
+    a:hover {
+        color: #ff7a50 !important;
+        text-decoration: underline;
+    }
 
-/* Sidebar labels visibility */
-[data-testid="stSidebar"] label {{
-    color: #ffffff !important;
-    font-weight: 600 !important;
-}}
-
-[data-testid="stSidebar"] .stSelectbox label {{
-    color: #ffffff !important;
-}}
-
-[data-testid="stSidebar"] .stFileUploader label {{
-    color: #ffffff !important;
-}}
-
-[data-testid="stSidebar"] h2, 
-[data-testid="stSidebar"] h3,
-[data-testid="stSidebar"] .stMarkdown {{
-    color: #ffffff !important;
-}}
-
-/* ===== DIVIDER ===== */
-hr {{
-    border-color: rgba(229, 101, 62, 0.2) !important;
-}}
-
-/* ===== SUCCESS/ERROR/WARNING/INFO MESSAGES ===== */
-.stSuccess {{
-    background-color: rgba(11, 218, 18, 0.1) !important;
-    color: #0bda12 !important;
-    border: 1px solid rgba(11, 218, 18, 0.3) !important;
-    border-radius: 12px !important;
-}}
-
-.stError {{
-    background-color: rgba(229, 101, 62, 0.1) !important;
-    color: #e5653e !important;
-    border: 1px solid rgba(229, 101, 62, 0.3) !important;
-    border-radius: 12px !important;
-}}
-
-.stWarning {{
-    background-color: rgba(255, 193, 7, 0.1) !important;
-    color: #ffc107 !important;
-    border: 1px solid rgba(255, 193, 7, 0.3) !important;
-    border-radius: 12px !important;
-}}
-
-.stInfo {{
-    background-color: rgba(33, 150, 243, 0.1) !important;
-    color: #2196f3 !important;
-    border: 1px solid rgba(33, 150, 243, 0.3) !important;
-    border-radius: 12px !important;
-}}
-
-/* ===== DATAFRAME/TABLE ===== */
-.dataframe {{
-    background-color: #211511 !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(229, 101, 62, 0.2) !important;
-    border-radius: 12px !important;
-}}
-
-/* ===== EXPANDER ===== */
-.streamlit-expanderHeader {{
-    background-color: #211511 !important;
-    color: #ffffff !important;
-    border: 1px solid rgba(229, 101, 62, 0.2) !important;
-    border-radius: 12px !important;
-    font-weight: 600 !important;
-}}
-
-.streamlit-expanderHeader:hover {{
-    background-color: #2d1e1a !important;
-    border-color: rgba(229, 101, 62, 0.4) !important;
-}}
-
-/* ===== EXPANDER ARROW ICON ===== */
-.streamlit-expanderHeader svg {{
-    fill: #e5653e !important;
-    stroke: #e5653e !important;
-}}
-
-details summary {{
-    color: #ffffff !important;
-}}
-
-details summary svg {{
-    fill: #e5653e !important;
-    stroke: #e5653e !important;
-}}
-
-/* Sidebar collapsible sections */
-[data-testid="stSidebar"] details summary {{
-    color: #ffffff !important;
-}}
-
-[data-testid="stSidebar"] details summary svg {{
-    fill: #e5653e !important;
-    stroke: #e5653e !important;
-}}
-
-/* ===== DOWNLOAD BUTTON ===== */
-.stDownloadButton > button {{
-    background: linear-gradient(135deg, #0bda12 0%, #0bb80f 100%) !important;
-    color: white !important;
-    border: none !important;
-    border-radius: 12px !important;
-    font-weight: 700 !important;
-    padding: 10px 20px !important;
-    box-shadow: 0 4px 15px rgba(11, 218, 18, 0.3) !important;
-}}
-
-.stDownloadButton > button:hover {{
-    transform: translateY(-2px) !important;
-    box-shadow: 0 6px 20px rgba(11, 218, 18, 0.5) !important;
-}}
-
-/* ===== MOBILE RESPONSIVE ===== */
-@media (max-width: 768px) {{
-    .header-card h1 {{
-        font-size: 28px;
-    }}
-    
-    .main .block-container {{
-        padding-left: 1rem;
-        padding-right: 1rem;
-    }}
-    
-    .total-amount {{
-        font-size: 22px;
-    }}
-}}
-
-/* ===== SCROLLBAR ===== */
-::-webkit-scrollbar {{
-    width: 10px;
-    height: 10px;
-}}
-
-::-webkit-scrollbar-track {{
-    background: #171311;
-}}
-
-::-webkit-scrollbar-thumb {{
-    background: #e5653e;
-    border-radius: 5px;
-}}
-
-::-webkit-scrollbar-thumb:hover {{
-    background: #d85533;
-}}
-
-/* ===== LINKS ===== */
-a {{
-    color: #e5653e !important;
-    text-decoration: none !important;
-    font-weight: 600 !important;
-}}
-
-a:hover {{
-    color: #ff7a50 !important;
-    text-decoration: underline !important;
-}}
-</style>
-""",
-    unsafe_allow_html=True,
+    </style>
+    """,
+    unsafe_allow_html=True
 )
 
 # --- HEADER SECTION ---
