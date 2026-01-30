@@ -1304,21 +1304,52 @@ with col2:
                     razorpay_fee = subtotal * 0.026
                 grand_total = subtotal + delivery_charge + gst_amount - discount + razorpay_fee
 
+                # Prepare WhatsApp message
+                items_str = "\n".join([
+                    f"- {i['quantity']}x {i['item']} ({i['size']}): ₹{i['price'] * i['quantity']:.2f}"
+                    for i in st.session_state["bill"]
+                ])
+
+                customer_name = st.session_state.get("cust_name", "").strip()
+                cust_name_str = f"Hello {customer_name},\n\n" if customer_name else ""
+                razorpay_fee_str = f"*Razorpay Fee:* ₹{razorpay_fee:.2f}\n" if razorpay_fee > 0 else ""
+
+                message = (
+                    f"{cust_name_str}Thank you for your order from Dhaliwals Food Court!\n\n"
+                    f"*Order ID:* {order_id}\n"
+                    f"*Date:* {get_local_time().strftime('%d %b %Y %H:%M')}\n\n"
+                    f"*Items:*\n{items_str}\n\n"
+                    f"*Subtotal:* ₹{subtotal:.2f}\n"
+                    f"*Delivery Charge:* ₹{delivery_charge:.2f}\n"
+                    f"*GST ({gst_rate}%):* ₹{gst_amount:.2f}\n"
+                    f"{razorpay_fee_str}"
+                    f"*Grand Total:* ₹{grand_total:.2f}\n\n"
+                    f"We hope you enjoy your meal!"
+                )
+
                 col1, col2 = st.columns(2)
 
                 with col1:
-                    if st.button("📩 Send to Customer", use_container_width=True):
-                        if not st.session_state["cust_phone"]:
-                            st.warning("Customer phone is empty — cannot send WhatsApp to customer.")
-                        else:
-                            send_whatsapp_message(st.session_state["cust_phone"], order_id, subtotal, delivery_charge, gst_amount, grand_total, razorpay_fee)
+                    cust_phone_digits = "".join([c for c in str(st.session_state.get("cust_phone", "")) if c.isdigit()])
+                    if cust_phone_digits:
+                        whatsapp_url_customer = f"https://wa.me/{cust_phone_digits}?text={urllib.parse.quote(message)}"
+                        st.markdown(
+                            f'<a href="{whatsapp_url_customer}" target="_blank" style="display: inline-block; width: 100%; text-align: center; background-color: #25D366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600;">📩 Send to Customer</a>',
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.warning("Customer phone is empty")
 
                 with col2:
-                    if st.button("📩 Send to Owner", use_container_width=True):
-                        if not st.session_state["owner_phone"]:
-                            st.warning("Owner phone is empty — cannot send WhatsApp to owner.")
-                        else:
-                            send_whatsapp_message(st.session_state["owner_phone"], order_id, subtotal, delivery_charge, gst_amount, grand_total, razorpay_fee)
+                    owner_phone_digits = "".join([c for c in str(st.session_state.get("owner_phone", "")) if c.isdigit()])
+                    if owner_phone_digits:
+                        whatsapp_url_owner = f"https://wa.me/{owner_phone_digits}?text={urllib.parse.quote(message)}"
+                        st.markdown(
+                            f'<a href="{whatsapp_url_owner}" target="_blank" style="display: inline-block; width: 100%; text-align: center; background-color: #25D366; color: white; padding: 10px 20px; text-decoration: none; border-radius: 8px; font-weight: 600;">📩 Send to Owner</a>',
+                            unsafe_allow_html=True
+                        )
+                    else:
+                        st.warning("Owner phone is empty")
                     
 
         st.button("Clear Bill", on_click=clear_bill)
