@@ -92,7 +92,7 @@ st.markdown(
 
     html, body, .stApp {{
         font-family: 'Plus Jakarta Sans', 'Segoe UI', sans-serif;
-        background: linear-gradient(135deg, #171311, #211511);
+        background: linear-gradient(135deg, #ffffff, #f4f6f8);
     }}
 
     /* ---------------------------
