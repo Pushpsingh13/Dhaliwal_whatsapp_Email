@@ -22,6 +22,15 @@ from privacy_policy import privacy_policy_component
 from send_mail import send_daily_orders_email
 import datetime as dt
 
+# =========================
+# PAGE CONFIG - MUST BE FIRST!
+# =========================
+st.set_page_config(
+    page_title="Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal", 
+    layout="wide", 
+    page_icon="🍴"
+)
+
 # --- PATH SETUP ---
 APP_DIR = os.path.dirname(os.path.abspath(__file__))
 LOGO_PATH = os.path.join(APP_DIR, "Dhaliwal Food court_logo.png")
@@ -43,8 +52,6 @@ RAZORPAY_KEY_SECRET = st.secrets.get("RAZORPAY_KEY_SECRET")
 razorpay_client = None
 if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
     razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
-else:
-    st.warning("Razorpay API keys are not configured in secrets.toml.")
 
 # ReportLab for PDF
 canvas = None
@@ -56,98 +63,10 @@ try:
     MM = mm_
 except ImportError:
     pass
-# Show a JPEG banner/image at the very top
-st.markdown(
-    """
-    <style>
-    .logo-container {
-        display: flex;
-        justify-content: center;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True
-)
-# --- HEADER SECTION ---
-st.markdown('<div class="header-card">', unsafe_allow_html=True)
-c1, c2, c3 = st.columns([1, 4, 1])
 
-# LOGO
-with c1:
-    if os.path.exists(LOGO_PATH): 
-        st.image(LOGO_PATH, width=100)
-
-# TITLE & DETAILS
-with c2:
-    st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
-    st.markdown("Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal")
-    st.markdown("***Timming 🕒 10:00 AM – 10:00 PM For any enquiry 📞 +91-9259317713***\n\n **_Pickup Only Freshly Prepared Orders required time as per order item._**")
-    
-    # Download Button and Review Link (Stacked)
-    st.markdown(
-        f"""
-        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
-            <a href="{APP_DOWNLOAD_URL}" target="_blank" style="text-decoration:none;">
-                <button style="padding:10px 24px; border-radius:8px; background:#ff5722; color:white; border:none; font-weight:600; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                    📲 Download Our App
-                </button>
-            </a>
-            <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#222; background-color:#fff; padding:6px 12px; border-radius:6px; font-weight:700; font-size:12px; text-decoration:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
-                ⭐ Rate Us on Google
-            </a>
-        </div>
-        """,
-        unsafe_allow_html=True
-    )
-
-# APP DOWNLOAD QR (Clickable)
-with c3:
-    # 1. APP DOWNLOAD QR
-    if os.path.exists(QR_CODE_APP_PATH):
-        try:
-            with open(QR_CODE_APP_PATH, "rb") as f:
-                qr_app_b64 = base64.b64encode(f.read()).decode()
-            
-            st.markdown(f"""
-                <div style="text-align: center; margin-bottom: 10px;">
-                    <a href="{APP_DOWNLOAD_URL}" target="_blank">
-                        <img src="data:image/png;base64,{qr_app_b64}" width="240" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Download App">
-                    </a>
-                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Download</div>
-                </div>
-            """, unsafe_allow_html=True)
-        except Exception:
-            st.warning("App QR Error")
-    else:
-        st.info("App QR Missing")
-
-    # 2. GOOGLE REVIEW QR
-    if os.path.exists(QR_Review_APP_PATH):
-        try:
-            with open(QR_Review_APP_PATH, "rb") as f:
-                qr_rev_b64 = base64.b64encode(f.read()).decode()
-
-            st.markdown(f"""
-                <div style="text-align: center;">
-                    <a href="{GOOGLE_REVIEW_URL}" target="_blank">
-                        <img src="data:image/png;base64,{qr_rev_b64}" width="240" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Rate Us">
-                    </a>
-                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Rate</div>
-                </div>
-            """, unsafe_allow_html=True)
-        except Exception:
-            st.warning("Review QR Error")
-    else:
-        st.info("Review QR Missing")
-
-# Close the header card div AFTER both columns are done
-st.markdown('</div>', unsafe_allow_html=True)
-st.info("🛍️ Pickup Only | No Delivery Available. Please collect your order from the counter.")
 # =========================
-# PAGE CONFIG & STYLING
+# APPLY CSS FIRST - BEFORE ANY HTML
 # =========================
-st.set_page_config(page_title="Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal", layout="wide", page_icon=LOGO_PATH)
-
 img = ""
 try:
     with open(BACKGROUND_PATH, "rb") as f:
@@ -204,6 +123,11 @@ html, body, [class*="css"] {{
     color: #f5f5f5;
     font-size: 15px;
     line-height: 1.6;
+}}
+
+.logo-container {{
+    display: flex;
+    justify-content: center;
 }}
 
 /* ===== MENU CARD (DARK THEME) ===== */
@@ -356,6 +280,26 @@ p, span, div {{
     color: #f5f5f5 !important;
 }}
 
+/* Sidebar labels visibility */
+[data-testid="stSidebar"] label {{
+    color: #ffffff !important;
+    font-weight: 600 !important;
+}}
+
+[data-testid="stSidebar"] .stSelectbox label {{
+    color: #ffffff !important;
+}}
+
+[data-testid="stSidebar"] .stFileUploader label {{
+    color: #ffffff !important;
+}}
+
+[data-testid="stSidebar"] h2, 
+[data-testid="stSidebar"] h3,
+[data-testid="stSidebar"] .stMarkdown {{
+    color: #ffffff !important;
+}}
+
 /* ===== DIVIDER ===== */
 hr {{
     border-color: rgba(229, 101, 62, 0.2) !important;
@@ -410,6 +354,31 @@ hr {{
 .streamlit-expanderHeader:hover {{
     background-color: #2d1e1a !important;
     border-color: rgba(229, 101, 62, 0.4) !important;
+}}
+
+/* ===== EXPANDER ARROW ICON ===== */
+.streamlit-expanderHeader svg {{
+    fill: #e5653e !important;
+    stroke: #e5653e !important;
+}}
+
+details summary {{
+    color: #ffffff !important;
+}}
+
+details summary svg {{
+    fill: #e5653e !important;
+    stroke: #e5653e !important;
+}}
+
+/* Sidebar collapsible sections */
+[data-testid="stSidebar"] details summary {{
+    color: #ffffff !important;
+}}
+
+[data-testid="stSidebar"] details summary svg {{
+    fill: #e5653e !important;
+    stroke: #e5653e !important;
 }}
 
 /* ===== DOWNLOAD BUTTON ===== */
@@ -478,6 +447,87 @@ a:hover {{
 """,
     unsafe_allow_html=True,
 )
+
+# --- HEADER SECTION ---
+st.markdown('<div class="header-card">', unsafe_allow_html=True)
+c1, c2, c3 = st.columns([1, 4, 1])
+
+# LOGO
+with c1:
+    if os.path.exists(LOGO_PATH): 
+        st.image(LOGO_PATH, width=100)
+
+# TITLE & DETAILS
+with c2:
+    st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
+    st.markdown("Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal")
+    st.markdown("***Timming 🕒 10:00 AM – 10:00 PM For any enquiry 📞 +91-9259317713***\n\n **_Pickup Only Freshly Prepared Orders required time as per order item._**")
+    
+    # Download Button and Review Link (Stacked)
+    st.markdown(
+        f"""
+        <div style="display: flex; flex-direction: column; align-items: center; gap: 8px;">
+            <a href="{APP_DOWNLOAD_URL}" target="_blank" style="text-decoration:none;">
+                <button style="padding:10px 24px; border-radius:8px; background:#ff5722; color:white; border:none; font-weight:600; cursor:pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                    <span style="display: inline-flex; align-items: center; gap: 8px;">
+                        Download Our App
+                        <svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 -960 960 960" width="20" fill="white">
+                            <path d="m480-320 160-160-56-56-64 64v-328h-80v328l-64-64-56 56 160 160Zm-280 80v-120h80v40h480v-40h80v120H200Z"/>
+                        </svg>
+                    </span>
+                </button>
+            </a>
+            <a href="{GOOGLE_REVIEW_URL}" target="_blank" style="color:#222; background-color:#fff; padding:6px 12px; border-radius:6px; font-weight:700; font-size:12px; text-decoration:none; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                ⭐ Rate Us on Google
+            </a>
+        </div>
+        """,
+        unsafe_allow_html=True
+    )
+
+# APP DOWNLOAD QR (Clickable)
+with c3:
+    # 1. APP DOWNLOAD QR
+    if os.path.exists(QR_CODE_APP_PATH):
+        try:
+            with open(QR_CODE_APP_PATH, "rb") as f:
+                qr_app_b64 = base64.b64encode(f.read()).decode()
+            
+            st.markdown(f"""
+                <div style="text-align: center; margin-bottom: 10px;">
+                    <a href="{APP_DOWNLOAD_URL}" target="_blank">
+                        <img src="data:image/png;base64,{qr_app_b64}" width="240" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Download App">
+                    </a>
+                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Download</div>
+                </div>
+            """, unsafe_allow_html=True)
+        except Exception:
+            st.warning("App QR Error")
+    else:
+        st.info("App QR Missing")
+
+    # 2. GOOGLE REVIEW QR
+    if os.path.exists(QR_Review_APP_PATH):
+        try:
+            with open(QR_Review_APP_PATH, "rb") as f:
+                qr_rev_b64 = base64.b64encode(f.read()).decode()
+
+            st.markdown(f"""
+                <div style="text-align: center;">
+                    <a href="{GOOGLE_REVIEW_URL}" target="_blank">
+                        <img src="data:image/png;base64,{qr_rev_b64}" width="240" style="border-radius:8px; border: 2px solid white; cursor:pointer;" alt="Rate Us">
+                    </a>
+                    <div style="color:#222; font-size:10px; margin-top:2px;">Scan to Rate</div>
+                </div>
+            """, unsafe_allow_html=True)
+        except Exception:
+            st.warning("Review QR Error")
+    else:
+        st.info("Review QR Missing")
+
+# Close the header card div AFTER both columns are done
+st.markdown('</div>', unsafe_allow_html=True)
+st.info("🛍️ Pickup Only | No Delivery Available. Please collect your order from the counter.")
 
 # =========================
 # CONFIG
