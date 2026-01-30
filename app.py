@@ -22,13 +22,13 @@ from privacy_policy import privacy_policy_component
 from send_mail import send_daily_orders_email
 import datetime as dt
 
-# =========================
-# PAGE CONFIG - MUST BE FIRST!
-# =========================
+# =====================================================
+# PAGE CONFIG  (MUST BE FIRST STREAMLIT COMMAND)
+# =====================================================
 st.set_page_config(
-    page_title="Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal", 
-    layout="wide", 
-    page_icon="🍴"
+    page_title="Dhaliwals Food Court",
+    page_icon="Dhaliwal Food court_logo.png",
+    layout="wide"
 )
 
 # --- PATH SETUP ---
@@ -1465,3 +1465,4 @@ st.markdown("[Cancellation & Refunds](https://merchant.razorpay.com/policy/Rfv4u
 
 with st.expander("Privacy Policy - Dhaliwals Food Court Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal"):
     privacy_policy_component("privacy_policy.html")
+
