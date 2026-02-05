@@ -258,7 +258,7 @@ st.info("🛍️ Pickup Only | No Delivery Available. Please collect your order 
 # =========================
 # CONFIG
 # =========================
-MENU_EXCEL = os.path.join(APP_DIR, "DhalisMenu.xlsx")
+MENU_EXCEL = os.path.join(APP_DIR, "DhalisMenu_cat.xlsx")
 ORDERS_DIR = "Orders"  # daily order logs
 ADMIN_PASSWORD = "admin123"  # change after first run
 
@@ -1009,44 +1009,82 @@ col1, col2 = st.columns([3, 1], gap="large")
 with col1:
     st.header("🍴 Dhaliwals Food Court Menu")
 
+    # ---------------------------------------------------------
+    # SAFETY CHECK: Ensure 'Category' column exists
+    # ---------------------------------------------------------
+    if "Category" not in menu_df.columns:
+        menu_df["Category"] = "Fast Food"  # Default if missing
+
     if not menu_df.empty:
-        # Display menu in a grid (3 items per row)
-        cols_per_row = 3
-        for i in range(0, len(menu_df), cols_per_row):
-            cols = st.columns(cols_per_row)
-            for idx, col in enumerate(cols):
-                if i + idx < len(menu_df):
-                    row = menu_df.iloc[i + idx]
-                    item = row["Item"]
-                    half_price = row["Half"]
-                    full_price = row["Full"]
-                    image_path = str(row["Image"]).strip() if pd.notna(row["Image"]) else None
+        # 1. Create Tabs for your categories
+        tabs = st.tabs(["Fast Food", "Drinks", "Bakery", "Snacks"])
+        
+        # 2. Map the Tabs to the exact text in your Excel 'Category' column
+        #    (Make sure these match what you type in Excel/Admin Panel)
+        categories_map = {
+            "Fast Food": "Fast Food",
+            "Drinks": "Drinks",
+            "Bakery": "Bakery",
+            "Snacks": "Snacks"
+        }
 
-                    with col:
-                        # Show item image
-                        if image_path and os.path.exists(image_path):
-                            st.image(image_path, width=150)
-                        elif image_path and image_path.startswith("http"):
-                            st.image(image_path, width=150)
+        # 3. Loop through each tab and display items
+        for tab, category_name in zip(tabs, categories_map.keys()):
+            with tab:
+                # Filter the menu for this specific category
+                category_df = menu_df[menu_df["Category"] == category_name]
+                
+                if category_df.empty:
+                    st.info(f"No items in {category_name} yet.")
+                else:
+                    # Display items in a grid (3 items per row)
+                    cols_per_row = 3
+                    for i in range(0, len(category_df), cols_per_row):
+                        cols = st.columns(cols_per_row)
+                        for idx, col in enumerate(cols):
+                            if i + idx < len(category_df):
+                                row = category_df.iloc[i + idx]
+                                item = row["Item"]
+                                half_price = row["Half"]
+                                full_price = row["Full"]
+                                image_path = str(row["Image"]).strip() if pd.notna(row["Image"]) else None
 
-                        # Item name
-                        st.markdown(f"### {item}")
+                                with col:
+                                    # --- ITEM IMAGE ---
+                                    if image_path and os.path.exists(image_path):
+                                        st.image(image_path, width=150)
+                                    elif image_path and image_path.startswith("http"):
+                                        st.image(image_path, width=150)
 
-                        # Quantity selector and buttons
-                        item_index = i + idx
-                        qty = st.number_input("Quantity", min_value=1, max_value=10, value=1, step=1, key=f"qty_{item_index}_{item}")
+                                    # --- ITEM NAME ---
+                                    st.markdown(f"**{item}**")
 
-                        if half_price > 0:
-                            col1_btn, col2_btn = st.columns(2)
-                            with col1_btn:
-                                if st.button(f"Half ₹{half_price}", key=f"half_{item_index}_{item}"):
-                                    add_to_bill(item, half_price, "Half", qty)
-                            with col2_btn:
-                                if st.button(f"Full ₹{full_price}", key=f"full_{item_index}_{item}"):
-                                    add_to_bill(item, full_price, "Full", qty)
-                        else:
-                            if st.button(f"Full ₹{full_price}", key=f"full_{item_index}_{item}", use_container_width=True):
-                                add_to_bill(item, full_price, "Full", qty)
+                                    # --- UNIQUE KEY GENERATION ---
+                                    # Crucial: Creates a unique ID for buttons so they don't clash across tabs
+                                    unique_key = f"{category_name}_{item}_{i+idx}"
+
+                                    # --- QUANTITY SELECTOR ---
+                                    qty = st.number_input(
+                                        "Qty", 
+                                        min_value=1, 
+                                        max_value=10, 
+                                        value=1, 
+                                        step=1, 
+                                        key=f"qty_{unique_key}"
+                                    )
+
+                                    # --- ADD BUTTONS ---
+                                    if half_price > 0:
+                                        c_btn1, c_btn2 = st.columns(2)
+                                        with c_btn1:
+                                            if st.button(f"Half ₹{half_price}", key=f"half_{unique_key}"):
+                                                add_to_bill(item, half_price, "Half", qty)
+                                        with c_btn2:
+                                            if st.button(f"Full ₹{full_price}", key=f"full_{unique_key}"):
+                                                add_to_bill(item, full_price, "Full", qty)
+                                    else:
+                                        if st.button(f"Add ₹{full_price}", key=f"full_{unique_key}", use_container_width=True):
+                                            add_to_bill(item, full_price, "Full", qty)
     else:
         st.warning("Menu is empty. Please add items via Admin Panel.")
 
