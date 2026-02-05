@@ -170,6 +170,48 @@ st.markdown(
         color: #e5653e;
     }}
 
+    /* --------------------------------------- */
+    /* PROFESSIONAL TABS STYLING (Pill Style) */
+    /* --------------------------------------- */
+    
+    /* Style the individual tab buttons */
+    button[data-baseweb="tab"] {{
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 30px; /* Makes them pill-shaped */
+        padding: 8px 24px;
+        margin-right: 12px; /* Space between tabs */
+        color: #555555;
+        font-weight: 600;
+        font-size: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }}
+
+    /* Hover effect */
+    button[data-baseweb="tab"]:hover {{
+        background-color: #fff5f2;
+        color: #e5653e;
+        border-color: #e5653e;
+    }}
+
+    /* Active (Selected) Tab Style - Brand Orange */
+    button[data-baseweb="tab"][aria-selected="true"] {{
+        background-color: #e5653e !important;
+        color: white !important;
+        border-color: #e5653e !important;
+        box-shadow: 0 4px 10px rgba(229, 101, 62, 0.3) !important;
+    }}
+
+    /* Remove the default underline animation from Streamlit */
+    div[data-baseweb="tab-highlight"] {{
+        display: none;
+    }}
+    
+    /* Optional: Remove the faint line below the tabs */
+    div[data-baseweb="tab-border"] {{
+        display: none;
+    }}
     </style>
     """,
     unsafe_allow_html=True
