@@ -1073,7 +1073,26 @@ with st.sidebar:
 col1, col2 = st.columns([3, 1], gap="large")
 
 with col1:
-    st.header("🍴 Dhaliwals Food Court Menu")
+    st.markdown("""
+<style>
+.jump-header {
+  text-align: center;
+  font-size: 42px;
+  font-weight: bold;
+  color: #ff4b4b;
+  animation: jump 0.8s ease-in-out infinite;
+}
+
+@keyframes jump {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-25px); }
+}
+</style>
+
+<div class="jump-header">
+  🍴 Dhaliwal's Food Court Menu
+</div>
+""", unsafe_allow_html=True)
 
     # ---------------------------------------------------------
     # SAFETY CHECK: Ensure 'Category' column exists
