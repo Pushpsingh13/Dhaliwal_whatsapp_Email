@@ -227,7 +227,31 @@ with c1:
 
 # TITLE & DETAILS
 with c2:
-    st.markdown("<h1>Dhaliwals Food Court</h1>", unsafe_allow_html=True)
+    st.markdown("""
+<style>
+.scroll-text {
+  white-space: nowrap;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.scroll-text span {
+  display: inline-block;
+  padding-left: 100%;
+  animation: scroll 10s linear infinite;
+  font-size: 40px;
+  font-weight: bold;
+  color: #ff4b4b;
+}
+@keyframes scroll {
+  0% { transform: translate(0, 0); }
+  100% { transform: translate(-100%, 0); }
+}
+</style>
+
+<div class="scroll-text">
+  <span>🍔 Dhaliwal's Food Court 🍕</span>
+</div>
+""", unsafe_allow_html=True)
     st.markdown("Unit of Param Mehar Enterprise Prop Pushpinder Singh Dhaliwal")
     st.markdown("***Timming 🕒 10:00 AM – 10:00 PM For any enquiry 📞 +91-9259317713***\n\n **_Pickup Only Freshly Prepared Orders required time as per order item._**")
     
