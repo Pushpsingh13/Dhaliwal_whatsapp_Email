@@ -176,7 +176,7 @@ st.markdown(
     
     /* Style the individual tab buttons */
     button[data-baseweb="tab"] {{
-        background-color: #ffffff;
+        background: #ffffff !important;
         border: 1px solid #e0e0e0;
         border-radius: 30px; /* Makes them pill-shaped */
         padding: 8px 24px;
@@ -187,6 +187,7 @@ st.markdown(
         box-shadow: 0 2px 4px rgba(0,0,0,0.05);
         transition: all 0.3s ease;
     }}
+
     /* Hover effect */
     button[data-baseweb="tab"]:hover {{
         background-color: #fff5f2;
