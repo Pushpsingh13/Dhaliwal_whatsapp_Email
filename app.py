@@ -175,24 +175,18 @@ st.markdown(
     /* --------------------------------------- */
     
     /* Style the individual tab buttons */
-    button[data-baseweb="tab"] {
-    background: white !important;
-    border-radius: 30px !important;
-    padding: 10px 22px !important;
-    margin-right: 10px !important;
-    border: 1px solid #ddd !important;
-    font-weight: 600 !important;
-}
-
-button[data-baseweb="tab"][aria-selected="true"] {
-    background: #e5653e !important;
-    color: white !important;
-    border-color: #e5653e !important;
-}
-
-div[data-baseweb="tab-highlight"] {
-    display: none !important;
-}
+    button[data-baseweb="tab"] {{
+        background-color: #ffffff;
+        border: 1px solid #e0e0e0;
+        border-radius: 30px; /* Makes them pill-shaped */
+        padding: 8px 24px;
+        margin-right: 12px; /* Space between tabs */
+        color: #555555;
+        font-weight: 600;
+        font-size: 15px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        transition: all 0.3s ease;
+    }}
     /* Hover effect */
     button[data-baseweb="tab"]:hover {{
         background-color: #fff5f2;
