@@ -176,7 +176,7 @@ st.markdown(
     
     /* Style the individual tab buttons */
     button[data-baseweb="tab"] {{
-        background: #ffffff !important;
+        background-color: #ffffff;
         border: 1px solid #e0e0e0;
         border-radius: 30px; /* Makes them pill-shaped */
         padding: 8px 24px;
