@@ -13,3 +13,4 @@ gspread==6.2.1
 google-auth-oauthlib==1.2.2
 pywhatkit==5.4
 razorpay==1.4.2
+setuptools>=70.0.0
