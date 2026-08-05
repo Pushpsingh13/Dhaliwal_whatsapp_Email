@@ -17,7 +17,11 @@ import qrcode
 from email.mime.application import MIMEApplication
 import pandas as pd
 import streamlit.components.v1 as components
-import razorpay
+try:
+    import razorpay
+    RAZORPAY_AVAILABLE = True
+except Exception:
+    RAZORPAY_AVAILABLE = False
 from privacy_policy import privacy_policy_component
 from send_mail import send_daily_orders_email
 import datetime as dt
@@ -54,7 +58,7 @@ RAZORPAY_KEY_ID = st.secrets.get("RAZORPAY_KEY_ID")
 RAZORPAY_KEY_SECRET = st.secrets.get("RAZORPAY_KEY_SECRET")
 
 razorpay_client = None
-if RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
+if RAZORPAY_AVAILABLE and RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET:
     razorpay_client = razorpay.Client(auth=(RAZORPAY_KEY_ID, RAZORPAY_KEY_SECRET))
 
 # ReportLab for PDF
