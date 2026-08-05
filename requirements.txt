@@ -10,3 +10,4 @@ pytz==2025.2
 qrcode==8.2
 razorpay==1.4.2
 schedule==1.2.2
+PIP
